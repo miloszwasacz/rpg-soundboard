@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">RPG Soundboard</string>
+    <string name="warning_corrupted_data">Wygląda na to, że twoje dane są uszkodzone</string>
+    <string name="button_start_session">Rozpocznij sesję</string>
+    <string name="route_home">Home</string>
+    <string name="route_search">Szukaj</string>
+</resources>

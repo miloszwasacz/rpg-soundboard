@@ -1,3 +1,7 @@
 <resources>
     <string name="app_name">RPG Soundboard</string>
+    <string name="warning_corrupted_data">Your data seems to be corrupted</string>
+    <string name="button_start_session">Start session</string>
+    <string name="route_home">Home</string>
+    <string name="route_search">Search</string>
 </resources>
