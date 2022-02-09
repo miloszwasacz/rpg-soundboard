@@ -1,4 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <dimen name="button_ripple_radius">24dp</dimen>
+    <dimen name="icon_button_size">48dp</dimen>
     <dimen name="docked_fab_max_width">176dp</dimen>
 </resources>

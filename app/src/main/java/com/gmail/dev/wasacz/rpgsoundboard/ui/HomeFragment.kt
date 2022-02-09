@@ -1,5 +1,6 @@
 package com.gmail.dev.wasacz.rpgsoundboard.ui
 
+import android.util.Log
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -9,41 +10,58 @@ import androidx.compose.material.icons.rounded.PlayArrow
 import androidx.compose.material.icons.rounded.Refresh
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.viewmodel.compose.viewModel
-import com.gmail.dev.wasacz.rpgsoundboard.MainViewModel
 import com.gmail.dev.wasacz.rpgsoundboard.R
+import com.gmail.dev.wasacz.rpgsoundboard.model.LocalPlaylist
 import com.gmail.dev.wasacz.rpgsoundboard.model.LocalSong
 import com.gmail.dev.wasacz.rpgsoundboard.model.Song
 import com.gmail.dev.wasacz.rpgsoundboard.ui.theme.RPGSoundboardTheme
+import com.gmail.dev.wasacz.rpgsoundboard.utils.BottomAppBarSpacer
 import com.gmail.dev.wasacz.rpgsoundboard.utils.SnackBar
+import com.gmail.dev.wasacz.rpgsoundboard.utils.viewModel
+import com.gmail.dev.wasacz.rpgsoundboard.viewmodel.LibraryViewModel
+import com.gmail.dev.wasacz.rpgsoundboard.viewmodel.PlayerViewModel
 
 @Composable
 fun HomeFragment(scaffoldState: ScaffoldState) {
     Column(modifier = Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
-        val viewModel: MainViewModel = viewModel()
+        val libraryViewModel: LibraryViewModel = viewModel()
+        val playerViewModel: PlayerViewModel = viewModel()
         Row(horizontalArrangement = Arrangement.End, modifier = Modifier.fillMaxWidth()) {
             Button(onClick = {
-                viewModel.fetchSongs()
+                libraryViewModel.fetchSongs()
             }) {
                 Text("Refresh")
                 Icon(Icons.Rounded.Refresh, contentDescription = null)
             }
         }
-        viewModel.songList?.let {
+        libraryViewModel.library?.let {
             LazyColumn(
                 verticalArrangement = Arrangement.spacedBy(8.dp),
                 contentPadding = PaddingValues(0.dp, 8.dp)
             ) {
                 items(it) {
-                    SongElement(song = it) { song ->
-                        viewModel.playSong(song)
+                    Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                        LocalContext.current.apply {
+                            if (it is LocalPlaylist) {
+                                it.songList.forEach {
+                                    SongElement(song = it) { song ->
+                                        playerViewModel.playSong(this, song)
+                                    }
+                                }
+                            }
+                        }
                     }
+                }
+                item {
+                    BottomAppBarSpacer()
                 }
             }
         } ?: SnackBar.Show(SnackBar.Data(stringResource(R.string.warning_corrupted_data)), scaffoldState)
+        Log.i("VM", "HomeFragment: $libraryViewModel")
     }
 }
 

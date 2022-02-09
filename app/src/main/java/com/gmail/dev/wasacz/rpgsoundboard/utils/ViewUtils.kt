@@ -1,25 +1,41 @@
 package com.gmail.dev.wasacz.rpgsoundboard.utils
 
+import android.view.View
+import androidx.activity.ComponentActivity
 import androidx.annotation.StringRes
-import androidx.compose.material.ScaffoldState
-import androidx.compose.material.SnackbarDuration
-import androidx.compose.material.SnackbarResult
+import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.calculateEndPadding
+import androidx.compose.foundation.layout.calculateStartPadding
+import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.Home
 import androidx.compose.material.icons.rounded.Search
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.LayoutDirection
+import androidx.compose.ui.unit.dp
+import androidx.lifecycle.ViewModel
 import com.gmail.dev.wasacz.rpgsoundboard.R
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
+import androidx.lifecycle.viewmodel.compose.viewModel as composeViewModel
 
+//#region Routing & navigation
 sealed class Route(val id: String, @StringRes val label: Int?, val icon: ImageVector?) {
-    object Home: Route("home", R.string.route_home, Icons.Rounded.Home)
-    object Search: Route("search", R.string.route_search, Icons.Rounded.Search)
-    object EMPTY: Route("", null, null)
+    object Home : Route("home", R.string.route_home, Icons.Rounded.Home)
+    object Search : Route("search", R.string.route_search, Icons.Rounded.Search)
+    object Session : Route("session", R.string.route_session, null)
+    object EMPTY : Route("", null, null)
 }
+//#endregion
 
+//#region Custom views
 sealed class SnackBar {
     data class Data(val message: String, val action: Action? = null, val duration: SnackbarDuration = SnackbarDuration.Short)
     data class Action(val label: String, val actionPerformed: () -> Unit, val actionDismissed: () -> Unit)
@@ -52,3 +68,41 @@ sealed class SnackBar {
         }
     }
 }
+
+@Composable
+fun BottomAppBarSpacer() {
+    BottomAppBar(Modifier.alpha(0f)) {
+        BottomNavigation(elevation = 0.dp) {
+            BottomNavigationItem(
+                icon = { Icon(Icons.Rounded.Home, null) },
+                label = { Text("Spacer") },
+                selected = false,
+                onClick = {}
+            )
+        }
+    }
+}
+@Composable
+fun PaddingValues.changeBottom(newValue: Dp = 0.dp): PaddingValues {
+    val layoutDir = when(LocalConfiguration.current.layoutDirection) {
+        View.LAYOUT_DIRECTION_RTL -> LayoutDirection.Rtl
+        else -> LayoutDirection.Ltr
+    }
+    return PaddingValues(
+        calculateStartPadding(layoutDir),
+        calculateTopPadding(),
+        calculateEndPadding(layoutDir),
+        newValue
+    )
+}
+//#endregion
+
+//#region Misc
+@Composable
+inline fun <reified VM : ViewModel> viewModel() = composeViewModel<VM>(LocalContext.current as ComponentActivity)
+
+@ExperimentalMaterialApi
+suspend fun ModalBottomSheetState.showFullscreen() {
+    animateTo(ModalBottomSheetValue.Expanded)
+}
+//#endregion

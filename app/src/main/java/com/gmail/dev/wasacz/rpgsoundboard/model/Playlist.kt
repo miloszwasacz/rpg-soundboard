@@ -5,7 +5,7 @@ import kotlinx.serialization.Serializable
 import kotlinx.serialization.Transient
 
 enum class PlaylistType {
-    MIXED
+    LOCAL
 }
 
 @Serializable
@@ -15,8 +15,8 @@ sealed class Playlist {
 }
 
 @Serializable
-@SerialName("playlist.mixed")
-class MixedPlaylist(override var name: String, val songList: ArrayList<Song>): Playlist() {
+@SerialName("playlist.local")
+class LocalPlaylist(override var name: String, val songList: ArrayList<LocalSong>): Playlist() {
     @Transient
-    override val type: PlaylistType = PlaylistType.MIXED
+    override val type: PlaylistType = PlaylistType.LOCAL
 }

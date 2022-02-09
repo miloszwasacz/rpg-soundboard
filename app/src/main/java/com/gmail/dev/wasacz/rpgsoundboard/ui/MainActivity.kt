@@ -6,19 +6,18 @@ import android.media.MediaPlayer
 import android.net.Uri
 import android.os.Bundle
 import android.provider.MediaStore
+import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.compose.animation.graphics.ExperimentalAnimationGraphicsApi
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.PlayArrow
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.rememberSaveable
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalConfiguration
@@ -28,7 +27,6 @@ import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import androidx.navigation.NavDestination.Companion.hierarchy
 import androidx.navigation.NavGraph.Companion.findStartDestination
@@ -36,35 +34,76 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
-import com.gmail.dev.wasacz.rpgsoundboard.MainViewModel
 import com.gmail.dev.wasacz.rpgsoundboard.R
+import com.gmail.dev.wasacz.rpgsoundboard.ui.helper.ExtendedFloatingActionButton
 import com.gmail.dev.wasacz.rpgsoundboard.ui.theme.RPGSoundboardTheme
 import com.gmail.dev.wasacz.rpgsoundboard.utils.Route
+import com.gmail.dev.wasacz.rpgsoundboard.utils.changeBottom
+import com.gmail.dev.wasacz.rpgsoundboard.utils.showFullscreen
+import com.gmail.dev.wasacz.rpgsoundboard.utils.viewModel
+import com.gmail.dev.wasacz.rpgsoundboard.viewmodel.LibraryViewModel
+import com.gmail.dev.wasacz.rpgsoundboard.viewmodel.PlayerViewModel
+import kotlinx.coroutines.launch
 
 class MainActivity : ComponentActivity() {
+    private var playerViewModel: PlayerViewModel? = null
+
+    @OptIn(ExperimentalMaterialApi::class, ExperimentalAnimationGraphicsApi::class)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
-            val viewModel: MainViewModel = viewModel()
+            val libraryViewModel: LibraryViewModel = viewModel()
+            playerViewModel = viewModel()
             val navController = rememberNavController()
+            val sessionState = rememberModalBottomSheetState(
+                ModalBottomSheetValue.Hidden,
+                confirmStateChange = {
+                    it != ModalBottomSheetValue.HalfExpanded
+                }
+            )
             val scaffoldState = rememberScaffoldState()
+            val scope = rememberCoroutineScope()
+
             RPGSoundboardTheme {
-                Scaffold(
-                    scaffoldState = scaffoldState,
-                    bottomBar = { NavBar(navController) },
-                    floatingActionButton = {
-                        StartSessionFAB {}
+                ModalBottomSheetLayout(
+                    sheetState = sessionState,
+                    sheetContent = {
+                        if (libraryViewModel.library != null)
+                            SessionFragment(sessionState)
                     },
-                    floatingActionButtonPosition = FabPosition.Center,
-                    isFloatingActionButtonDocked = true
                 ) {
-                    NavHost(navController = navController, startDestination = "home") {
-                        composable(Route.Home.id) { HomeFragment(scaffoldState) }
-                        composable(Route.Search.id) { Content(viewModel, { playAudio(it) }) { listOf() } }
+                    Scaffold(
+                        scaffoldState = scaffoldState,
+                        bottomBar = { NavBar(navController) },
+                        floatingActionButton = {
+                            StartSessionFAB(enabled = libraryViewModel.library != null) {
+                                playerViewModel?.setUpPlayer()
+                                scope.launch {
+                                    sessionState.showFullscreen()
+                                }
+                            }
+                        },
+                        floatingActionButtonPosition = FabPosition.Center,
+                        isFloatingActionButtonDocked = true
+                    ) { padding ->
+                        NavHost(
+                            modifier = Modifier.padding(padding.changeBottom()),
+                            navController = navController,
+                            startDestination = Route.Home.id
+                        ) {
+                            composable(Route.Home.id) { HomeFragment(scaffoldState) }
+                            composable(Route.Search.id) { Content(libraryViewModel, { playAudio(it) }) { getFiles() } }
+                        }
                     }
                 }
             }
+            Log.i("VM", "onCreate: $libraryViewModel")
         }
+    }
+
+    override fun onPause() {
+        playerViewModel?.pause()
+        super.onPause()
     }
 
     private fun getFiles(): List<Pair<String, String>> {
@@ -106,7 +145,7 @@ class MainActivity : ComponentActivity() {
 }
 
 @Composable
-fun NavBar(navController: NavController) {
+private fun NavBar(navController: NavController) {
     val items = when (LocalConfiguration.current.orientation) {
         Configuration.ORIENTATION_LANDSCAPE -> listOf(
             Route.Home,
@@ -163,21 +202,25 @@ fun NavBar(navController: NavController) {
 }
 
 @Composable
-fun StartSessionFAB(onClick: () -> Unit) {
+private fun StartSessionFAB(enabled: Boolean = true, onClick: () -> Unit) {
     Row(
-        modifier = Modifier.requiredWidthIn(0.dp, dimensionResource(R.dimen.docked_fab_max_width)),
+        modifier = when (LocalConfiguration.current.orientation) {
+            Configuration.ORIENTATION_LANDSCAPE -> Modifier
+            else -> Modifier.requiredWidthIn(0.dp, dimensionResource(R.dimen.docked_fab_max_width))
+        },
         horizontalArrangement = Arrangement.Center
     ) {
         ExtendedFloatingActionButton(
             text = { Text(stringResource(R.string.button_start_session), textAlign = TextAlign.Center) },
             icon = { Icon(Icons.Rounded.PlayArrow, contentDescription = null) },
-            onClick = { onClick() }
+            onClick = { onClick() },
+            enabled = enabled
         )
     }
 }
 
 @Composable
-fun Content(viewModel: MainViewModel, onItemClick: (String) -> Unit, onClick: () -> List<Pair<String, String>>) {
+private fun Content(viewModel: LibraryViewModel, onItemClick: (String) -> Unit, onClick: () -> List<Pair<String, String>>) {
     Column {
         var results by rememberSaveable { mutableStateOf(listOf<Pair<String, String>>()) }
         Text(stringResource(R.string.app_name))
@@ -203,6 +246,7 @@ fun Content(viewModel: MainViewModel, onItemClick: (String) -> Unit, onClick: ()
     }
 }
 
+//#region Previews
 @Preview(showBackground = true, group = "scaffold")
 @Composable
 fun ScaffoldPreview() {
@@ -236,3 +280,20 @@ fun ScaffoldPreviewPL() {
         }
     }
 }
+@Preview(showBackground = true, group = "scaffold")
+@Composable
+fun ScaffoldPreviewDark() {
+    RPGSoundboardTheme(true) {
+        Scaffold(
+            bottomBar = { NavBar(rememberNavController()) },
+            floatingActionButton = { StartSessionFAB {} },
+            floatingActionButtonPosition = FabPosition.Center,
+            isFloatingActionButtonDocked = true
+        ) {
+            Column(modifier = Modifier.padding(8.dp)) {
+                Text("Content", color = Color.Gray, fontStyle = FontStyle.Italic)
+            }
+        }
+    }
+}
+//#endregion

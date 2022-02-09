@@ -5,4 +5,5 @@
     <string name="button_start_session">Rozpocznij sesję</string>
     <string name="route_home">Home</string>
     <string name="route_search">Szukaj</string>
+    <string name="route_session">Sesja</string>
 </resources>
