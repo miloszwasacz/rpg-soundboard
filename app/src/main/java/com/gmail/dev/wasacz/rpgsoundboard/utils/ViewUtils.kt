@@ -2,6 +2,7 @@ package com.gmail.dev.wasacz.rpgsoundboard.utils
 
 import android.view.View
 import androidx.activity.ComponentActivity
+import androidx.annotation.DrawableRes
 import androidx.annotation.StringRes
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.calculateEndPadding
@@ -9,7 +10,6 @@ import androidx.compose.foundation.layout.calculateStartPadding
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.Home
-import androidx.compose.material.icons.rounded.Search
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Modifier
@@ -27,11 +27,11 @@ import kotlinx.coroutines.launch
 import androidx.lifecycle.viewmodel.compose.viewModel as composeViewModel
 
 //#region Routing & navigation
-sealed class Route(val id: String, @StringRes val label: Int?, val icon: ImageVector?) {
+sealed class Route(val id: String, @StringRes val label: Int?, val icon: ImageVector? = null, @DrawableRes val iconId: Int? = null) {
     object Home : Route("home", R.string.route_home, Icons.Rounded.Home)
-    object Search : Route("search", R.string.route_search, Icons.Rounded.Search)
-    object Session : Route("session", R.string.route_session, null)
-    object EMPTY : Route("", null, null)
+    object Library : Route("library", R.string.route_library, iconId = R.drawable.ic_library_black)
+    object Session : Route("session", R.string.route_session)
+    object EMPTY : Route("", null)
 }
 //#endregion
 

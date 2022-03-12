@@ -6,7 +6,6 @@ import android.media.MediaPlayer
 import android.net.Uri
 import android.os.Bundle
 import android.provider.MediaStore
-import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.animation.graphics.ExperimentalAnimationGraphicsApi
@@ -22,6 +21,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.res.dimensionResource
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.style.TextAlign
@@ -37,10 +37,7 @@ import androidx.navigation.compose.rememberNavController
 import com.gmail.dev.wasacz.rpgsoundboard.R
 import com.gmail.dev.wasacz.rpgsoundboard.ui.helper.ExtendedFloatingActionButton
 import com.gmail.dev.wasacz.rpgsoundboard.ui.theme.RPGSoundboardTheme
-import com.gmail.dev.wasacz.rpgsoundboard.utils.Route
-import com.gmail.dev.wasacz.rpgsoundboard.utils.changeBottom
-import com.gmail.dev.wasacz.rpgsoundboard.utils.showFullscreen
-import com.gmail.dev.wasacz.rpgsoundboard.utils.viewModel
+import com.gmail.dev.wasacz.rpgsoundboard.utils.*
 import com.gmail.dev.wasacz.rpgsoundboard.viewmodel.LibraryViewModel
 import com.gmail.dev.wasacz.rpgsoundboard.viewmodel.PlayerViewModel
 import kotlinx.coroutines.launch
@@ -68,8 +65,8 @@ class MainActivity : ComponentActivity() {
                 ModalBottomSheetLayout(
                     sheetState = sessionState,
                     sheetContent = {
-                        if (libraryViewModel.library != null)
-                            SessionFragment(sessionState)
+                        if (libraryViewModel.library != null) SessionFragment(sessionState)
+                        else Column(Modifier.defaultMinSize(minHeight = 1.dp)) {}
                     },
                 ) {
                     Scaffold(
@@ -91,13 +88,21 @@ class MainActivity : ComponentActivity() {
                             navController = navController,
                             startDestination = Route.Home.id
                         ) {
-                            composable(Route.Home.id) { HomeFragment(scaffoldState) }
-                            composable(Route.Search.id) { Content(libraryViewModel, { playAudio(it) }) { getFiles() } }
+                            composable(Route.Home.id) { HomeFragment() }
+                            composable(Route.Library.id) {
+                                //Content(libraryViewModel, { playAudio(it) }) { getFiles() }
+                                LibraryFragment()
+                            }
                         }
                     }
                 }
             }
-            Log.i("VM", "onCreate: $libraryViewModel")
+            if (libraryViewModel.library == null) {
+                SnackBar.Show(
+                    SnackBar.Data(stringResource(R.string.warning_corrupted_data)),
+                    scaffoldState
+                )
+            }
         }
     }
 
@@ -150,13 +155,13 @@ private fun NavBar(navController: NavController) {
         Configuration.ORIENTATION_LANDSCAPE -> listOf(
             Route.Home,
             Route.EMPTY,
-            Route.Search
+            Route.Library
         )
         else -> listOf(
             Route.Home,
             Route.EMPTY,
             Route.EMPTY,
-            Route.Search
+            Route.Library
         )
     }
 
@@ -170,6 +175,8 @@ private fun NavBar(navController: NavController) {
                         icon = {
                             route.icon?.let {
                                 Icon(it, contentDescription = null)
+                            } ?: route.iconId?.let {
+                                Icon(painterResource(it), contentDescription = null)
                             }
                         },
                         label = {

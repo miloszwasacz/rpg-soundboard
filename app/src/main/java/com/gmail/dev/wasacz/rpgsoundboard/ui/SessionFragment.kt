@@ -153,10 +153,16 @@ private fun PlayerController(
             verticalAlignment = Alignment.CenterVertically
         ) {
             Row(modifier = Modifier.weight(1f)) {
-                if (title != null) MarqueeText(title, edgeColor = MaterialTheme.colors.surface)
+                if (title != null) {
+                    MarqueeText(
+                        title,
+                        edgeColor = MaterialTheme.colors.surface,
+                        style = MaterialTheme.typography.h6
+                    )
+                }
             }
             Row(
-                modifier = Modifier.weight(3f),
+                modifier = Modifier.weight(2f),
                 horizontalArrangement = Arrangement.Center
             ) {
                 Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {

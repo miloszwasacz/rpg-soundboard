@@ -4,6 +4,6 @@
     <string name="warning_corrupted_data">Wygląda na to, że twoje dane są uszkodzone</string>
     <string name="button_start_session">Rozpocznij sesję</string>
     <string name="route_home">Home</string>
-    <string name="route_search">Szukaj</string>
+    <string name="route_library">Biblioteka</string>
     <string name="route_session">Sesja</string>
 </resources>

@@ -1,6 +1,5 @@
 package com.gmail.dev.wasacz.rpgsoundboard.ui
 
-import android.util.Log
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -11,22 +10,19 @@ import androidx.compose.material.icons.rounded.Refresh
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import com.gmail.dev.wasacz.rpgsoundboard.R
 import com.gmail.dev.wasacz.rpgsoundboard.model.LocalPlaylist
 import com.gmail.dev.wasacz.rpgsoundboard.model.LocalSong
 import com.gmail.dev.wasacz.rpgsoundboard.model.Song
 import com.gmail.dev.wasacz.rpgsoundboard.ui.theme.RPGSoundboardTheme
 import com.gmail.dev.wasacz.rpgsoundboard.utils.BottomAppBarSpacer
-import com.gmail.dev.wasacz.rpgsoundboard.utils.SnackBar
 import com.gmail.dev.wasacz.rpgsoundboard.utils.viewModel
 import com.gmail.dev.wasacz.rpgsoundboard.viewmodel.LibraryViewModel
 import com.gmail.dev.wasacz.rpgsoundboard.viewmodel.PlayerViewModel
 
 @Composable
-fun HomeFragment(scaffoldState: ScaffoldState) {
+fun HomeFragment() {
     Column(modifier = Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
         val libraryViewModel: LibraryViewModel = viewModel()
         val playerViewModel: PlayerViewModel = viewModel()
@@ -60,8 +56,7 @@ fun HomeFragment(scaffoldState: ScaffoldState) {
                     BottomAppBarSpacer()
                 }
             }
-        } ?: SnackBar.Show(SnackBar.Data(stringResource(R.string.warning_corrupted_data)), scaffoldState)
-        Log.i("VM", "HomeFragment: $libraryViewModel")
+        }
     }
 }
 
