@@ -21,6 +21,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
+import androidx.navigation.NavController
 import com.gmail.dev.wasacz.rpgsoundboard.R
 import com.gmail.dev.wasacz.rpgsoundboard.model.LocalPlaylist
 import com.gmail.dev.wasacz.rpgsoundboard.model.Playlist
@@ -30,7 +31,7 @@ import com.gmail.dev.wasacz.rpgsoundboard.viewmodel.LibraryViewModel
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
-fun LibraryFragment() {
+fun LibraryFragment(navController: NavController) {
     val viewModel: LibraryViewModel = viewModel()
 
     viewModel.library?.let {
@@ -44,22 +45,29 @@ fun LibraryFragment() {
                     modifier = Modifier.padding(16.dp, 8.dp),
                     horizontalArrangement = Arrangement.Center
                 ) {
-                    PlaylistItem(playlist)
+                    PlaylistItem(playlist) {
+                        navController.navigate("${Route.Library.List}/${playlist.name}")
+                    }
                 }
             }
         }
     }
 }
 
+@Composable
+fun PlaylistFragment(playlist: String?, navController: NavController) {
+    Text(text = playlist ?: "null")
+}
+
 @OptIn(ExperimentalMaterialApi::class)
 @Composable
-private fun PlaylistItem(playlist: Playlist) {
+private fun PlaylistItem(playlist: Playlist, onClick: () -> Unit) {
     val padding = dimensionResource(R.dimen.default_padding)
     val maxImageSize = dimensionResource(R.dimen.max_image_size)
     Card(
         modifier = Modifier.widthIn(max = maxImageSize + padding.times(2)),
         elevation = dimensionResource(R.dimen.default_card_elevation),
-        onClick = {}
+        onClick = onClick
     ) {
         Column(Modifier.background(MaterialTheme.colors.onBackground.copy(alpha = 0.25f))) {
             Image(
@@ -103,32 +111,32 @@ private fun PlaylistItemEdit(playlist: MutableState<Playlist?>) {
     }
 }
 
-@Preview(showBackground = true)
+@Preview(showBackground = true, group = "item")
 @Composable
 private fun PlaylistItemPreview() {
     RPGSoundboardTheme {
         Surface {
             Column(Modifier.padding(16.dp)) {
-                PlaylistItem(LocalPlaylist("Title", arrayListOf()))
+                PlaylistItem(LocalPlaylist("Title", arrayListOf())) {}
             }
         }
     }
 }
 
-@Preview(showBackground = true)
+@Preview(showBackground = true, group = "item")
 @Composable
 private fun PlaylistItemPreviewDark() {
     RPGSoundboardTheme(true) {
         Surface {
             Column(Modifier.padding(16.dp)) {
-                PlaylistItem(LocalPlaylist("Title", arrayListOf()))
+                PlaylistItem(LocalPlaylist("Title", arrayListOf())) {}
             }
         }
     }
 }
 
 @OptIn(ExperimentalFoundationApi::class)
-@Preview(showBackground = true)
+@Preview(showBackground = true, group = "fragment")
 @Composable
 private fun FragmentPreview() {
     RPGSoundboardTheme {
@@ -136,7 +144,7 @@ private fun FragmentPreview() {
             LazyVerticalGrid(cells = GridCells.Adaptive(160.dp), contentPadding = PaddingValues(8.dp)) {
                 items(10) { i ->
                     Row(Modifier.padding(8.dp), horizontalArrangement = Arrangement.Center) {
-                        PlaylistItem(LocalPlaylist("Playlist $i", arrayListOf()))
+                        PlaylistItem(LocalPlaylist("Playlist $i", arrayListOf())) {}
                     }
                 }
             }

@@ -26,15 +26,6 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 import androidx.lifecycle.viewmodel.compose.viewModel as composeViewModel
 
-//#region Routing & navigation
-sealed class Route(val id: String, @StringRes val label: Int?, val icon: ImageVector? = null, @DrawableRes val iconId: Int? = null) {
-    object Home : Route("home", R.string.route_home, Icons.Rounded.Home)
-    object Library : Route("library", R.string.route_library, iconId = R.drawable.ic_library_black)
-    object Session : Route("session", R.string.route_session)
-    object EMPTY : Route("", null)
-}
-//#endregion
-
 //#region Custom views
 sealed class SnackBar {
     data class Data(val message: String, val action: Action? = null, val duration: SnackbarDuration = SnackbarDuration.Short)

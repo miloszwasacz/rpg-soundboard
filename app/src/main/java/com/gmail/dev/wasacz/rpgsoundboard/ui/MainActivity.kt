@@ -8,16 +8,20 @@ import android.os.Bundle
 import android.provider.MediaStore
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.compose.animation.ExperimentalAnimationApi
+import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.graphics.ExperimentalAnimationGraphicsApi
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.rounded.Add
 import androidx.compose.material.icons.rounded.PlayArrow
 import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.res.dimensionResource
@@ -27,6 +31,7 @@ import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavController
 import androidx.navigation.NavDestination.Companion.hierarchy
 import androidx.navigation.NavGraph.Companion.findStartDestination
@@ -37,15 +42,23 @@ import androidx.navigation.compose.rememberNavController
 import com.gmail.dev.wasacz.rpgsoundboard.R
 import com.gmail.dev.wasacz.rpgsoundboard.ui.helper.ExtendedFloatingActionButton
 import com.gmail.dev.wasacz.rpgsoundboard.ui.theme.RPGSoundboardTheme
-import com.gmail.dev.wasacz.rpgsoundboard.utils.*
+import com.gmail.dev.wasacz.rpgsoundboard.utils.SnackBar
+import com.gmail.dev.wasacz.rpgsoundboard.utils.changeBottom
+import com.gmail.dev.wasacz.rpgsoundboard.utils.viewModel
 import com.gmail.dev.wasacz.rpgsoundboard.viewmodel.LibraryViewModel
 import com.gmail.dev.wasacz.rpgsoundboard.viewmodel.PlayerViewModel
-import kotlinx.coroutines.launch
 
 class MainActivity : ComponentActivity() {
+    private fun isFabShown(backStackEntry: NavBackStackEntry?): Boolean {
+        return when (backStackEntry?.destination?.route) {
+            Route.Library.List -> true
+            else -> false
+        }
+    }
+
     private var playerViewModel: PlayerViewModel? = null
 
-    @OptIn(ExperimentalMaterialApi::class, ExperimentalAnimationGraphicsApi::class)
+    @OptIn(ExperimentalMaterialApi::class, ExperimentalAnimationGraphicsApi::class, ExperimentalAnimationApi::class)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
@@ -60,6 +73,14 @@ class MainActivity : ComponentActivity() {
             )
             val scaffoldState = rememberScaffoldState()
             val scope = rememberCoroutineScope()
+            val currentDestination by navController.currentBackStackEntryAsState()
+            /*var fabShown by remember { mutableStateOf(false) }
+            navController.addOnDestinationChangedListener { _, destination, _ ->
+                scope.launch {
+                    delay(1000L)
+                    fabShown = isFabShown(destination)
+                }
+            }*/
 
             RPGSoundboardTheme {
                 ModalBottomSheetLayout(
@@ -69,30 +90,64 @@ class MainActivity : ComponentActivity() {
                         else Column(Modifier.defaultMinSize(minHeight = 1.dp)) {}
                     },
                 ) {
+                    val shown = isFabShown(currentDestination)
                     Scaffold(
                         scaffoldState = scaffoldState,
                         bottomBar = { NavBar(navController) },
                         floatingActionButton = {
-                            StartSessionFAB(enabled = libraryViewModel.library != null) {
-                                playerViewModel?.setUpPlayer()
-                                scope.launch {
-                                    sessionState.showFullscreen()
+                            val scale by animateFloatAsState(if (shown) 1f else 0f)
+                            if (shown) {
+                                FloatingActionButton(modifier = Modifier.scale(scale), onClick = { /*TODO*/ }) {
+                                    Icon(imageVector = Icons.Rounded.Add, contentDescription = null)
                                 }
                             }
+                            /*val specFloat = spring<Float>(stiffness = Spring.StiffnessMedium)
+                            val specIntSize = spring<IntSize>(stiffness = Spring.StiffnessMedium)
+                            val origin = TransformOrigin(0.5f, 0.0f)
+                            AnimatedVisibility(
+                                visible = fabShown,//isFabShown(currentDestination),
+                                enter =
+                                        scaleIn(specFloat, transformOrigin = origin) +
+                                        fadeIn(spring(stiffness = Spring.StiffnessHigh)) +
+                                        expandIn(spring(stiffness = Spring.StiffnessHigh), expandFrom = Alignment.Center, clip = false),
+                                exit =
+                                        scaleOut(specFloat, transformOrigin = origin) +
+                                        fadeOut(spring(stiffness = Spring.StiffnessMediumLow)) +
+                                        shrinkOut(spring(Spring.DampingRatioLowBouncy, Spring.StiffnessMedium), shrinkTowards = Alignment.Center, clip = false)
+                            ) {
+                                FloatingActionButton(onClick = { /*TODO*/ }) {
+                                    Icon(imageVector = Icons.Rounded.Add, contentDescription = null)
+                                }
+                                /*StartSessionFAB(enabled = libraryViewModel.library != null) {
+                                    playerViewModel?.setUpPlayer()
+                                    scope.launch {
+                                        sessionState.showFullscreen()
+                                    }
+                                }*/
+                            }*/
                         },
                         floatingActionButtonPosition = FabPosition.Center,
                         isFloatingActionButtonDocked = true
                     ) { padding ->
+                        /*Button(onClick = {
+                            fabShown = !fabShown
+                        }) {
+                            Text("Click")
+                        }
+                        AnimatedVisibility(visible = fabShown) {
+                            Text("test")
+                        }*/
                         NavHost(
                             modifier = Modifier.padding(padding.changeBottom()),
                             navController = navController,
                             startDestination = Route.Home.id
                         ) {
                             composable(Route.Home.id) { HomeFragment() }
-                            composable(Route.Library.id) {
+                            /*composable(Route.Library.id) {
                                 //Content(libraryViewModel, { playAudio(it) }) { getFiles() }
                                 LibraryFragment()
-                            }
+                            }*/
+                            libraryGraph(navController)
                         }
                     }
                 }
@@ -154,13 +209,13 @@ private fun NavBar(navController: NavController) {
     val items = when (LocalConfiguration.current.orientation) {
         Configuration.ORIENTATION_LANDSCAPE -> listOf(
             Route.Home,
-            Route.EMPTY,
+            //Route.EMPTY,
             Route.Library
         )
         else -> listOf(
             Route.Home,
-            Route.EMPTY,
-            Route.EMPTY,
+            //Route.EMPTY,
+            //Route.EMPTY,
             Route.Library
         )
     }
@@ -175,6 +230,7 @@ private fun NavBar(navController: NavController) {
                         icon = {
                             route.icon?.let {
                                 Icon(it, contentDescription = null)
+                                it
                             } ?: route.iconId?.let {
                                 Icon(painterResource(it), contentDescription = null)
                             }
@@ -191,7 +247,7 @@ private fun NavBar(navController: NavController) {
                                     saveState = true
                                 }
                                 launchSingleTop = true
-                                restoreState = true
+                                restoreState = false
                             }
                         }
                     )
@@ -287,6 +343,7 @@ fun ScaffoldPreviewPL() {
         }
     }
 }
+
 @Preview(showBackground = true, group = "scaffold")
 @Composable
 fun ScaffoldPreviewDark() {
@@ -303,4 +360,28 @@ fun ScaffoldPreviewDark() {
         }
     }
 }
+/*
+@Preview(showBackground = true)
+@Composable
+fun test() {
+    RPGSoundboardTheme {
+        var shown by remember { mutableStateOf(true) }
+        Scaffold(
+            bottomBar = { NavBar(rememberNavController()) },
+            floatingActionButton = {
+                AnimatedVisibility(visible = shown) {
+                    FloatingActionButton(onClick = {}) {
+                        Icon(imageVector = Icons.Rounded.Add, contentDescription = null)
+                    }
+                }
+            },
+            floatingActionButtonPosition = FabPosition.Center,
+            isFloatingActionButtonDocked = true
+        ) {
+           Button(onClick = { shown = !shown }) {
+               Text("Click")
+           }
+        }
+    }
+}*/
 //#endregion
