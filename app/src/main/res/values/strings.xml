@@ -1,3 +1,10 @@
 <resources>
     <string name="app_name">RPG Soundboard</string>
+    <string name="title_activity_main2">MainActivity2</string>
+    <string name="title_home">Home</string>
+    <string name="title_dashboard">Dashboard</string>
+    <string name="title_notifications">Notifications</string>
+
+    <string name="content_desc_fab" translatable="false">Main Action</string>
+    <string name="nav_arg_show_fab" translatable="false">ShowFAB</string>
 </resources>
