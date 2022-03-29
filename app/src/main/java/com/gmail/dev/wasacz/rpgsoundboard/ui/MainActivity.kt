@@ -44,7 +44,7 @@ class MainActivity : AppCompatActivity() {
                         }
                     }
                     R.id.navigation_test -> {
-                        setImageResource(R.drawable.ic_home_black_24dp)
+                        setImageResource(R.drawable.ic_home_24dp)
                         setOnClickListener {}
                     }
                     else -> setOnClickListener {}

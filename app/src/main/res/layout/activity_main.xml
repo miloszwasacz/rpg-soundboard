@@ -35,7 +35,7 @@
         app:layout_anchor="@id/nav_view"
         app:layout_anchorGravity="top|center"
         app:layout_behavior="com.google.android.material.behavior.HideBottomViewOnScrollBehavior"
-        tools:srcCompat="@drawable/ic_home_black_24dp"
+        tools:srcCompat="@drawable/ic_add_24dp"
         tools:visibility="visible" />
 
 </androidx.coordinatorlayout.widget.CoordinatorLayout>
