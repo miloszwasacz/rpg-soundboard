@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <data>
+
+        <import type="android.view.View" />
+
+        <variable
+            name="placeholder"
+            type="com.gmail.dev.wasacz.rpgsoundboard.ui.generic.Placeholder" />
+
+        <variable
+            name="placeholderErrorCode"
+            type="String" />
+
+    </data>
+
+    <androidx.coordinatorlayout.widget.CoordinatorLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/recycler_view"
+            style="@style/Theme.RPGSoundboard.ScrollContainer"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:visibility="invisible"
+            tools:visibility="visible" />
+
+        <androidx.appcompat.widget.LinearLayoutCompat
+            android:id="@+id/placeholder_layout"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:gravity="center"
+            android:orientation="vertical"
+            android:padding="@dimen/activity_horizontal_margin"
+            android:visibility="gone"
+            tools:visibility="visible">
+
+            <androidx.appcompat.widget.AppCompatImageView
+                android:layout_width="@dimen/list_placeholder_image_size"
+                android:layout_height="@dimen/list_placeholder_image_size"
+                android:scaleType="fitCenter"
+                android:visibility="@{placeholder != null &amp;&amp; placeholder.drawable != null}"
+                app:srcCompat="@{placeholder.drawable}"
+                tools:srcCompat="@drawable/ic_notifications_black_24dp" />
+
+            <androidx.appcompat.widget.AppCompatTextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:maxWidth="@dimen/list_placeholder_text_size"
+                android:text="@{placeholder}"
+                android:textAlignment="center"
+                android:textAppearance="?attr/textAppearanceHeadlineMedium"
+                android:visibility="@{placeholder != null &amp;&amp; placeholder.text != null}"
+                app:fallbackText="@{@string/placeholder_fallback_message}"
+                tools:text="@string/placeholder_fallback_message" />
+
+            <androidx.appcompat.widget.AppCompatTextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:maxWidth="@dimen/list_placeholder_text_size"
+                android:text="@{`(` + placeholderErrorCode + `)`}"
+                android:textAlignment="center"
+                android:textAppearance="?attr/textAppearanceLabelLarge"
+                android:visibility="@{placeholderErrorCode != null}"
+                tools:text="(SERIALIZATION_ERROR)"
+                tools:visibility="gone" />
+
+        </androidx.appcompat.widget.LinearLayoutCompat>
+
+        <com.google.android.material.progressindicator.CircularProgressIndicator
+            android:id="@+id/progress"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:indeterminate="true"
+            android:visibility="gone"
+            tools:visibility="invisible" />
+
+    </androidx.coordinatorlayout.widget.CoordinatorLayout>
+</layout>

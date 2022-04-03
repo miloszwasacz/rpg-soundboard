@@ -46,4 +46,5 @@
     <style name="ProgressStyle" parent="Widget.Material3.CircularProgressIndicator">
         <item name="trackCornerRadius">@dimen/progress_track_radius</item>
     </style>
+    <style name="a" parent="Widget.Material3.BottomNavigationView"></style>
 </resources>

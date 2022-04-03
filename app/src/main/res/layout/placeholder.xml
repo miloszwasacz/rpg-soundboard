@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <data>
+
+        <import type="android.view.View" />
+
+        <variable
+            name="placeholderImage"
+            type="Integer" />
+
+        <variable
+            name="placeholderText"
+            type="String" />
+    </data>
+
+    <androidx.appcompat.widget.LinearLayoutCompat
+        android:id="@+id/placeholder"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:gravity="center"
+        android:orientation="vertical"
+        android:padding="@dimen/activity_horizontal_margin"
+        android:visibility="gone"
+        tools:visibility="visible">
+
+        <androidx.appcompat.widget.AppCompatImageView
+            android:layout_width="@dimen/list_placeholder_image_size"
+            android:layout_height="@dimen/list_placeholder_image_size"
+            android:scaleType="fitCenter"
+            android:visibility="@{placeholderImage != null ? View.VISIBLE : View.GONE}"
+            app:srcCompat="@{placeholderImage}"
+            tools:srcCompat="@drawable/ic_notifications_black_24dp" />
+
+        <androidx.appcompat.widget.AppCompatTextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:maxWidth="@dimen/list_placeholder_text_size"
+            android:text="@{placeholderText ?? @string/placeholder_fallback_message}"
+            android:textAlignment="center"
+            android:textAppearance="?attr/textAppearanceHeadlineMedium"
+            tools:text="@string/placeholder_fallback_message" />
+
+    </androidx.appcompat.widget.LinearLayoutCompat>
+</layout>

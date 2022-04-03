@@ -2,5 +2,11 @@
     <!-- Default screen margins, per the Android Design guidelines. -->
     <dimen name="activity_horizontal_margin">16dp</dimen>
     <dimen name="activity_vertical_margin">16dp</dimen>
+    <dimen name="card_horizontal_margin">16dp</dimen>
+    <dimen name="card_vertical_margin">8dp</dimen>
     <dimen name="scroll_view_padding_top">30dp</dimen>
+    <dimen name="list_placeholder_image_size">128dp</dimen>
+    <dimen name="list_placeholder_text_size">256dp</dimen>
+    <dimen name="progress_track_radius">8dp</dimen>
+    <dimen name="refresh_indicator_offset">64dp</dimen>
 </resources>

@@ -27,10 +27,10 @@
     </fragment>
 
     <fragment
-        android:id="@+id/navigation_dashboard"
-        android:name="com.gmail.dev.wasacz.rpgsoundboard.ui.dashboard.DashboardFragment"
+        android:id="@+id/navigation_library"
+        android:name="com.gmail.dev.wasacz.rpgsoundboard.ui.library.LibraryFragment"
         android:label="@string/title_dashboard"
-        tools:layout="@layout/fragment_dashboard">
+        tools:layout="@layout/fragment_library">
         <argument
             android:name="@string/nav_arg_show_fab"
             android:defaultValue="true" />

@@ -9,9 +9,9 @@ import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.findNavController
 import com.gmail.dev.wasacz.rpgsoundboard.R
 import com.gmail.dev.wasacz.rpgsoundboard.databinding.FragmentHomeBinding
-import com.gmail.dev.wasacz.rpgsoundboard.ui.MainDestinationFragment
+import com.gmail.dev.wasacz.rpgsoundboard.ui.generic.DataBindingFragment
 
-class HomeFragment : MainDestinationFragment<FragmentHomeBinding>(FragmentHomeBinding::inflate) {
+class HomeFragment : DataBindingFragment<FragmentHomeBinding>(FragmentHomeBinding::inflate) {
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
         super.onCreateView(inflater, container, savedInstanceState)
         val homeViewModel by viewModels<HomeViewModel>()
