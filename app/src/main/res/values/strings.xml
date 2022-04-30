@@ -2,12 +2,12 @@
     <string name="app_name">RPG Soundboard</string>
     <string name="title_activity_main2">MainActivity2</string>
     <string name="title_home">Home</string>
-    <string name="title_dashboard">Dashboard</string>
-    <string name="title_notifications">Notifications</string>
+    <string name="title_library">Library</string>
     <string name="placeholder_fallback_message">There is nothing to show here</string>
     <string name="placeholder_timeout_message">Something went wrong, try again</string>
     <string name="placeholder_error_message">Oops, something went wrong</string>
 
+    <string name="default_shared_preferences" translatable="false">com.gmail.dev.wasacz.rpgsoundboard.defSharedPrefs</string>
     <string name="content_desc_fab" translatable="false">Main Action</string>
     <string name="nav_arg_show_fab" translatable="false">ShowFAB</string>
 </resources>

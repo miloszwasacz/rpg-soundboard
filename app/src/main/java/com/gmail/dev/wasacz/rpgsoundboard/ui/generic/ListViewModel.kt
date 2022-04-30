@@ -4,6 +4,7 @@ import android.content.Context
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.TimeoutCancellationException
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withTimeout
@@ -39,12 +40,14 @@ abstract class ListViewModel<T> : ViewModel() {
      * Launches a job that fetches the list.
      * New list value will be emitted by the [list] flow.
      *
+     * @param delay delay for animation in milliseconds
      * @param timeout timeout in milliseconds.
      * @see list flow with current list.
      */
-    fun fetchList(context: Context, timeout: Long = TIMEOUT) {
+    fun fetchList(context: Context, timeout: Long = TIMEOUT, delay: Long? = null) {
         viewModelScope.launch {
             emitList(null, ListState.LOADING)
+            delay?.let { delay(it) }
             try {
                 val list = withTimeout(timeout) { getList(context) }
                 list?.let { emitList(it, ListState.READY) }

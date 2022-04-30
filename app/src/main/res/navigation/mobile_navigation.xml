@@ -11,26 +11,23 @@
         android:label="@string/title_home"
         tools:layout="@layout/fragment_home" >
         <action
-            android:id="@+id/navigation_home_to_test"
-            app:destination="@id/navigation_test"
+            android:id="@+id/navigation_home_to_player"
+            app:destination="@id/navigation_player"
             app:enterAnim="@anim/nav_default_enter_anim" />
     </fragment>
 
     <fragment
-        android:id="@+id/navigation_test"
-        android:name="com.gmail.dev.wasacz.rpgsoundboard.ui.home.HomeFragment"
-        android:label="Test"
-        tools:layout="@layout/fragment_home">
-        <argument
-            android:name="@string/nav_arg_show_fab"
-            android:defaultValue="true" />
+        android:id="@+id/navigation_player"
+        android:name="com.gmail.dev.wasacz.rpgsoundboard.ui.player.PlayerFragment"
+        android:label="Player"
+        tools:layout="@layout/fragment_refreshable_list">
     </fragment>
 
     <fragment
         android:id="@+id/navigation_library"
         android:name="com.gmail.dev.wasacz.rpgsoundboard.ui.library.LibraryFragment"
-        android:label="@string/title_dashboard"
-        tools:layout="@layout/fragment_library">
+        android:label="@string/title_library"
+        tools:layout="@layout/fragment_refreshable_list">
         <argument
             android:name="@string/nav_arg_show_fab"
             android:defaultValue="true" />

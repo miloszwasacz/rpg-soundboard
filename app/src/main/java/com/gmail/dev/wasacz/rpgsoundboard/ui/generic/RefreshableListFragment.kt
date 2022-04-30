@@ -18,8 +18,10 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 
-abstract class RefreshableListFragment<B: ViewDataBinding, T, VM: ListViewModel<T>>(private val placeholder: Placeholder, inflate: DataBindingInflate<B>) :
-    ListFragment<B, T, VM>(inflate) {
+abstract class RefreshableListFragment<B : ViewDataBinding, T, VM : ListViewModel<T>>(
+    private val placeholder: Placeholder,
+    inflate: DataBindingInflate<B>
+) : ListFragment<B, T, VM>(inflate) {
     private var currentState: ListState? = null
 
     @CallSuper
@@ -98,6 +100,6 @@ abstract class RefreshableListFragment<B: ViewDataBinding, T, VM: ListViewModel<
 
     @CallSuper
     protected fun refresh() {
-        viewModel.fetchList(requireContext())
+        viewModel.fetchList(requireContext(), delay = resources.getDefaultAnimTimeLong(AnimTime.LONG))
     }
 }

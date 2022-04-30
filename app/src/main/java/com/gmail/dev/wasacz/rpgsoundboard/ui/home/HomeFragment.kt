@@ -27,6 +27,6 @@ class HomeFragment : DataBindingFragment<FragmentHomeBinding>(FragmentHomeBindin
     }
 
     fun navigate() {
-        findNavController().navigate(R.id.navigation_home_to_test)
+        findNavController().navigate(R.id.navigation_home_to_player)
     }
 }

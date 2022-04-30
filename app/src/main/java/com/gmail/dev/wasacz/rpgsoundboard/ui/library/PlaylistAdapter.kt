@@ -1,18 +1,18 @@
 package com.gmail.dev.wasacz.rpgsoundboard.ui.library
 
-import android.widget.Toast
 import com.gmail.dev.wasacz.rpgsoundboard.databinding.ListItemPlaylistBinding
-import com.gmail.dev.wasacz.rpgsoundboard.viewmodel.Song
 import com.gmail.dev.wasacz.rpgsoundboard.ui.generic.DataBindingListAdapter
 import com.gmail.dev.wasacz.rpgsoundboard.ui.generic.updateBindings
+import com.gmail.dev.wasacz.rpgsoundboard.viewmodel.Playlist
 
-class LibraryAdapter(list: List<Song>) : DataBindingListAdapter<ListItemPlaylistBinding, Song>(list, ListItemPlaylistBinding::inflate) {
+class PlaylistAdapter(list: List<Playlist>, private val playerStart: (playlist: Playlist) -> Unit) :
+    DataBindingListAdapter<ListItemPlaylistBinding, Playlist>(list, ListItemPlaylistBinding::inflate) {
     override fun onBindViewHolder(holder: ViewHolder<ListItemPlaylistBinding>, position: Int) {
         holder.itemView.setOnClickListener {
-            Toast.makeText(holder.itemView.context, list[position].title, Toast.LENGTH_SHORT).show()
+            playerStart(list[position])
         }
         holder.binding.updateBindings {
-            title = list[position].title
+            title = list[position].name
         }
     }
 }
