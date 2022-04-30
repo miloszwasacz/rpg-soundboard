@@ -13,8 +13,8 @@ import com.gmail.dev.wasacz.rpgsoundboard.ui.hide
 import com.gmail.dev.wasacz.rpgsoundboard.ui.show
 import kotlinx.coroutines.flow.collectLatest
 
-abstract class StaticListFragment<T>(private val placeholder: Placeholder) :
-    ListFragment<FragmentListBinding, T>(FragmentListBinding::inflate) {
+abstract class StaticListFragment<T, VM: ListViewModel<T>>(private val placeholder: Placeholder) :
+    ListFragment<FragmentListBinding, T, VM>(FragmentListBinding::inflate) {
     @CallSuper
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
         super.onCreateView(inflater, container, savedInstanceState)
@@ -65,7 +65,7 @@ abstract class StaticListFragment<T>(private val placeholder: Placeholder) :
                 }
             }
         }
-        viewModel.onFragmentInit()
+        viewModel.onFragmentInit(requireContext())
         return binding.root
     }
 

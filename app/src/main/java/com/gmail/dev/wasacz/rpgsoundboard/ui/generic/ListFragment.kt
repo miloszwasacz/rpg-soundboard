@@ -12,8 +12,8 @@ import androidx.recyclerview.widget.RecyclerView
 
 data class Placeholder(@DrawableRes val drawable: Int?, @StringRes val text: Int?)
 
-abstract class ListFragment<B : ViewDataBinding, T>(inflate: DataBindingInflate<B>) : DataBindingFragment<B>(inflate) {
-    protected lateinit var viewModel: ListViewModel<T>
+abstract class ListFragment<B : ViewDataBinding, T, VM: ListViewModel<T>>(inflate: DataBindingInflate<B>) : DataBindingFragment<B>(inflate) {
+    protected lateinit var viewModel: VM
 
     @CallSuper
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
@@ -23,7 +23,7 @@ abstract class ListFragment<B : ViewDataBinding, T>(inflate: DataBindingInflate<
         return binding.root
     }
 
-    abstract fun initViewModel(): ListViewModel<T>
+    abstract fun initViewModel(): VM
     protected abstract fun List<T>.initAdapter(): RecyclerView.Adapter<*>
     protected abstract fun initLayoutManager(): RecyclerView.LayoutManager
 }

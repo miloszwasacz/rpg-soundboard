@@ -1,7 +1,7 @@
 package com.gmail.dev.wasacz.rpgsoundboard.ui.generic
 
-import android.app.Application
-import androidx.lifecycle.AndroidViewModel
+import android.content.Context
+import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.TimeoutCancellationException
 import kotlinx.coroutines.flow.*
@@ -9,7 +9,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withTimeout
 
 
-abstract class ListViewModel<T>(application: Application) : AndroidViewModel(application) {
+abstract class ListViewModel<T> : ViewModel() {
     companion object {
         const val TIMEOUT: Long = 30_000
     }
@@ -23,16 +23,16 @@ abstract class ListViewModel<T>(application: Application) : AndroidViewModel(app
         INTERNAL_ERROR
     }
 
-    data class StateFullList<T>(val list: List<T>?, val state: ListState)
+    data class StatefulList<T>(val list: List<T>?, val state: ListState)
 
     private val _list = MutableStateFlow<List<T>?>(null)
     private val _listState = MutableStateFlow(ListState.LOADING)
-    val list: StateFlow<StateFullList<T>> = _list.combine(_listState) { list, state ->
-        StateFullList(list, state)
-    }.stateIn(viewModelScope, SharingStarted.Eagerly, StateFullList(null, ListState.LOADING))
+    val list: StateFlow<StatefulList<T>> = _list.combine(_listState) { list, state ->
+        StatefulList(list, state)
+    }.stateIn(viewModelScope, SharingStarted.Eagerly, StatefulList(null, ListState.LOADING))
 
-    fun onFragmentInit() {
-        if (_list.value == null) fetchList()
+    fun onFragmentInit(context: Context) {
+        if (_list.value == null) fetchList(context)
     }
 
     /**
@@ -42,11 +42,11 @@ abstract class ListViewModel<T>(application: Application) : AndroidViewModel(app
      * @param timeout timeout in milliseconds.
      * @see list flow with current list.
      */
-    fun fetchList(timeout: Long = TIMEOUT) {
+    fun fetchList(context: Context, timeout: Long = TIMEOUT) {
         viewModelScope.launch {
             emitList(null, ListState.LOADING)
             try {
-                val list = withTimeout(timeout) { getList() }
+                val list = withTimeout(timeout) { getList(context) }
                 list?.let { emitList(it, ListState.READY) }
             } catch (e: TimeoutCancellationException) {
                 emitList(null, ListState.TIMEOUT)
@@ -61,7 +61,7 @@ abstract class ListViewModel<T>(application: Application) : AndroidViewModel(app
      *
      * @see list
      */
-    protected abstract suspend fun getList(): List<T>?
+    protected abstract suspend fun getList(context: Context): List<T>?
 
     protected fun emitList(list: List<T>?, state: ListState) {
         viewModelScope.launch {

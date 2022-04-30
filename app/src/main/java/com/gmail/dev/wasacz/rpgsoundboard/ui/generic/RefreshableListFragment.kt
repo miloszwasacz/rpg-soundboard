@@ -1,11 +1,9 @@
 package com.gmail.dev.wasacz.rpgsoundboard.ui.generic
 
 import android.graphics.Paint
-import android.os.Bundle
-import android.view.LayoutInflater
 import android.view.View
-import android.view.ViewGroup
 import androidx.annotation.CallSuper
+import androidx.databinding.ViewDataBinding
 import androidx.lifecycle.lifecycleScope
 import com.gmail.dev.wasacz.rpgsoundboard.R
 import com.gmail.dev.wasacz.rpgsoundboard.databinding.FragmentRefreshableListBinding
@@ -20,13 +18,12 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 
-abstract class RefreshableListFragment<T>(private val placeholder: Placeholder) :
-    ListFragment<FragmentRefreshableListBinding, T>(FragmentRefreshableListBinding::inflate) {
+abstract class RefreshableListFragment<B: ViewDataBinding, T, VM: ListViewModel<T>>(private val placeholder: Placeholder, inflate: DataBindingInflate<B>) :
+    ListFragment<B, T, VM>(inflate) {
     private var currentState: ListState? = null
 
     @CallSuper
-    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
-        super.onCreateView(inflater, container, savedInstanceState)
+    protected fun inflateList(binding: FragmentRefreshableListBinding) {
         binding.apply {
             lifecycleOwner = viewLifecycleOwner
             placeholder = this@RefreshableListFragment.placeholder
@@ -96,11 +93,11 @@ abstract class RefreshableListFragment<T>(private val placeholder: Placeholder) 
                 }
             }
         }
-        viewModel.onFragmentInit()
-        return binding.root
+        viewModel.onFragmentInit(requireContext())
     }
 
+    @CallSuper
     protected fun refresh() {
-        viewModel.fetchList()
+        viewModel.fetchList(requireContext())
     }
 }
