@@ -1,10 +1,6 @@
 package com.gmail.dev.wasacz.rpgsoundboard.viewmodel
 
-import com.gmail.dev.wasacz.rpgsoundboard.model.PlaylistType
-import com.gmail.dev.wasacz.rpgsoundboard.model.LocalPlaylist as ModelLocalPlaylist
-import com.gmail.dev.wasacz.rpgsoundboard.model.Playlist as ModelPlaylist
-
-class PlaylistList(private val list: List<ModelPlaylist>) : List<Playlist> {
+/*class PlaylistList(private val list: List<ModelPlaylist>) : List<Playlist> {
     override fun get(index: Int): Playlist = when (list[index].type) {
         PlaylistType.LOCAL -> LocalPlaylist(list[index] as ModelLocalPlaylist)
     }
@@ -44,4 +40,4 @@ class PlaylistList(private val list: List<ModelPlaylist>) : List<Playlist> {
             PlaylistType.LOCAL -> LocalPlaylist(it as ModelLocalPlaylist)
         }
     }.subList(fromIndex, toIndex)
-}
+}*/

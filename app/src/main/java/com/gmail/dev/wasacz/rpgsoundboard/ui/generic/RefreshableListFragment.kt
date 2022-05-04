@@ -46,7 +46,8 @@ abstract class RefreshableListFragment<B : ViewDataBinding, T, VM : ListViewMode
             }
         }
         lifecycleScope.launchWhenResumed {
-            viewModel.list.collectLatest { (list, state) ->
+            viewModel.list.collectLatest { (list, statePair) ->
+                val (state, message) = statePair
                 binding.listLayout.apply {
                     launch {
                         recyclerView.adapter = list.let {
@@ -55,7 +56,7 @@ abstract class RefreshableListFragment<B : ViewDataBinding, T, VM : ListViewMode
                         }
                     }
                     if (state != currentState) {
-                        placeholderErrorCode = when (state) {
+                        placeholderErrorCode = message ?: when (state) {
                             ListState.SERIALIZATION_ERROR,
                             ListState.INTERNAL_ERROR -> state.name
                             else -> null

@@ -23,10 +23,11 @@ abstract class StaticListFragment<T, VM: ListViewModel<T>>(private val placehold
             recyclerView.layoutManager = initLayoutManager()
         }
         lifecycleScope.launchWhenResumed {
-            viewModel.list.collectLatest { (list, state) ->
+            viewModel.list.collectLatest { (list, statePair) ->
+                val (state, message) = statePair
                 binding.apply {
                     recyclerView.adapter = list?.run { initAdapter() }
-                    placeholderErrorCode = when (state) {
+                    placeholderErrorCode = message ?: when (state) {
                         ListState.SERIALIZATION_ERROR,
                         ListState.INTERNAL_ERROR -> state.name
                         else -> null

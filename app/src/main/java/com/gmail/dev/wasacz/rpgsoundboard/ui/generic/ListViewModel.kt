@@ -1,6 +1,7 @@
 package com.gmail.dev.wasacz.rpgsoundboard.ui.generic
 
 import android.content.Context
+import android.os.Bundle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.TimeoutCancellationException
@@ -24,13 +25,13 @@ abstract class ListViewModel<T> : ViewModel() {
         INTERNAL_ERROR
     }
 
-    data class StatefulList<T>(val list: List<T>?, val state: ListState)
+    data class StatefulList<T>(val list: List<T>?, val state: Pair<ListState, String?>)
 
     private val _list = MutableStateFlow<List<T>?>(null)
-    private val _listState = MutableStateFlow(ListState.LOADING)
+    private val _listState = MutableStateFlow<Pair<ListState, String?>>(ListState.LOADING to null)
     val list: StateFlow<StatefulList<T>> = _list.combine(_listState) { list, state ->
         StatefulList(list, state)
-    }.stateIn(viewModelScope, SharingStarted.Eagerly, StatefulList(null, ListState.LOADING))
+    }.stateIn(viewModelScope, SharingStarted.Eagerly, StatefulList(null, ListState.LOADING to null))
 
     fun onFragmentInit(context: Context) {
         if (_list.value == null) fetchList(context)
@@ -64,23 +65,23 @@ abstract class ListViewModel<T> : ViewModel() {
      *
      * @see list
      */
-    protected abstract suspend fun getList(context: Context): List<T>?
+    protected abstract suspend fun getList(context: Context, extras: Bundle? = null): List<T>?
 
-    protected fun emitList(list: List<T>?, state: ListState) {
+    protected fun emitList(list: List<T>?, state: ListState, message: String? = null) {
         viewModelScope.launch {
             when (state) {
                 ListState.READY,
                 ListState.EMPTY -> {
                     if (list == null) {
-                        _listState.value = ListState.INTERNAL_ERROR
+                        _listState.value = ListState.INTERNAL_ERROR to message
                         _list.value = null
                     } else {
-                        _listState.value = if (list.isEmpty()) ListState.EMPTY else ListState.READY
+                        _listState.value = if (list.isEmpty()) ListState.EMPTY to message else ListState.READY to message
                         _list.value = list
                     }
                 }
                 else -> {
-                    _listState.value = state
+                    _listState.value = state to message
                     _list.value = null
                 }
             }

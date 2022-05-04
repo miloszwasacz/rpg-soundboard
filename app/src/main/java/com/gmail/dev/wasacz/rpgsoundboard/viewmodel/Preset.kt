@@ -1,8 +1,12 @@
 package com.gmail.dev.wasacz.rpgsoundboard.viewmodel
 
-import com.gmail.dev.wasacz.rpgsoundboard.model.Preset as ModelPreset
-
-class Preset(private val preset: ModelPreset) {
+/*class Preset(private val preset: ModelPreset) {
     val name by preset::name
-    val playlists: PlaylistList = PlaylistList(preset.playlists)
-}
+}*/
+
+open class Preset(
+    val id: Long,
+    val name: String
+)
+
+class PresetFull(preset: Preset, val playlists: ArrayList<Playlist>) : Preset(preset.id, preset.name)

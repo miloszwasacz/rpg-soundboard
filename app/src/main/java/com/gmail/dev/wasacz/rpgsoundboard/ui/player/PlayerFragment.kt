@@ -9,6 +9,7 @@ import android.os.IBinder
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.viewModels
 import androidx.navigation.NavController
 import androidx.navigation.fragment.findNavController
@@ -17,6 +18,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.gmail.dev.wasacz.rpgsoundboard.R
 import com.gmail.dev.wasacz.rpgsoundboard.databinding.FragmentPlayerBinding
 import com.gmail.dev.wasacz.rpgsoundboard.services.MediaPlayerService
+import com.gmail.dev.wasacz.rpgsoundboard.ui.DatabaseViewModel
 import com.gmail.dev.wasacz.rpgsoundboard.ui.generic.Placeholder
 import com.gmail.dev.wasacz.rpgsoundboard.ui.generic.RefreshableListFragment
 import com.gmail.dev.wasacz.rpgsoundboard.ui.library.PlaylistAdapter
@@ -50,7 +52,8 @@ class PlayerFragment :
     }
 
     override fun initViewModel(): PlayerViewModel {
-        val viewModel by viewModels<PlayerViewModel>()
+        val dbVM by activityViewModels<DatabaseViewModel>()
+        val viewModel by viewModels<PlayerViewModel> { PlayerViewModel.Factory(dbVM) }
         return viewModel
     }
 
