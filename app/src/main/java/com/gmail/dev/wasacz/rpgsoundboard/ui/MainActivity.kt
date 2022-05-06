@@ -15,20 +15,19 @@ import androidx.navigation.ui.setupWithNavController
 import com.gmail.dev.wasacz.rpgsoundboard.R
 import com.gmail.dev.wasacz.rpgsoundboard.databinding.ActivityMainBinding
 import com.gmail.dev.wasacz.rpgsoundboard.services.MediaPlayerService
-import com.gmail.dev.wasacz.rpgsoundboard.ui.library.LibraryViewModel
 import com.google.android.material.behavior.HideBottomViewOnScrollBehavior
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
 class MainActivity : AppCompatActivity() {
     private lateinit var binding: ActivityMainBinding
-    private lateinit var viewModel: LibraryViewModel
+    private lateinit var viewModel: DatabaseViewModel
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityMainBinding.inflate(layoutInflater)
         WindowCompat.setDecorFitsSystemWindows(window, false)
-        val vM by viewModels<LibraryViewModel>()
+        val vM by viewModels<DatabaseViewModel>()
         viewModel = vM
         setContentView(binding.root)
 
@@ -59,7 +58,8 @@ class MainActivity : AppCompatActivity() {
                     R.id.navigation_library -> {
                         setImageResource(R.drawable.ic_add_24dp)
                         setOnClickListener {
-                            viewModel.saveSongs(context)
+                            //TODO
+                            viewModel.addData()
                         }
                     }
                     else -> setOnClickListener {}

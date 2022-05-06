@@ -11,13 +11,14 @@ enum class SongType {
 
 @Serializable
 sealed class Song {
+    abstract val id: Int
     abstract var title: String
     abstract val type: SongType
 }
 
 @Serializable
 @SerialName("song.local")
-class LocalSong(override var title: String, private val _uri: String): Song() {
+class LocalSong(override val id: Int, override var title: String, private val _uri: String) : Song() {
     val uri: Uri by lazy { Uri.parse(_uri) }
 
     @Transient

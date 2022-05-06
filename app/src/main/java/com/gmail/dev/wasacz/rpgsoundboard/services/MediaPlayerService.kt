@@ -15,7 +15,7 @@ import com.gmail.dev.wasacz.rpgsoundboard.model.SongType
 import com.gmail.dev.wasacz.rpgsoundboard.viewmodel.LocalPlaylist
 import com.gmail.dev.wasacz.rpgsoundboard.viewmodel.LocalSong
 import com.gmail.dev.wasacz.rpgsoundboard.viewmodel.Playlist
-import com.gmail.dev.wasacz.rpgsoundboard.viewmodel.SongList
+import com.gmail.dev.wasacz.rpgsoundboard.viewmodel.Song
 import java.io.IOException
 
 class MediaPlayerService : Service(), MediaPlayer.OnCompletionListener, MediaPlayer.OnPreparedListener, MediaPlayer.OnErrorListener,
@@ -35,7 +35,7 @@ class MediaPlayerService : Service(), MediaPlayer.OnCompletionListener, MediaPla
 
     private val binder: IBinder = LocalBinder()
     private var mediaPlayer: MediaPlayer? = null
-    private var mediaFiles: SongList? = null
+    private var mediaFiles: List<Song>? = null
     private var audioManager: AudioManager? = null
     private var audioFocusRequest: AudioFocusRequest? = null
     private var resumePosition: Int? = null
@@ -51,6 +51,7 @@ class MediaPlayerService : Service(), MediaPlayer.OnCompletionListener, MediaPla
                 mediaPlayer?.stop()
                 playNextTrack()
             }
+            PlaylistType.SPOTIFY -> TODO("Not yet implemented - Spotify song")
         }
     }
 

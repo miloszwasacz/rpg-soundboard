@@ -1,10 +1,6 @@
 package com.gmail.dev.wasacz.rpgsoundboard.viewmodel
 
-import com.gmail.dev.wasacz.rpgsoundboard.model.SongType
-import com.gmail.dev.wasacz.rpgsoundboard.model.LocalSong as ModelLocalSong
-import com.gmail.dev.wasacz.rpgsoundboard.model.Song as ModelSong
-
-class SongList(private val list: List<ModelSong>) : List<Song> {
+/*class SongList(private val list: List<ModelSong>) : List<Song> {
     override fun get(index: Int): LocalSong = when (list[index].type) {
         SongType.LOCAL -> LocalSong(list[index] as ModelLocalSong)
     }
@@ -44,4 +40,4 @@ class SongList(private val list: List<ModelSong>) : List<Song> {
             SongType.LOCAL -> LocalSong(it as ModelLocalSong)
         }
     }.subList(fromIndex, toIndex)
-}
+}*/
