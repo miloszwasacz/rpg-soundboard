@@ -1,27 +1,15 @@
-package com.gmail.dev.wasacz.rpgsoundboard.ui.library
+package com.gmail.dev.wasacz.rpgsoundboard.ui.library.presets
 
 import android.content.Context
-import android.os.Bundle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import com.gmail.dev.wasacz.rpgsoundboard.ui.DatabaseViewModel
 import com.gmail.dev.wasacz.rpgsoundboard.ui.generic.ListViewModel
-import com.gmail.dev.wasacz.rpgsoundboard.viewmodel.Playlist
+import com.gmail.dev.wasacz.rpgsoundboard.viewmodel.Preset
 
-class LibraryViewModel(private val dbViewModel: DatabaseViewModel) : ListViewModel<Playlist>() {
-    override suspend fun getList(context: Context, extras: Bundle?): List<Playlist>? {
-        /*return try {
-            Model.getSongs(context.applicationContext)
-        } catch (e: SerializationException) {
-            emitList(null, ListState.SERIALIZATION_ERROR)
-            null
-        }?.map {
-            when(it.type) {
-                SongType.LOCAL -> it
-            }
-        }*/
-        //TODO Not yet implemented
-        return dbViewModel.getPlaylistsWithSongsFromPreset(2)
+class PresetViewModel(private val dbViewModel: DatabaseViewModel) : ListViewModel<Preset>() {
+    override suspend fun getList(context: Context): List<Preset> {
+        return dbViewModel.getPresets()
     }
 
     /*fun saveSongs(context: Context) {
@@ -64,6 +52,6 @@ class LibraryViewModel(private val dbViewModel: DatabaseViewModel) : ListViewMod
 
     @Suppress("UNCHECKED_CAST")
     class Factory(private val dbViewModel: DatabaseViewModel) : ViewModelProvider.Factory {
-        override fun <T : ViewModel> create(modelClass: Class<T>): T = LibraryViewModel(dbViewModel) as T
+        override fun <T : ViewModel> create(modelClass: Class<T>): T = PresetViewModel(dbViewModel) as T
     }
 }

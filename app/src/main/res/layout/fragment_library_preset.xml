@@ -3,9 +3,18 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools">
 
+    <data>
+
+        <variable
+            name="presetId"
+            type="Long" />
+    </data>
+
     <androidx.coordinatorlayout.widget.CoordinatorLayout
+        android:id="@+id/main_layout"
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
+        android:layout_height="match_parent"
+        android:transitionName="@{@string/transition_name_preset(presetId)}">
 
         <com.google.android.material.appbar.AppBarLayout
             android:layout_width="match_parent"
@@ -18,10 +27,10 @@
                 android:layout_width="match_parent"
                 android:layout_height="?attr/actionBarSize"
                 android:background="@android:color/transparent"
-                app:navigationIcon="@{null}"
+                app:navigationIcon="@drawable/ic_arrow_back_24dp"
                 app:titleCentered="true"
                 tools:background="?attr/colorSurface"
-                tools:title="@string/title_library" />
+                tools:title="Preset name" />
         </com.google.android.material.appbar.AppBarLayout>
 
         <include

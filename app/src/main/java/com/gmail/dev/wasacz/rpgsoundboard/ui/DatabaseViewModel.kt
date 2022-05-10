@@ -21,7 +21,6 @@ class DatabaseViewModel(application: Application) : AndroidViewModel(application
 
     /**
      * Fetches all [Presets][Preset].
-     * @throws DBException See [loadPlaylistsFromPreset].
      */
     suspend fun getPresets(): List<Preset> = db.loadPresets()
 

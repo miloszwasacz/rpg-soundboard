@@ -1,4 +1,4 @@
-package com.gmail.dev.wasacz.rpgsoundboard.ui.library
+package com.gmail.dev.wasacz.rpgsoundboard.ui.player
 
 import com.gmail.dev.wasacz.rpgsoundboard.databinding.ListItemPlaylistBinding
 import com.gmail.dev.wasacz.rpgsoundboard.ui.generic.DataBindingListAdapter
@@ -12,7 +12,7 @@ class PlaylistAdapter(list: List<Playlist>, private val playerStart: (playlist: 
             playerStart(list[position])
         }
         holder.binding.updateBindings {
-            title = list[position].name
+
         }
     }
 }

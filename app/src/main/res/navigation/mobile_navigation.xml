@@ -9,7 +9,7 @@
         android:id="@+id/navigation_home"
         android:name="com.gmail.dev.wasacz.rpgsoundboard.ui.home.HomeFragment"
         android:label="@string/title_home"
-        tools:layout="@layout/fragment_home" >
+        tools:layout="@layout/fragment_home">
         <action
             android:id="@+id/navigation_home_to_player"
             app:destination="@id/navigation_player"
@@ -20,16 +20,54 @@
         android:id="@+id/navigation_player"
         android:name="com.gmail.dev.wasacz.rpgsoundboard.ui.player.PlayerFragment"
         android:label="Player"
-        tools:layout="@layout/fragment_refreshable_list">
-    </fragment>
+        tools:layout="@layout/fragment_refreshable_list" />
 
     <fragment
-        android:id="@+id/navigation_library"
-        android:name="com.gmail.dev.wasacz.rpgsoundboard.ui.library.LibraryFragment"
+        android:id="@+id/navigation_library_presets"
+        android:name="com.gmail.dev.wasacz.rpgsoundboard.ui.library.presets.PresetFragment"
         android:label="@string/title_library"
-        tools:layout="@layout/fragment_refreshable_list">
+        tools:layout="@layout/list_item_preset">
         <argument
             android:name="@string/nav_arg_show_fab"
             android:defaultValue="true" />
+        <action
+            android:id="@+id/navigation_library_presets_to_playlists"
+            app:destination="@id/navigation_library_playlists" />
     </fragment>
+
+    <fragment
+        android:id="@+id/navigation_library_playlists"
+        android:name="com.gmail.dev.wasacz.rpgsoundboard.ui.library.playlists.PlaylistFragment"
+        android:label="{presetName}"
+        tools:layout="@layout/list_item_playlist">
+        <argument
+            android:name="presetId"
+            app:argType="long" />
+        <argument
+            android:name="presetName"
+            app:argType="string" />
+        <action
+            android:id="@+id/navigation_library_playlists_to_songs"
+            app:destination="@id/navigation_library_songs" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/navigation_library_songs"
+        android:name="com.gmail.dev.wasacz.rpgsoundboard.ui.library.songs.SongFragment"
+        android:label="{playlistName}"
+        tools:layout="@layout/list_item_song">
+        <argument
+            android:name="playlistItem"
+            app:argType="com.gmail.dev.wasacz.rpgsoundboard.viewmodel.PlaylistItem" />
+        <argument
+            android:name="playlistName"
+            app:argType="string" />
+    </fragment>
+
+    <!--TODO Settings fragment-->
+    <fragment
+        android:id="@+id/navigation_settings"
+        android:name="com.gmail.dev.wasacz.rpgsoundboard.ui.home.HomeFragment"
+        android:label="@string/title_settings"
+        tools:layout="@layout/fragment_home" />
 </navigation>

@@ -8,16 +8,16 @@
         <import type="android.view.View" />
 
         <variable
-            name="placeholderImage"
-            type="Integer" />
+            name="placeholder"
+            type="com.gmail.dev.wasacz.rpgsoundboard.ui.generic.Placeholder" />
 
         <variable
-            name="placeholderText"
+            name="placeholderErrorCode"
             type="String" />
     </data>
 
     <androidx.appcompat.widget.LinearLayoutCompat
-        android:id="@+id/placeholder"
+        android:id="@+id/placeholder_layout"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="center"
@@ -31,18 +31,31 @@
             android:layout_width="@dimen/list_placeholder_image_size"
             android:layout_height="@dimen/list_placeholder_image_size"
             android:scaleType="fitCenter"
-            android:visibility="@{placeholderImage != null ? View.VISIBLE : View.GONE}"
-            app:srcCompat="@{placeholderImage}"
+            android:visibility="@{placeholder != null &amp;&amp; placeholder.drawable != null}"
+            app:srcCompat="@{placeholder.drawable}"
             tools:srcCompat="@drawable/ic_notifications_black_24dp" />
 
-        <androidx.appcompat.widget.AppCompatTextView
+        <com.google.android.material.textview.MaterialTextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:maxWidth="@dimen/list_placeholder_text_size"
-            android:text="@{placeholderText ?? @string/placeholder_fallback_message}"
+            android:text="@{placeholder}"
             android:textAlignment="center"
             android:textAppearance="?attr/textAppearanceHeadlineMedium"
+            android:visibility="@{placeholder != null &amp;&amp; placeholder.text != null}"
+            app:fallbackText="@{@string/placeholder_fallback_message}"
             tools:text="@string/placeholder_fallback_message" />
+
+        <com.google.android.material.textview.MaterialTextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:maxWidth="@dimen/list_placeholder_text_size"
+            android:text="@{`(` + placeholderErrorCode + `)`}"
+            android:textAlignment="center"
+            android:textAppearance="?attr/textAppearanceLabelLarge"
+            android:visibility="@{placeholderErrorCode != null}"
+            tools:text="(SERIALIZATION_ERROR)"
+            tools:visibility="gone" />
 
     </androidx.appcompat.widget.LinearLayoutCompat>
 </layout>

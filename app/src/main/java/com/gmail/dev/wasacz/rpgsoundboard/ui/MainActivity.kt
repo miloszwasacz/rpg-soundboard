@@ -4,10 +4,8 @@ import android.content.Intent
 import android.os.Bundle
 import android.util.Log
 import android.view.MenuItem
-import android.view.View
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
-import androidx.coordinatorlayout.widget.CoordinatorLayout
 import androidx.core.view.WindowCompat
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.NavHostFragment
@@ -15,7 +13,6 @@ import androidx.navigation.ui.setupWithNavController
 import com.gmail.dev.wasacz.rpgsoundboard.R
 import com.gmail.dev.wasacz.rpgsoundboard.databinding.ActivityMainBinding
 import com.gmail.dev.wasacz.rpgsoundboard.services.MediaPlayerService
-import com.google.android.material.behavior.HideBottomViewOnScrollBehavior
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
@@ -33,7 +30,6 @@ class MainActivity : AppCompatActivity() {
 
         val navController = binding.navHostFragment.getFragment<NavHostFragment>().navController
         binding.navView.apply {
-            menu.findItem(R.id.menu_placeholder).isEnabled = false
             setupWithNavController(navController)
             val itemSelectedListener = { menuItem: MenuItem ->
                 lifecycleScope.launch {
@@ -47,15 +43,14 @@ class MainActivity : AppCompatActivity() {
                 true
             }
             setOnItemReselectedListener { menuItem ->
-                if(navController.currentDestination?.id != menuItem.itemId) itemSelectedListener(menuItem)
+                if (navController.currentDestination?.id != menuItem.itemId) itemSelectedListener(menuItem)
                 else navController.navigate(menuItem.itemId)
             }
         }
         navController.addOnDestinationChangedListener { _, destination, args ->
-            showOnNavigation(binding.navView, binding.mainFab)
             binding.mainFab.apply {
                 when (destination.id) {
-                    R.id.navigation_library -> {
+                    R.id.navigation_library_presets -> {
                         setImageResource(R.drawable.ic_add_24dp)
                         setOnClickListener {
                             //TODO
@@ -83,11 +78,6 @@ class MainActivity : AppCompatActivity() {
         } catch (e: IllegalStateException) {
             Log.e("SERVICE", "stopService: ${e.cause}\n\n${e.message}")
         }
-    }
-
-    private fun showOnNavigation(vararg views: View) {
-        for (view in views)
-            ((view.layoutParams as CoordinatorLayout.LayoutParams).behavior as HideBottomViewOnScrollBehavior).slideUp(view)
     }
 
     override fun onDestroy() {

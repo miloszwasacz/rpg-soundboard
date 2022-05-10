@@ -9,6 +9,7 @@ import androidx.annotation.DrawableRes
 import androidx.annotation.StringRes
 import androidx.databinding.ViewDataBinding
 import androidx.recyclerview.widget.RecyclerView
+import com.gmail.dev.wasacz.rpgsoundboard.R
 
 data class Placeholder(@DrawableRes val drawable: Int?, @StringRes val text: Int?)
 
@@ -26,4 +27,11 @@ abstract class ListFragment<B : ViewDataBinding, T, VM: ListViewModel<T>>(inflat
     abstract fun initViewModel(): VM
     protected abstract fun List<T>.initAdapter(): RecyclerView.Adapter<*>
     protected abstract fun initLayoutManager(): RecyclerView.LayoutManager
+
+    companion object {
+        val timeoutPlaceholder: Placeholder
+            get() = Placeholder(R.drawable.ic_dashboard_black_24dp, R.string.placeholder_timeout_message)
+        val errorPlaceholder: Placeholder
+            get() = Placeholder(R.drawable.ic_dashboard_black_24dp, R.string.placeholder_error_message)
+    }
 }

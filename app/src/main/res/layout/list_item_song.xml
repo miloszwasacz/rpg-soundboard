@@ -5,9 +5,8 @@
     <data>
 
         <variable
-            name="playlist"
-            type="com.gmail.dev.wasacz.rpgsoundboard.viewmodel.PlaylistItem" />
-
+            name="song"
+            type="com.gmail.dev.wasacz.rpgsoundboard.viewmodel.Song" />
     </data>
 
     <com.google.android.material.card.MaterialCardView
@@ -16,20 +15,19 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:clickable="true"
-        android:transitionName="@{@string/transition_name_playlist(playlist.id)}"
         tools:layout_margin="@dimen/card_margin">
 
         <androidx.appcompat.widget.LinearLayoutCompat
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:padding="@dimen/card_padding">
+            android:padding="16dp">
 
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="@{playlist.name}"
+                android:text="@{song.title}"
                 android:textAppearance="?attr/textAppearanceTitleLarge"
-                tools:text="Playlist title" />
+                tools:text="Song title" />
 
         </androidx.appcompat.widget.LinearLayoutCompat>
 

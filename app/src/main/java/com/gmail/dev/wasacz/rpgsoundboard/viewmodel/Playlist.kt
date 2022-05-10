@@ -1,9 +1,11 @@
 package com.gmail.dev.wasacz.rpgsoundboard.viewmodel
 
+import android.os.Parcelable
 import com.gmail.dev.wasacz.rpgsoundboard.model.PlaylistType
 import com.gmail.dev.wasacz.rpgsoundboard.model.SongType
 import com.gmail.dev.wasacz.rpgsoundboard.model.db.DBPlaylist
 import com.gmail.dev.wasacz.rpgsoundboard.model.db.DBPlaylistType
+import kotlinx.parcelize.Parcelize
 
 /*sealed class Playlist(@PackagePrivate val playlist: ModelPlaylist) {
     val name by playlist::name
@@ -40,10 +42,13 @@ sealed class Playlist {
     }
 }
 
-class PlaylistItem(dbPlaylist: DBPlaylist) {
-    val id: Long = dbPlaylist.playlistId
-    val name: String = dbPlaylist.name
-    val type: DBPlaylistType.PlaylistType = DBPlaylistType.map(dbPlaylist.type)
+@Parcelize
+class PlaylistItem(val id: Long, val name: String, val type: DBPlaylistType.PlaylistType) : Parcelable {
+    constructor(dbPlaylist: DBPlaylist) : this(
+        dbPlaylist.playlistId,
+        dbPlaylist.name,
+        DBPlaylistType.map(dbPlaylist.type)
+    )
 }
 
 class LocalPlaylist(override val id: Long, override var name: String, val songList: ArrayList<LocalSong>) : Playlist() {

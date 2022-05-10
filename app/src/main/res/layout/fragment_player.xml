@@ -25,9 +25,7 @@
 
         <include
             android:id="@+id/list_fragment"
-            layout="@layout/fragment_refreshable_list"
-            app:placeholder="@{placeholder}"
-            app:placeholderErrorCode="@{placeholderErrorCode}" />
+            layout="@layout/fragment_refreshable_list" />
 
     </androidx.appcompat.widget.LinearLayoutCompat>
 </layout>

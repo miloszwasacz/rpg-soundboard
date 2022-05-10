@@ -1,7 +1,6 @@
 package com.gmail.dev.wasacz.rpgsoundboard.ui.generic
 
 import android.content.Context
-import android.os.Bundle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.TimeoutCancellationException
@@ -65,7 +64,7 @@ abstract class ListViewModel<T> : ViewModel() {
      *
      * @see list
      */
-    protected abstract suspend fun getList(context: Context, extras: Bundle? = null): List<T>?
+    protected abstract suspend fun getList(context: Context): List<T>?
 
     protected fun emitList(list: List<T>?, state: ListState, message: String? = null) {
         viewModelScope.launch {

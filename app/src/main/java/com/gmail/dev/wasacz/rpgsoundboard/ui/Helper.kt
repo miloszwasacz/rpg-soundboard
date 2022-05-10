@@ -2,14 +2,20 @@ package com.gmail.dev.wasacz.rpgsoundboard.ui
 
 import android.animation.Animator
 import android.animation.AnimatorListenerAdapter
+import android.content.Context
 import android.content.res.Resources
 import android.graphics.Paint
 import android.util.Log
 import android.view.View
 import androidx.annotation.ColorInt
 import androidx.annotation.DimenRes
+import androidx.navigation.NavController
+import androidx.navigation.ui.setupWithNavController
 import androidx.swiperefreshlayout.widget.CircularProgressDrawable
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
+import com.google.android.material.appbar.CollapsingToolbarLayout
+import com.google.android.material.appbar.MaterialToolbar
+import com.google.android.material.elevation.SurfaceColors
 
 //#region Views
 fun View.show() {
@@ -52,8 +58,8 @@ fun SwipeRefreshLayout.setStyle(
         p.isAccessible = true
         val progress = p.get(this) as CircularProgressDrawable
         progress.strokeCap = arrowCap
-        if(arrowColor != null) progress.setColorSchemeColors(arrowColor)
-        if(backgroundColor != null) setProgressBackgroundColorSchemeColor(backgroundColor)
+        if (arrowColor != null) progress.setColorSchemeColors(arrowColor)
+        if (backgroundColor != null) setProgressBackgroundColorSchemeColor(backgroundColor)
         true
     } catch (e: Exception) {
         Log.e("REFLECTION ERROR", "setStrokeCap: $e")
@@ -62,6 +68,11 @@ fun SwipeRefreshLayout.setStyle(
             else -> throw e
         }
     }
+}
+
+fun CollapsingToolbarLayout.setupDefault(context: Context?, toolbar: MaterialToolbar, navController: NavController) {
+    setupWithNavController(toolbar, navController)
+    context?.let { setContentScrimColor(SurfaceColors.SURFACE_2.getColor(it)) }
 }
 //#endregion
 
@@ -79,11 +90,13 @@ enum class AnimTime {
     LONG
 }
 
-fun Resources.getDefaultAnimTime(animTime: AnimTime): Int = getInteger(when(animTime) {
-    AnimTime.SHORT -> android.R.integer.config_shortAnimTime
-    AnimTime.MEDIUM -> android.R.integer.config_mediumAnimTime
-    AnimTime.LONG -> android.R.integer.config_longAnimTime
-})
+fun Resources.getDefaultAnimTime(animTime: AnimTime): Int = getInteger(
+    when (animTime) {
+        AnimTime.SHORT -> android.R.integer.config_shortAnimTime
+        AnimTime.MEDIUM -> android.R.integer.config_mediumAnimTime
+        AnimTime.LONG -> android.R.integer.config_longAnimTime
+    }
+)
 
 fun Resources.getDefaultAnimTimeLong(animTime: AnimTime): Long = getDefaultAnimTime(animTime).toLong()
 //#endregion
