@@ -8,7 +8,6 @@ import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
-import androidx.navigation.ui.setupWithNavController
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.gmail.dev.wasacz.rpgsoundboard.R
@@ -17,6 +16,7 @@ import com.gmail.dev.wasacz.rpgsoundboard.ui.DatabaseViewModel
 import com.gmail.dev.wasacz.rpgsoundboard.ui.generic.MarginItemDecoration
 import com.gmail.dev.wasacz.rpgsoundboard.ui.generic.Placeholder
 import com.gmail.dev.wasacz.rpgsoundboard.ui.generic.StaticListFragment
+import com.gmail.dev.wasacz.rpgsoundboard.ui.setupDefault
 import com.gmail.dev.wasacz.rpgsoundboard.viewmodel.PlaylistItem
 import com.google.android.material.transition.MaterialContainerTransform
 import com.google.android.material.transition.MaterialElevationScale
@@ -40,8 +40,7 @@ class PlaylistFragment : StaticListFragment<FragmentLibraryPresetBinding, Playli
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        enterTransition = null
-        sharedElementEnterTransition = MaterialContainerTransform().apply { drawingViewId = R.id.main_layout }
+        sharedElementEnterTransition = MaterialContainerTransform().apply { drawingViewId = R.id.nav_host_fragment }
         exitTransition = MaterialElevationScale(false)
         reenterTransition = MaterialElevationScale(true)
     }
@@ -55,7 +54,7 @@ class PlaylistFragment : StaticListFragment<FragmentLibraryPresetBinding, Playli
                 startPostponedEnterTransition()
                 true
             }
-            toolbar.setupWithNavController(findNavController())
+            toolbar.setupDefault(findNavController(), activity)
             inflateList(listLayout)
         }
         return binding.root

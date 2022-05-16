@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <data>
+
+        <import type="android.view.View" />
+
+        <import type="com.google.android.material.R" />
+
+        <variable
+            name="text"
+            type="String" />
+
+        <variable
+            name="isSelected"
+            type="Boolean" />
+
+        <variable
+            name="isSelectable"
+            type="Boolean" />
+    </data>
+
+    <RelativeLayout
+        android:id="@+id/itemLayout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:animateLayoutChanges="true"
+        android:background="?android:attr/selectableItemBackground"
+        android:clickable="true">
+
+        <androidx.appcompat.widget.AppCompatCheckedTextView
+            android:id="@+id/checkmarkView"
+            style="@style/Widget.Material3.CheckedTextView.SelectableListItem"
+            android:layout_width="match_parent"
+            android:checkMark="@{isSelectable == false ? null : @drawable/ic_checkbox_round_24dp}"
+            android:layout_height="wrap_content"
+            android:checked="@{isSelected}"
+            android:elevation="@dimen/surface_list_item_content_elevation"
+            android:text="@{text}"
+            tools:checked="true"
+            tools:text="Item name" />
+
+        <View
+            android:id="@+id/backdropSelected"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_alignBottom="@id/checkmarkView"
+            android:layout_alignParentTop="true"
+            android:visibility="@{isSelected ? View.VISIBLE : View.INVISIBLE}"
+            app:surfaceElevation="@{1}" />
+
+    </RelativeLayout>
+</layout>

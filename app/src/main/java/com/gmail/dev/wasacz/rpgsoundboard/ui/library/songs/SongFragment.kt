@@ -31,7 +31,7 @@ class SongFragment : StaticListFragment<FragmentLibraryPlaylistBinding, Song, So
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enterTransition = null
-        sharedElementEnterTransition = MaterialContainerTransform().apply { drawingViewId = R.id.main_layout }
+        sharedElementEnterTransition = MaterialContainerTransform().apply { drawingViewId = R.id.nav_host_fragment }
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
@@ -39,7 +39,7 @@ class SongFragment : StaticListFragment<FragmentLibraryPlaylistBinding, Song, So
         with(binding) {
             lifecycleOwner = viewLifecycleOwner
             playlistId = navArgs.playlistItem.id
-            toolbarLayout.setupDefault(context, toolbar, findNavController())
+            toolbarLayout.setupDefault(context, toolbar, findNavController(), activity)
             //TODO Playlist background image
             toolbarBackground.setImageResource(R.drawable.ic_launcher_background)
             toolbar.setOnMenuItemClickListener { menuItem ->

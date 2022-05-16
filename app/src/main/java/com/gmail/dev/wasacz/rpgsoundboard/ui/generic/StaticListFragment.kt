@@ -15,6 +15,7 @@ import com.gmail.dev.wasacz.rpgsoundboard.ui.generic.ListViewModel.ListState
 import com.gmail.dev.wasacz.rpgsoundboard.ui.hide
 import com.gmail.dev.wasacz.rpgsoundboard.ui.show
 import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.launch
 
 abstract class StaticListFragment<B : ViewDataBinding, T, VM : ListViewModel<T>>(
     private val placeholder: Placeholder,
@@ -90,5 +91,21 @@ abstract class StaticListFragment<B : ViewDataBinding, T, VM : ListViewModel<T>>
         if (binding is FragmentListBinding)
             (binding as FragmentListBinding).paddingTop = resources.getDimension(R.dimen.scroll_view_padding_top)
         return binding.root
+    }
+
+    @CallSuper
+    override fun onResume() {
+        super.onResume()
+        if (viewModel.list.value.state.first != ListState.READY) {
+            lifecycleScope.launch {
+                viewModel.refreshList(requireContext())
+            }
+        }
+    }
+
+    @CallSuper
+    override fun onPause() {
+        super.onPause()
+        viewModel.onFragmentPause()
     }
 }

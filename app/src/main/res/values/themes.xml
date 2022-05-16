@@ -1,4 +1,5 @@
 <resources>
+
     <style name="Theme.Default" parent="Theme.Material3.DayNight.NoActionBar">
         <!--#region Colors -->
         <item name="colorPrimary">@color/md_theme_primary</item>
@@ -33,17 +34,33 @@
         <item name="android:navigationBarColor">@android:color/transparent</item>
         <!--#endregion-->
         <item name="circularProgressIndicatorStyle">@style/ProgressStyle</item>
+        <item name="windowActionModeOverlay">true</item>
+        <item name="actionModeCloseDrawable">@drawable/ic_close_24dp</item>
+        <item name="actionBarTheme">@style/ThemeOverlay.Material3.Dark</item>
     </style>
+
     <style name="Theme.Default.Status" parent="Theme.Default">
         <item name="android:windowLightStatusBar">true</item>
     </style>
-    <style name="Theme.RPGSoundboard" parent="Theme.Default.Status">
-    </style>
+
+    <style name="Theme.RPGSoundboard" parent="Theme.Default.Status" />
+
     <style name="Theme.RPGSoundboard.RootScrollView" parent="Theme.RPGSoundboard">
         <item name="android:paddingTop">@dimen/scroll_view_padding_top</item>
         <item name="android:clipToPadding">false</item>
     </style>
+
     <style name="ProgressStyle" parent="Widget.Material3.CircularProgressIndicator">
         <item name="trackCornerRadius">@dimen/progress_track_radius</item>
     </style>
+
+    <style name="Widget.Material3.CheckedTextView.SelectableListItem" parent="">
+        <item name="android:checkMark">@drawable/ic_checkbox_round_24dp</item>
+        <item name="android:checkMarkTint">?attr/colorPrimary</item>
+        <item name="android:gravity">center_vertical</item>
+        <item name="android:padding">@dimen/card_padding</item>
+        <item name="android:textAppearance">?attr/textAppearanceTitleLarge</item>
+    </style>
+
+    <style name="MaterialAlertDialog.Centered" parent="@style/ThemeOverlay.Material3.MaterialAlertDialog.Centered" />
 </resources>

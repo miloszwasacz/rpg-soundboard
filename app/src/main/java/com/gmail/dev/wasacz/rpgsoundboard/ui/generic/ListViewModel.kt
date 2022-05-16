@@ -3,6 +3,8 @@ package com.gmail.dev.wasacz.rpgsoundboard.ui.generic
 import android.content.Context
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.gmail.dev.wasacz.rpgsoundboard.ui.AnimTime
+import com.gmail.dev.wasacz.rpgsoundboard.ui.getDefaultAnimTimeLong
 import kotlinx.coroutines.TimeoutCancellationException
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.*
@@ -36,13 +38,18 @@ abstract class ListViewModel<T> : ViewModel() {
         if (_list.value == null) fetchList(context)
     }
 
+    fun onFragmentPause() {
+        _list.value = null
+        _listState.value = ListState.LOADING to null
+    }
+
     /**
      * Launches a job that fetches the list.
      * New list value will be emitted by the [list] flow.
      *
-     * @param delay delay for animation in milliseconds
+     * @param delay delay for animation in milliseconds.
      * @param timeout timeout in milliseconds.
-     * @see list flow with current list.
+     * @see list
      */
     fun fetchList(context: Context, timeout: Long = TIMEOUT, delay: Long? = null) {
         viewModelScope.launch {
@@ -56,6 +63,16 @@ abstract class ListViewModel<T> : ViewModel() {
             }
         }
     }
+
+    /**
+     * Launches a job that fetches the list.
+     * New list value will be emitted by the [list] flow.
+     *
+     * @param timeout timeout in milliseconds.
+     * @see list
+     */
+    fun refreshList(context: Context, timeout: Long = TIMEOUT) =
+        fetchList(context, timeout, context.resources.getDefaultAnimTimeLong(AnimTime.MEDIUM))
 
     /**
      * Implementation of getting a list from a source.

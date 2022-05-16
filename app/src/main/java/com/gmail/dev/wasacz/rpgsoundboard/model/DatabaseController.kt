@@ -2,10 +2,7 @@ package com.gmail.dev.wasacz.rpgsoundboard.model
 
 import android.content.Context
 import androidx.room.Room
-import com.gmail.dev.wasacz.rpgsoundboard.model.db.AppDatabase
-import com.gmail.dev.wasacz.rpgsoundboard.model.db.DBPlaylistType
-import com.gmail.dev.wasacz.rpgsoundboard.model.db.DBSong
-import com.gmail.dev.wasacz.rpgsoundboard.model.db.DBSongType
+import com.gmail.dev.wasacz.rpgsoundboard.model.db.*
 import com.gmail.dev.wasacz.rpgsoundboard.viewmodel.*
 import com.gmail.dev.wasacz.rpgsoundboard.viewmodel.ExceptionCodes.Database.getCode
 import com.gmail.dev.wasacz.rpgsoundboard.viewmodel.LocalPlaylist
@@ -46,6 +43,25 @@ object DatabaseController {
     suspend fun AppDatabase.loadPresets(): List<Preset> = presetDao().loadPresets().map {
         Preset(it.presetId, it.name)
     }
+
+    /**
+     * Adds new preset to the database.
+     * @return Id of the new [preset][DBPreset].
+     */
+    suspend fun AppDatabase.addPreset(preset: DBPreset): Long = presetDao().insertPreset(preset)
+
+    /**
+     * Deletes preset with [preset]'s id and all its associations with playlists from database
+     */
+    suspend fun AppDatabase.deletePreset(preset: DBPreset) {
+        presetDao().deletePreset(preset)
+        presetDao().deletePresetPlaylists(preset.presetId)
+    }
+
+    /**
+     * Loads all playlists saved in the database.
+     */
+    suspend fun AppDatabase.loadPlaylists(): List<PlaylistItem> = playlistDao().loadPlaylists().map { PlaylistItem(it) }
 
     /**
      * Loads playlists included in provided preset from database and converts them to appropriate typed viewmodel objects.

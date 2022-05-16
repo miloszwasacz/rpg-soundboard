@@ -3,13 +3,24 @@ package com.gmail.dev.wasacz.rpgsoundboard.ui.library.presets
 import android.content.Context
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.viewModelScope
 import com.gmail.dev.wasacz.rpgsoundboard.ui.DatabaseViewModel
 import com.gmail.dev.wasacz.rpgsoundboard.ui.generic.ListViewModel
 import com.gmail.dev.wasacz.rpgsoundboard.viewmodel.Preset
+import kotlinx.coroutines.withContext
 
 class PresetViewModel(private val dbViewModel: DatabaseViewModel) : ListViewModel<Preset>() {
-    override suspend fun getList(context: Context): List<Preset> {
-        return dbViewModel.getPresets()
+    override suspend fun getList(context: Context): List<Preset> = withContext(viewModelScope.coroutineContext) {
+        dbViewModel.getPresets()
+    }
+
+    suspend fun addPreset(name: String): Pair<Long, String> = withContext(viewModelScope.coroutineContext) {
+        dbViewModel.createPreset(name) to name
+    }
+
+    suspend fun deletePresets(presets: List<Preset>) = withContext(viewModelScope.coroutineContext) {
+        for (preset in presets)
+            dbViewModel.deletePreset(preset.id)
     }
 
     /*fun saveSongs(context: Context) {

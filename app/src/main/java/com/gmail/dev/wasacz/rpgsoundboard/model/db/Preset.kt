@@ -39,6 +39,9 @@ interface PresetDao {
     @Delete
     suspend fun deletePreset(preset: DBPreset)
 
+    @Query("DELETE FROM preset_cross_ref WHERE presetId = :presetId")
+    suspend fun deletePresetPlaylists(presetId: Long)
+
     @Query("SELECT * FROM presets")
     suspend fun loadPresets(): List<DBPreset>
 

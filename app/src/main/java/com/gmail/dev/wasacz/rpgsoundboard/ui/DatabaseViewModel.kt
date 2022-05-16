@@ -5,8 +5,11 @@ import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import com.gmail.dev.wasacz.rpgsoundboard.model.DatabaseController
 import com.gmail.dev.wasacz.rpgsoundboard.model.DatabaseController.DBException
+import com.gmail.dev.wasacz.rpgsoundboard.model.DatabaseController.addPreset
+import com.gmail.dev.wasacz.rpgsoundboard.model.DatabaseController.deletePreset
 import com.gmail.dev.wasacz.rpgsoundboard.model.DatabaseController.loadPlaylist
 import com.gmail.dev.wasacz.rpgsoundboard.model.DatabaseController.loadPlaylistItemsFromPreset
+import com.gmail.dev.wasacz.rpgsoundboard.model.DatabaseController.loadPlaylists
 import com.gmail.dev.wasacz.rpgsoundboard.model.DatabaseController.loadPlaylistsFromPreset
 import com.gmail.dev.wasacz.rpgsoundboard.model.DatabaseController.loadPresets
 import com.gmail.dev.wasacz.rpgsoundboard.model.SongType
@@ -23,6 +26,22 @@ class DatabaseViewModel(application: Application) : AndroidViewModel(application
      * Fetches all [Presets][Preset].
      */
     suspend fun getPresets(): List<Preset> = db.loadPresets()
+
+    /**
+     * Creates new preset.
+     * @return Id of the new preset.
+     */
+    suspend fun createPreset(name: String): Long = db.addPreset(DBPreset(name = name))
+
+    /**
+     * Deletes preset with provided [id].
+     */
+    suspend fun deletePreset(id: Long) = db.deletePreset(DBPreset(id, ""))
+
+    /**
+     * Fetches all saved playlists in form of [PlaylistItems][PlaylistItem]..
+     */
+    suspend fun getPlaylists(): List<PlaylistItem> = db.loadPlaylists()
 
     /**
      * Fetches playlists in form of [PlaylistItems][PlaylistItem] from [Preset] with provided [presetId].

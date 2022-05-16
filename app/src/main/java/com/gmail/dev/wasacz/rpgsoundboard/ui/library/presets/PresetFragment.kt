@@ -1,24 +1,27 @@
 package com.gmail.dev.wasacz.rpgsoundboard.ui.library.presets
 
 import android.os.Bundle
-import android.view.LayoutInflater
-import android.view.View
-import android.view.ViewGroup
+import android.view.*
 import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.viewModels
+import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.viewModelScope
+import androidx.navigation.NavController
 import androidx.navigation.fragment.findNavController
-import androidx.navigation.ui.setupWithNavController
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.gmail.dev.wasacz.rpgsoundboard.R
 import com.gmail.dev.wasacz.rpgsoundboard.databinding.FragmentLibraryBinding
-import com.gmail.dev.wasacz.rpgsoundboard.ui.DatabaseViewModel
+import com.gmail.dev.wasacz.rpgsoundboard.ui.*
 import com.gmail.dev.wasacz.rpgsoundboard.ui.generic.Placeholder
+import com.gmail.dev.wasacz.rpgsoundboard.ui.generic.SelectableItemListAdapter
 import com.gmail.dev.wasacz.rpgsoundboard.ui.generic.StaticListFragment
 import com.gmail.dev.wasacz.rpgsoundboard.viewmodel.Preset
 import com.google.android.material.transition.MaterialElevationScale
 import com.google.android.material.transition.MaterialFadeThrough
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 
 class PresetFragment : StaticListFragment<FragmentLibraryBinding, Preset, PresetViewModel>(
     Placeholder(
@@ -30,18 +33,86 @@ class PresetFragment : StaticListFragment<FragmentLibraryBinding, Preset, Preset
         listOf(DividerItemDecoration(context, RecyclerView.VERTICAL))
     }
 ) {
+    private val destinationChangedListener = NavController.OnDestinationChangedListener { _, destination, _ ->
+        when (destination.id) {
+            R.id.navigation_library_presets,
+            R.id.navigation_dialog_delete_presets -> {
+            }
+            else -> binding.listLayout.recyclerView.adapter?.let {
+                if (it is PresetAdapter) it.finishActionMode()
+            }
+        }
+    }
+    private val actionModeCallback: ActionMode.Callback = object : ActionMode.Callback {
+        override fun onCreateActionMode(mode: ActionMode?, menu: Menu?): Boolean = mode?.run {
+            menuInflater?.inflate(R.menu.library_context_menu, menu) ?: return@run null
+            binding.listLayout.recyclerView.adapter?.let {
+                if (it is PresetAdapter) it.onCreateActionMode()
+            } ?: return@run null
+            true
+        } ?: false
+
+        override fun onPrepareActionMode(mode: ActionMode?, menu: Menu?): Boolean {
+            lifecycleScope.launch {
+                delay(resources.getDefaultAnimTimeLong(AnimTime.SHORT))
+                hideFAB()
+            }
+            return false
+        }
+
+        override fun onActionItemClicked(mode: ActionMode?, item: MenuItem?): Boolean = when (item?.itemId) {
+            R.id.action_delete -> {
+                val action = PresetFragmentDirections.navigationLibraryDeletePresets()
+                findNavController().navigate(action)
+                true
+            }
+            else -> false
+        }
+
+        override fun onDestroyActionMode(mode: ActionMode?) {
+            binding.listLayout.recyclerView.adapter?.let {
+                if (it is PresetAdapter) it.onDestroyActionMode()
+            }
+            showFAB()
+        }
+    }
+
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
         super.onCreateView(inflater, container, savedInstanceState)
         with(binding) {
             lifecycleOwner = viewLifecycleOwner
-            toolbar.setupWithNavController(findNavController())
+            toolbar.setupDefault(findNavController(), activity)
             listLayout.recyclerView.viewTreeObserver.addOnPreDrawListener {
                 startPostponedEnterTransition()
                 true
             }
             inflateList(listLayout)
         }
+        setupFAB(R.drawable.ic_add_24dp) {
+            val action = PresetFragmentDirections.navigationLibraryAddPreset()
+            findNavController().navigate(action)
+        }
+        findNavController().addOnDestinationChangedListener(destinationChangedListener)
         return binding.root
+    }
+
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+        getNavigationResult<Boolean>(R.id.navigation_library_presets, R.string.nav_arg_delete_presets_result) { result ->
+            if (result) {
+                binding.listLayout.recyclerView.adapter?.let {
+                    if (it is PresetAdapter) {
+                        viewModel.viewModelScope.launch {
+                            viewModel.deletePresets(it.getSelectedItems())
+                            it.notifyItemsRemoved()
+                            it.finishActionMode()
+                            delay(resources.getDefaultAnimTimeLong(AnimTime.LONG))
+                            viewModel.refreshList(requireContext())
+                        }
+                    }
+                }
+            }
+        }
     }
 
     override fun initViewModel(): PresetViewModel {
@@ -50,7 +121,9 @@ class PresetFragment : StaticListFragment<FragmentLibraryBinding, Preset, Preset
         return viewModel
     }
 
-    override fun List<Preset>.initAdapter(): PresetAdapter = PresetAdapter(this, findNavController(), ::setItemClickedExitAnimation)
+    override fun List<Preset>.initAdapter(): SelectableItemListAdapter<Preset> =
+        PresetAdapter(this, findNavController(), { activity?.startActionMode(actionModeCallback) }, ::setItemClickedExitAnimation)
+
     override fun initLayoutManager(): RecyclerView.LayoutManager = LinearLayoutManager(context)
 
     override fun onResume() {
@@ -66,5 +139,10 @@ class PresetFragment : StaticListFragment<FragmentLibraryBinding, Preset, Preset
     private fun setDefaultExitAnimation() {
         exitTransition = MaterialFadeThrough()
         reenterTransition = null
+    }
+
+    override fun onStop() {
+        findNavController().removeOnDestinationChangedListener(destinationChangedListener)
+        super.onStop()
     }
 }
