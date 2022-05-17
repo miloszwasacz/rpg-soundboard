@@ -31,15 +31,23 @@ class MainActivity : AppCompatActivity(), IFABActivity, IBottomNavActivity {
         viewModel = vM
         setContentView(binding.root)
 
-        val navController = binding.navHostFragment.getFragment<NavHostFragment>().navController
+        val navHost = binding.navHostFragment.getFragment<NavHostFragment>()
+        val navController = navHost.navController
         binding.navView.apply {
             setupWithNavController(navController)
             setOnItemSelectedListener { menuItem ->
-                navController.navigate(menuItem.itemId, null, navOptions {
+                val navOptions = navOptions {
                     navController.currentDestination?.id?.let {
                         popUpTo(it)
                     }
-                })
+                }
+                with(navController) {
+                    navHost.childFragmentManager.primaryNavigationFragment.let {
+                        if (it !== null && it is IToolbarFragment)
+                            navigate(menuItem.itemId, it.getToolbar(), it.getToolbarLayout(), navOptions)
+                        else navigate(menuItem.itemId, null, navOptions)
+                    }
+                }
                 true
             }
         }

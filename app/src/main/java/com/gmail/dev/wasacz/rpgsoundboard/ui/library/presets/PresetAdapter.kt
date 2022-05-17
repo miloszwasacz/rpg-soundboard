@@ -7,11 +7,14 @@ import com.gmail.dev.wasacz.rpgsoundboard.R
 import com.gmail.dev.wasacz.rpgsoundboard.databinding.ListItemSelectableBinding
 import com.gmail.dev.wasacz.rpgsoundboard.ui.generic.SelectableItemListAdapter
 import com.gmail.dev.wasacz.rpgsoundboard.ui.generic.updateBindings
+import com.gmail.dev.wasacz.rpgsoundboard.ui.navigate
 import com.gmail.dev.wasacz.rpgsoundboard.viewmodel.Preset
+import com.google.android.material.appbar.MaterialToolbar
 
 class PresetAdapter(
     list: List<Preset>,
     private val navController: NavController,
+    private val toolbar: MaterialToolbar,
     private val startActionMode: () -> ActionMode?,
     private val onItemClickAnimationSetter: () -> Unit
 ) : SelectableItemListAdapter<Preset>(list, { it.name }) {
@@ -52,7 +55,7 @@ class PresetAdapter(
                 val extras = FragmentNavigatorExtras(
                     itemLayout to root.resources.getString(R.string.transition_name_preset, item.id)
                 )
-                navController.navigate(action, extras)
+                navController.navigate(action, toolbar, extras)
             } else itemLayout.performLongClick()
         }
         return true

@@ -18,6 +18,7 @@ import com.gmail.dev.wasacz.rpgsoundboard.ui.generic.Placeholder
 import com.gmail.dev.wasacz.rpgsoundboard.ui.generic.SelectableItemListAdapter
 import com.gmail.dev.wasacz.rpgsoundboard.ui.generic.StaticListFragment
 import com.gmail.dev.wasacz.rpgsoundboard.viewmodel.Preset
+import com.google.android.material.appbar.MaterialToolbar
 import com.google.android.material.transition.MaterialElevationScale
 import com.google.android.material.transition.MaterialFadeThrough
 import kotlinx.coroutines.delay
@@ -32,7 +33,7 @@ class PresetFragment : StaticListFragment<FragmentLibraryBinding, Preset, Preset
     { context ->
         listOf(DividerItemDecoration(context, RecyclerView.VERTICAL))
     }
-) {
+), IToolbarFragment {
     private val destinationChangedListener = NavController.OnDestinationChangedListener { _, destination, _ ->
         when (destination.id) {
             R.id.navigation_library_presets,
@@ -121,10 +122,16 @@ class PresetFragment : StaticListFragment<FragmentLibraryBinding, Preset, Preset
         return viewModel
     }
 
-    override fun List<Preset>.initAdapter(): SelectableItemListAdapter<Preset> =
-        PresetAdapter(this, findNavController(), { activity?.startActionMode(actionModeCallback) }, ::setItemClickedExitAnimation)
+    override fun List<Preset>.initAdapter(): SelectableItemListAdapter<Preset> = PresetAdapter(
+        this,
+        findNavController(),
+        binding.toolbar,
+        { activity?.startActionMode(actionModeCallback) },
+        ::setItemClickedExitAnimation
+    )
 
     override fun initLayoutManager(): RecyclerView.LayoutManager = LinearLayoutManager(context)
+    override fun getToolbar(): MaterialToolbar = binding.toolbar
 
     override fun onResume() {
         super.onResume()

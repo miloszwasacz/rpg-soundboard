@@ -13,10 +13,13 @@ import androidx.recyclerview.widget.RecyclerView
 import com.gmail.dev.wasacz.rpgsoundboard.R
 import com.gmail.dev.wasacz.rpgsoundboard.databinding.FragmentLibraryPlaylistBinding
 import com.gmail.dev.wasacz.rpgsoundboard.ui.DatabaseViewModel
+import com.gmail.dev.wasacz.rpgsoundboard.ui.IToolbarFragment
 import com.gmail.dev.wasacz.rpgsoundboard.ui.generic.Placeholder
 import com.gmail.dev.wasacz.rpgsoundboard.ui.generic.StaticListFragment
 import com.gmail.dev.wasacz.rpgsoundboard.ui.setupDefault
 import com.gmail.dev.wasacz.rpgsoundboard.viewmodel.Song
+import com.google.android.material.appbar.CollapsingToolbarLayout
+import com.google.android.material.appbar.MaterialToolbar
 import com.google.android.material.transition.MaterialContainerTransform
 
 class SongFragment : StaticListFragment<FragmentLibraryPlaylistBinding, Song, SongViewModel>(
@@ -25,7 +28,7 @@ class SongFragment : StaticListFragment<FragmentLibraryPlaylistBinding, Song, So
         R.string.app_name
     ),
     FragmentLibraryPlaylistBinding::inflate
-) {
+), IToolbarFragment {
     private val navArgs by navArgs<SongFragmentArgs>()
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -68,4 +71,6 @@ class SongFragment : StaticListFragment<FragmentLibraryPlaylistBinding, Song, So
 
     override fun List<Song>.initAdapter(): SongAdapter = SongAdapter(this)
     override fun initLayoutManager(): RecyclerView.LayoutManager = LinearLayoutManager(context)
+    override fun getToolbar(): MaterialToolbar = binding.toolbar
+    override fun getToolbarLayout(): CollapsingToolbarLayout = binding.toolbarLayout
 }

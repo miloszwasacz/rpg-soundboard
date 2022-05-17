@@ -14,6 +14,9 @@ import androidx.fragment.app.Fragment
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.navigation.NavController
+import androidx.navigation.NavDirections
+import androidx.navigation.NavOptions
+import androidx.navigation.Navigator
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.ui.AppBarConfiguration
 import androidx.navigation.ui.setupWithNavController
@@ -168,5 +171,38 @@ fun <T> Fragment.getNavigationResult(@IdRes id: Int, @StringRes keyId: Int, onRe
         if (event == Lifecycle.Event.ON_DESTROY)
             navBackStackEntry.lifecycle.removeObserver(observer)
     })
+}
+
+interface IToolbarFragment {
+    fun getToolbar(): MaterialToolbar
+    fun getToolbarLayout(): CollapsingToolbarLayout? = null
+}
+
+/**
+ * Navigate using provided [NavDirections][action] with compensation for changing [toolbar] title during animation.
+ */
+fun NavController.navigate(action: NavDirections, toolbar: MaterialToolbar, extras: Navigator.Extras? = null) {
+    val label = toolbar.title
+    if (extras != null) navigate(action, extras)
+    else navigate(action)
+    label?.let { toolbar.title = label }
+}
+
+/**
+ * Navigate to a destination from the current navigation graph with compensation for changing [toolbar] title during animation.
+ * This supports both navigating via an action and directly navigating to a destination.
+ */
+fun NavController.navigate(
+    @IdRes resId: Int,
+    toolbar: MaterialToolbar,
+    toolbarLayout: CollapsingToolbarLayout? = null,
+    navOptions: NavOptions? = null
+) {
+    val label = toolbarLayout?.title ?: toolbar.title
+    navigate(resId, null, navOptions)
+    label?.let {
+        toolbar.title = label
+        toolbarLayout?.title = label
+    }
 }
 //#endregion

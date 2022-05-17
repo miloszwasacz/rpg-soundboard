@@ -13,11 +13,13 @@ import androidx.recyclerview.widget.RecyclerView
 import com.gmail.dev.wasacz.rpgsoundboard.R
 import com.gmail.dev.wasacz.rpgsoundboard.databinding.FragmentLibraryPresetBinding
 import com.gmail.dev.wasacz.rpgsoundboard.ui.DatabaseViewModel
+import com.gmail.dev.wasacz.rpgsoundboard.ui.IToolbarFragment
 import com.gmail.dev.wasacz.rpgsoundboard.ui.generic.MarginItemDecoration
 import com.gmail.dev.wasacz.rpgsoundboard.ui.generic.Placeholder
 import com.gmail.dev.wasacz.rpgsoundboard.ui.generic.StaticListFragment
 import com.gmail.dev.wasacz.rpgsoundboard.ui.setupDefault
 import com.gmail.dev.wasacz.rpgsoundboard.viewmodel.PlaylistItem
+import com.google.android.material.appbar.MaterialToolbar
 import com.google.android.material.transition.MaterialContainerTransform
 import com.google.android.material.transition.MaterialElevationScale
 
@@ -35,7 +37,7 @@ class PlaylistFragment : StaticListFragment<FragmentLibraryPresetBinding, Playli
             )
         )
     }
-) {
+), IToolbarFragment {
     private val navArgs by navArgs<PlaylistFragmentArgs>()
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -66,7 +68,9 @@ class PlaylistFragment : StaticListFragment<FragmentLibraryPresetBinding, Playli
         return viewModel
     }
 
-    override fun List<PlaylistItem>.initAdapter(): PlaylistAdapter = PlaylistAdapter(this, findNavController())
+    override fun List<PlaylistItem>.initAdapter(): PlaylistAdapter = PlaylistAdapter(this, findNavController(), binding.toolbar)
     override fun initLayoutManager(): RecyclerView.LayoutManager =
         GridLayoutManager(context, resources.getInteger(R.integer.playlist_span_count))
+
+    override fun getToolbar(): MaterialToolbar = binding.toolbar
 }

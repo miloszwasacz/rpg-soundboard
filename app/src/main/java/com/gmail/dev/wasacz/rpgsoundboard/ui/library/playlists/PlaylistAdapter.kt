@@ -7,9 +7,11 @@ import com.gmail.dev.wasacz.rpgsoundboard.databinding.ListItemPlaylistBinding
 import com.gmail.dev.wasacz.rpgsoundboard.model.db.DBPlaylistType
 import com.gmail.dev.wasacz.rpgsoundboard.ui.generic.DataBindingListAdapter
 import com.gmail.dev.wasacz.rpgsoundboard.ui.generic.updateBindings
+import com.gmail.dev.wasacz.rpgsoundboard.ui.navigate
 import com.gmail.dev.wasacz.rpgsoundboard.viewmodel.PlaylistItem
+import com.google.android.material.appbar.MaterialToolbar
 
-class PlaylistAdapter(list: List<PlaylistItem>, private val navController: NavController) :
+class PlaylistAdapter(list: List<PlaylistItem>, private val navController: NavController, private val toolbar: MaterialToolbar) :
     DataBindingListAdapter<ListItemPlaylistBinding, PlaylistItem>(list, ListItemPlaylistBinding::inflate) {
     override fun onBindViewHolder(holder: ViewHolder<ListItemPlaylistBinding>, position: Int) {
         holder.binding.apply {
@@ -21,7 +23,7 @@ class PlaylistAdapter(list: List<PlaylistItem>, private val navController: NavCo
                         val extras = FragmentNavigatorExtras(
                             cardView to root.resources.getString(R.string.transition_name_playlist, playlistItem.id)
                         )
-                        navController.navigate(action, extras)
+                        navController.navigate(action, toolbar, extras)
                     }
                     DBPlaylistType.PlaylistType.SPOTIFY -> {
                         //TODO Open playlist in spotify
