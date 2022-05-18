@@ -206,3 +206,11 @@ fun NavController.navigate(
     }
 }
 //#endregion
+
+/**
+ * If the set contains the [element] it is removed from the set; otherwise it is added to the set.
+ */
+fun <E> MutableSet<E>.toggle(element: E) {
+    if (contains(element)) remove(element)
+    else add(element)
+}

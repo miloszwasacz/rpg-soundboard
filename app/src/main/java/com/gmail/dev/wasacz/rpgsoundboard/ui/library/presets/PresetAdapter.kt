@@ -5,6 +5,7 @@ import androidx.navigation.NavController
 import androidx.navigation.fragment.FragmentNavigatorExtras
 import com.gmail.dev.wasacz.rpgsoundboard.R
 import com.gmail.dev.wasacz.rpgsoundboard.databinding.ListItemSelectableBinding
+import com.gmail.dev.wasacz.rpgsoundboard.ui.generic.IContextMenuAdapter
 import com.gmail.dev.wasacz.rpgsoundboard.ui.generic.SelectableItemListAdapter
 import com.gmail.dev.wasacz.rpgsoundboard.ui.generic.updateBindings
 import com.gmail.dev.wasacz.rpgsoundboard.ui.navigate
@@ -15,10 +16,10 @@ class PresetAdapter(
     list: List<Preset>,
     private val navController: NavController,
     private val toolbar: MaterialToolbar,
-    private val startActionMode: () -> ActionMode?,
+    override val startActionMode: () -> ActionMode?,
     private val onItemClickAnimationSetter: () -> Unit
-) : SelectableItemListAdapter<Preset>(list, { it.name }) {
-    private var actionMode: ActionMode? = null
+) : SelectableItemListAdapter<Preset>(list, { it.name }), IContextMenuAdapter {
+    override var actionMode: ActionMode? = null
     private var size = list.size
 
     override fun getItemCount(): Int = size
@@ -35,7 +36,7 @@ class PresetAdapter(
                 if (actionMode == null) actionMode = startActionMode()
                 actionMode!!.let {
                     it.title = resources.getString(R.string.action_title_items_selected, selected.size)
-                    if (selected.size == 0) it.finish()
+                    if (selected.size == 0) finishActionMode()
                 }
                 true
             }
@@ -50,7 +51,7 @@ class PresetAdapter(
         with(binding) {
             if (actionMode == null) {
                 onItemClickAnimationSetter()
-                actionMode?.finish()
+                finishActionMode()
                 val action = PresetFragmentDirections.navigationLibraryPresetsToPlaylists(item.id, item.name)
                 val extras = FragmentNavigatorExtras(
                     itemLayout to root.resources.getString(R.string.transition_name_preset, item.id)
@@ -68,15 +69,11 @@ class PresetAdapter(
         }
     }
 
-    fun finishActionMode() {
-        actionMode?.finish()
-    }
-
-    fun onCreateActionMode() {
+    override fun onCreateActionMode() {
         notifyItemRangeChanged(0, size)
     }
 
-    fun onDestroyActionMode() {
+    override fun onDestroyActionMode() {
         actionMode = null
         notifyItemRangeChanged(0, size)
         selected.clear()

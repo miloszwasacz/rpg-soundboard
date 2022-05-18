@@ -1,6 +1,7 @@
 package com.gmail.dev.wasacz.rpgsoundboard.ui.generic
 
 import com.gmail.dev.wasacz.rpgsoundboard.databinding.ListItemSelectableBinding
+import com.gmail.dev.wasacz.rpgsoundboard.ui.toggle
 
 open class SelectableItemListAdapter<T>(
     list: List<T>,
@@ -37,8 +38,7 @@ open class SelectableItemListAdapter<T>(
     protected open fun onItemClick(item: T, binding: ListItemSelectableBinding): Boolean = false
 
     protected open fun selectItem(position: Int) {
-        if (selected.contains(position)) selected.remove(position)
-        else selected.add(position)
+        selected.toggle(position)
     }
 
     protected open fun selectItem(binding: ListItemSelectableBinding, position: Int) {
