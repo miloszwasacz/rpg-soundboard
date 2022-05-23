@@ -28,15 +28,15 @@ import com.google.android.material.elevation.SurfaceColors
 
 //#region FAB
 interface IFABActivity {
-    fun setupFAB(@DrawableRes drawableRes: Int, listener: View.OnClickListener)
+    fun setupFAB(@DrawableRes drawableRes: Int, @StringRes descriptionRes: Int, listener: View.OnClickListener)
     fun showFAB()
     fun hideFAB()
 }
 
-fun Fragment.setupFAB(@DrawableRes drawableRes: Int, listener: View.OnClickListener) {
+fun Fragment.setupFAB(@DrawableRes drawableRes: Int, @StringRes descriptionRes: Int, listener: View.OnClickListener) {
     activity?.let {
         if (it is IFABActivity)
-            it.setupFAB(drawableRes, listener)
+            it.setupFAB(drawableRes, descriptionRes, listener)
     }
 }
 

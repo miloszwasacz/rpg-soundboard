@@ -68,6 +68,8 @@ abstract class ContextMenuFragment<B : ViewDataBinding, T, VM : ListViewModel<T>
 
     fun startActionMode(): ActionMode? = activity?.startActionMode(actionModeCallback)
 
+    fun isActionModeStarted(): Boolean = getAdapter()?.actionMode != null
+
     @CallSuper
     override fun onStop() {
         findNavController().removeOnDestinationChangedListener(destinationChangedListener)

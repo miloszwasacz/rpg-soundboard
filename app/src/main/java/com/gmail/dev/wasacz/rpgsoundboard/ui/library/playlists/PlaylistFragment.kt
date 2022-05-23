@@ -7,6 +7,7 @@ import android.view.ViewGroup
 import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.viewModelScope
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
 import androidx.recyclerview.widget.GridLayoutManager
@@ -44,18 +45,22 @@ class PlaylistFragment : ContextMenuFragment<FragmentLibraryPresetBinding, Playl
 
     //#region Context menu
     override val navigationGroup: List<Int> = listOf(
-        R.id.navigation_library_playlists
+        R.id.navigation_library_playlists,
+        R.id.navigation_dialog_remove_playlists,
+        R.id.navigation_dialog_delete_playlists
     )
 
     override fun getAdapter(): PlaylistAdapter? = binding.listLayout.recyclerView.adapter as? PlaylistAdapter
 
     override fun onActionItemClicked(itemId: Int?): Boolean = when (itemId) {
         R.id.action_remove -> {
-            //TODO Remove playlists from preset
+            val action = PlaylistFragmentDirections.navigationLibraryRemovePlaylists(navArgs.presetId)
+            findNavController().navigate(action)
             true
         }
         R.id.action_delete -> {
-            //TODO Delete playlists permanently
+            val action = PlaylistFragmentDirections.navigationLibraryDeletePlaylists(navArgs.presetId)
+            findNavController().navigate(action)
             true
         }
         else -> false
@@ -92,12 +97,54 @@ class PlaylistFragment : ContextMenuFragment<FragmentLibraryPresetBinding, Playl
                 true
             }
             toolbar.setupDefault(findNavController(), activity)
+            toolbar.setOnMenuItemClickListener { menuItem ->
+                when (menuItem.itemId) {
+                    //TODO Add Spotify playlist
+                    R.id.action_create -> {
+                        val action = PlaylistFragmentDirections.navigationLibraryNewPlaylist(navArgs.presetId)
+                        findNavController().navigate(action)
+                        true
+                    }
+                    else -> false
+                }
+            }
             inflateList(listLayout)
         }
-        setupFAB(R.drawable.ic_add_24dp) {
-            //TODO Add playlist to preset
+        setupFAB(R.drawable.ic_playlist_add_24dp, R.string.action_add) {
+            val action = PlaylistFragmentDirections.navigationLibraryAddPlaylists(navArgs.presetId)
+            findNavController().navigate(action, binding.toolbar)
         }
         return binding.root
+    }
+
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+        getNavigationResult<Boolean>(R.id.navigation_library_playlists, R.string.nav_arg_remove_playlists_result) { result ->
+            if (result) {
+                getAdapter()?.let {
+                    viewModel.viewModelScope.launch {
+                        viewModel.removePlaylists(it.getSelectedItems())
+                        it.notifyItemsRemoved()
+                        it.finishActionMode()
+                        delay(resources.getDefaultAnimTimeLong(AnimTime.LONG))
+                        viewModel.refreshList(requireContext())
+                    }
+                }
+            }
+        }
+        getNavigationResult<Boolean>(R.id.navigation_library_playlists, R.string.nav_arg_delete_playlists_result) { result ->
+            if (result) {
+                getAdapter()?.let {
+                    viewModel.viewModelScope.launch {
+                        viewModel.deletePlaylists(it.getSelectedItems())
+                        it.notifyItemsRemoved()
+                        it.finishActionMode()
+                        delay(resources.getDefaultAnimTimeLong(AnimTime.LONG))
+                        viewModel.refreshList(requireContext())
+                    }
+                }
+            }
+        }
     }
 
     override fun initViewModel(): PlaylistViewModel {

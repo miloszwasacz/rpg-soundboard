@@ -5,9 +5,10 @@ import com.gmail.dev.wasacz.rpgsoundboard.model.PlaylistType as ModelPlaylistTyp
 
 object DBPlaylistType {
     enum class PlaylistType(val value: String) {
-        CLASSIC (DBPlaylistType.CLASSIC),
-        SPOTIFY (DBPlaylistType.SPOTIFY)
+        CLASSIC(DBPlaylistType.CLASSIC),
+        SPOTIFY(DBPlaylistType.SPOTIFY)
     }
+
     const val CLASSIC = "classic"
     const val SPOTIFY = "spotify"
 
@@ -37,23 +38,17 @@ data class DBPlaylist(
     val type: String
 )
 
-@Entity(tableName = "classic_playlists")
-data class DBClassicPlaylist(
-    @PrimaryKey val playlistId: Long
-)
-
 @Entity(
     tableName = "classic_playlist_cross_ref",
-    primaryKeys = ["playlistId", "songId"],
-    indices = [Index("songId")]
+    primaryKeys = ["playlistId", "songId"]
 )
 data class DBClassicPlaylistSongCrossRef(
-    val playlistId: Long,
-    val songId: Long
+    @ColumnInfo(index = true) val playlistId: Long,
+    @ColumnInfo(index = true) val songId: Long
 )
 
 data class DBClassicPlaylistWithSongs(
-    @Embedded val playlist: DBClassicPlaylist,
+    @Embedded val playlist: DBPlaylist,
     @Relation(
         parentColumn = "playlistId",
         entityColumn = "songId",
@@ -91,15 +86,25 @@ abstract class TypedPlaylistDao<T, U>(private val type: String) : GenericPlaylis
 
 @Dao
 abstract class PlaylistDao : GenericPlaylistDao<DBPlaylist>() {
-    @Query("SELECT * FROM playlists")
-    abstract suspend fun loadPlaylists(): List<DBPlaylist>
+    @Query(
+        value = "SELECT * FROM playlists " +
+                "WHERE playlistId Not In (:ids)"
+    )
+    abstract suspend fun loadPlaylistsNotInSet(ids: List<Long>): List<DBPlaylist>
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     abstract suspend fun insertPlaylistToPreset(playlistWithPreset: DBPresetPlaylistCrossRef)
+
+    @Delete
+    abstract suspend fun removePlaylistFromPreset(playlistWithPreset: DBPresetPlaylistCrossRef)
+
+    @Transaction
+    @Query("DELETE FROM preset_cross_ref WHERE playlistId = :playlistId")
+    abstract suspend fun deletePlaylistFromAllPresets(playlistId: Long)
 }
 
 @Dao
-abstract class ClassicPlaylistDao : TypedPlaylistDao<DBClassicPlaylist, DBClassicPlaylistWithSongs>(DBPlaylistType.CLASSIC) {
+abstract class ClassicPlaylistDao : TypedPlaylistDao<DBPlaylist, DBClassicPlaylistWithSongs>(DBPlaylistType.CLASSIC) {
     /*@Query(
         value = "SELECT * FROM playlists " +
                 "WHERE type = ${DBPlaylistType.CLASSIC}"
@@ -114,10 +119,14 @@ abstract class ClassicPlaylistDao : TypedPlaylistDao<DBClassicPlaylist, DBClassi
 
     @Transaction
     @Query(
-        value = "SELECT * FROM classic_playlists " +
+        value = "SELECT * FROM playlists " +
                 "WHERE playlistId = :id"
     )
     abstract override suspend fun loadPlaylist(id: Long): DBClassicPlaylistWithSongs?
+
+    @Transaction
+    @Query("DELETE FROM classic_playlist_cross_ref WHERE playlistId = :playlistId")
+    abstract suspend fun deletePlaylist(playlistId: Long)
 }
 
 @Dao

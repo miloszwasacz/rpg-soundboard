@@ -2,7 +2,7 @@
   "formatVersion": 1,
   "database": {
     "version": 1,
-    "identityHash": "28c0573705910770eb803577e88cf623",
+    "identityHash": "2905c5e88fcab622abe9ec7037488add",
     "entities": [
       {
         "tableName": "presets",
@@ -56,6 +56,15 @@
         },
         "indices": [
           {
+            "name": "index_preset_cross_ref_presetId",
+            "unique": false,
+            "columnNames": [
+              "presetId"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_preset_cross_ref_presetId` ON `${TABLE_NAME}` (`presetId`)"
+          },
+          {
             "name": "index_preset_cross_ref_playlistId",
             "unique": false,
             "columnNames": [
@@ -95,26 +104,6 @@
             "playlistId"
           ],
           "autoGenerate": true
-        },
-        "indices": [],
-        "foreignKeys": []
-      },
-      {
-        "tableName": "classic_playlists",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`playlistId` INTEGER NOT NULL, PRIMARY KEY(`playlistId`))",
-        "fields": [
-          {
-            "fieldPath": "playlistId",
-            "columnName": "playlistId",
-            "affinity": "INTEGER",
-            "notNull": true
-          }
-        ],
-        "primaryKey": {
-          "columnNames": [
-            "playlistId"
-          ],
-          "autoGenerate": false
         },
         "indices": [],
         "foreignKeys": []
@@ -170,6 +159,15 @@
           "autoGenerate": false
         },
         "indices": [
+          {
+            "name": "index_classic_playlist_cross_ref_playlistId",
+            "unique": false,
+            "columnNames": [
+              "playlistId"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_classic_playlist_cross_ref_playlistId` ON `${TABLE_NAME}` (`playlistId`)"
+          },
           {
             "name": "index_classic_playlist_cross_ref_songId",
             "unique": false,
@@ -244,7 +242,7 @@
     "views": [],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '28c0573705910770eb803577e88cf623')"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '2905c5e88fcab622abe9ec7037488add')"
     ]
   }
 }

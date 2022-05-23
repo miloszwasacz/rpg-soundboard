@@ -37,6 +37,7 @@
         <item name="windowActionModeOverlay">true</item>
         <item name="actionModeCloseDrawable">@drawable/ic_close_24dp</item>
         <item name="actionBarTheme">@style/ThemeOverlay.Material3.Dark</item>
+        <item name="android:actionMenuTextAppearance">@style/TextAppearance.Material3.LabelLarge</item>
     </style>
 
     <style name="Theme.Default.Status" parent="Theme.Default">

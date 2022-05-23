@@ -48,7 +48,7 @@ class PlaylistAdapter(
             }
             cardView.setOnLongClickListener {
                 selectItem(position)
-                if(actionMode == null) actionMode = startActionMode()
+                if (actionMode == null) actionMode = startActionMode()
                 actionMode!!.let {
                     it.title = resources.getString(R.string.action_title_items_selected, selected.size)
                     if (selected.size == 0) finishActionMode()
@@ -66,6 +66,8 @@ class PlaylistAdapter(
         selected.toggle(position)
         notifyItemChanged(position)
     }
+
+    fun getSelectedItems(): List<PlaylistItem> = selected.map { list[it] }
 
     fun notifyItemsRemoved() {
         for (i in selected) {

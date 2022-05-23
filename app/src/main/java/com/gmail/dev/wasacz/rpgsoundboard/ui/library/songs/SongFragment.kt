@@ -21,6 +21,7 @@ import com.gmail.dev.wasacz.rpgsoundboard.viewmodel.Song
 import com.google.android.material.appbar.CollapsingToolbarLayout
 import com.google.android.material.appbar.MaterialToolbar
 import com.google.android.material.transition.MaterialContainerTransform
+import com.google.android.material.transition.MaterialElevationScale
 
 class SongFragment : StaticListFragment<FragmentLibraryPlaylistBinding, Song, SongViewModel>(
     Placeholder(
@@ -33,8 +34,10 @@ class SongFragment : StaticListFragment<FragmentLibraryPlaylistBinding, Song, So
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        enterTransition = null
+        enterTransition = MaterialElevationScale(true)
         sharedElementEnterTransition = MaterialContainerTransform().apply { drawingViewId = R.id.nav_host_fragment }
+        exitTransition = MaterialElevationScale(false)
+        reenterTransition = MaterialElevationScale(true)
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {

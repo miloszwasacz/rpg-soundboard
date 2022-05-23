@@ -5,12 +5,20 @@
     <string name="title_settings">Settings</string>
     <string name="action_title_items_selected">%d selected</string>
 
-    <string name="dialog_title_add_preset">New preset</string>
+    <string name="dialog_title_new_preset">Create new preset</string>
     <string name="dialog_title_delete_presets">Delete presets?</string>
     <string name="dialog_message_delete_presets">This presets will be permanently deleted. Note that no playlists included in this presets will be affected and they will still be available later.</string>
+    <string name="dialog_title_new_playlist">Create new playlist</string>
+    <string name="dialog_title_add_playlists">Add playlists</string>
+    <string name="dialog_title_add_playlists_all">Playlists</string>
+    <string name="dialog_title_remove_playlists">Remove playlists?</string>
+    <string name="dialog_message_remove_playlists">This playlists will be removed from this preset. Note that they won\'t be removed from any other presets and they will still be available to add later.</string>
+    <string name="dialog_title_delete_playlists">Delete playlists permanently?</string>
+    <string name="dialog_message_delete_playlists">This playlists will be permanently deleted from this and all other presets. Note that no songs will be affected. THIS ACTION IS IRREVERSIBLE!</string>
 
     <string name="action_cancel">Cancel</string>
     <string name="action_add">Add</string>
+    <string name="action_create">Create</string>
     <string name="action_delete">Delete</string>
     <string name="action_remove">Remove</string>
     <string name="action_rename">Rename</string>
@@ -30,7 +38,10 @@
     <string name="nav_arg_preset_id" translatable="false">presetId</string>
     <string name="nav_arg_delete_presets_result" translatable="false">deletePresetsResult</string>
     <string name="nav_arg_playlist_item" translatable="false">playlistItem</string>
+    <string name="nav_arg_remove_playlists_result" translatable="false">removePlaylistsResult</string>
+    <string name="nav_arg_delete_playlists_result" translatable="false">deletePlaylistsResult</string>
 
+    <string name="transition_name_fab" translatable="false">TransNameFAB</string>
     <string name="transition_name_preset" translatable="false">TransNamePreset %d</string>
     <string name="transition_name_playlist" translatable="false">TransNamePlaylist %d</string>
 </resources>

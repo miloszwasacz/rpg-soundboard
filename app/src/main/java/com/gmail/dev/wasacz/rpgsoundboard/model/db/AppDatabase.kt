@@ -8,7 +8,6 @@ import androidx.room.RoomDatabase
         DBPreset::class,
         DBPresetPlaylistCrossRef::class,
         DBPlaylist::class,
-        DBClassicPlaylist::class,
         DBSpotifyPlaylist::class,
         DBClassicPlaylistSongCrossRef::class,
         DBSong::class,

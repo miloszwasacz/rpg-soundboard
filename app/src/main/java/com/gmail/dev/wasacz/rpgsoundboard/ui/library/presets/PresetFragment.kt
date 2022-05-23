@@ -77,8 +77,8 @@ class PresetFragment : ContextMenuFragment<FragmentLibraryBinding, Preset, Prese
             }
             inflateList(listLayout)
         }
-        setupFAB(R.drawable.ic_add_24dp) {
-            val action = PresetFragmentDirections.navigationLibraryAddPreset()
+        setupFAB(R.drawable.ic_add_24dp, R.string.action_create) {
+            val action = PresetFragmentDirections.navigationLibraryNewPreset()
             findNavController().navigate(action)
         }
         return binding.root

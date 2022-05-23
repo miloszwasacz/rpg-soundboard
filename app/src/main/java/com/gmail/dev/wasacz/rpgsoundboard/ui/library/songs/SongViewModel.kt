@@ -25,14 +25,13 @@ class SongViewModel(private val dbViewModel: DatabaseViewModel, private val play
                 playlist.value = it
                 when (it.type) {
                     PlaylistType.LOCAL -> {
-                        List<Song>(20) { _ ->
-                            (it as LocalPlaylist).songList.first()
-                        }
+                        if (it is LocalPlaylist) it.songList
+                        else listOf()
                     }
                     PlaylistType.SPOTIFY -> null
                 }
             } ?: kotlin.run {
-                emitList(null, ListState.EMPTY, "Playlist ot found")
+                emitList(null, ListState.EMPTY, "Playlist not found")
                 null
             }
         } catch (e: DatabaseController.DBException) {

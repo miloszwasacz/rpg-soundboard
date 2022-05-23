@@ -5,13 +5,19 @@ import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import com.gmail.dev.wasacz.rpgsoundboard.model.DatabaseController
 import com.gmail.dev.wasacz.rpgsoundboard.model.DatabaseController.DBException
+import com.gmail.dev.wasacz.rpgsoundboard.model.DatabaseController.addClassicPlaylist
+import com.gmail.dev.wasacz.rpgsoundboard.model.DatabaseController.addPlaylistToPreset
 import com.gmail.dev.wasacz.rpgsoundboard.model.DatabaseController.addPreset
+import com.gmail.dev.wasacz.rpgsoundboard.model.DatabaseController.deleteClassicPlaylist
+import com.gmail.dev.wasacz.rpgsoundboard.model.DatabaseController.deletePlaylist
 import com.gmail.dev.wasacz.rpgsoundboard.model.DatabaseController.deletePreset
+import com.gmail.dev.wasacz.rpgsoundboard.model.DatabaseController.deleteSpotifyPlaylist
 import com.gmail.dev.wasacz.rpgsoundboard.model.DatabaseController.loadPlaylist
 import com.gmail.dev.wasacz.rpgsoundboard.model.DatabaseController.loadPlaylistItemsFromPreset
-import com.gmail.dev.wasacz.rpgsoundboard.model.DatabaseController.loadPlaylists
 import com.gmail.dev.wasacz.rpgsoundboard.model.DatabaseController.loadPlaylistsFromPreset
+import com.gmail.dev.wasacz.rpgsoundboard.model.DatabaseController.loadPlaylistsNotFromPreset
 import com.gmail.dev.wasacz.rpgsoundboard.model.DatabaseController.loadPresets
+import com.gmail.dev.wasacz.rpgsoundboard.model.DatabaseController.removePlaylistFromPreset
 import com.gmail.dev.wasacz.rpgsoundboard.model.SongType
 import com.gmail.dev.wasacz.rpgsoundboard.model.db.*
 import com.gmail.dev.wasacz.rpgsoundboard.viewmodel.Playlist
@@ -39,9 +45,10 @@ class DatabaseViewModel(application: Application) : AndroidViewModel(application
     suspend fun deletePreset(id: Long) = db.deletePreset(DBPreset(id, ""))
 
     /**
-     * Fetches all saved playlists in form of [PlaylistItems][PlaylistItem]..
+     * Fetches all saved playlists that are not already in the preset with [presetId].
+     * @return List of playlists in form of [PlaylistItems][PlaylistItem].
      */
-    suspend fun getPlaylists(): List<PlaylistItem> = db.loadPlaylists()
+    suspend fun getNewPlaylists(presetId: Long): List<PlaylistItem> = db.loadPlaylistsNotFromPreset(presetId)
 
     /**
      * Fetches playlists in form of [PlaylistItems][PlaylistItem] from [Preset] with provided [presetId].
@@ -61,6 +68,34 @@ class DatabaseViewModel(application: Application) : AndroidViewModel(application
      * @throws DBException See [loadPlaylist].
      */
     suspend fun getPlaylistWithSongs(playlistItem: PlaylistItem): Playlist? = db.loadPlaylist(playlistItem)
+
+    /**
+     * Creates new classic playlist.
+     * @return Id of the new playlist.
+     */
+    suspend fun createClassicPlaylist(name: String, presetId: Long): Long =
+        db.addClassicPlaylist(DBPlaylist(name = name, type = DBPlaylistType.CLASSIC), presetId)
+
+    /**
+     * Adds [playlist][playlistItem] to preset with provided [presetId].
+     */
+    suspend fun addPlaylistToPreset(playlistItem: PlaylistItem, presetId: Long) = db.addPlaylistToPreset(playlistItem.id, presetId)
+
+    /**
+     * Removes playlist with provided [id] from preset with provided [presetId].
+     */
+    suspend fun removePlaylistFromPreset(id: Long, presetId: Long) = db.removePlaylistFromPreset(DBPresetPlaylistCrossRef(presetId, id))
+
+    /**
+     * Permanently deletes playlist with id from provided [playlistItem].
+     */
+    suspend fun deletePlaylist(playlistItem: PlaylistItem) {
+        db.deletePlaylist(DBPlaylist(playlistItem.id, "", ""))
+        when(playlistItem.type) {
+            DBPlaylistType.PlaylistType.CLASSIC -> db.deleteClassicPlaylist(playlistItem.id)
+            DBPlaylistType.PlaylistType.SPOTIFY -> db.deleteSpotifyPlaylist(DBSpotifyPlaylist(playlistItem.id, ""))
+        }
+    }
 
     //TODO Not yet implemented
     fun addData() {
@@ -87,10 +122,7 @@ class DatabaseViewModel(application: Application) : AndroidViewModel(application
             }.forEachIndexed { i, (it, type) ->
                 val id = db.playlistDao().insertPlaylist(it)
                 when (type) {
-                    DBPlaylistType.PlaylistType.CLASSIC -> {
-                        classicIds.add(id)
-                        db.classicPlaylistDao().insertPlaylist(DBClassicPlaylist(id))
-                    }
+                    DBPlaylistType.PlaylistType.CLASSIC -> classicIds.add(id)
                     DBPlaylistType.PlaylistType.SPOTIFY -> db.spotifyPlaylistsDao().insertPlaylist(DBSpotifyPlaylist(id, "testUri"))
                 }
                 db.playlistDao().insertPlaylistToPreset(DBPresetPlaylistCrossRef(presetIds[i % presetCount], id))

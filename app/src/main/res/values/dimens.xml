@@ -7,6 +7,7 @@
     <dimen name="dialog_content_horizontal_padding">24dp</dimen>
     <dimen name="dialog_content_top_padding">16dp</dimen>
     <dimen name="dialog_content_bottom_padding">8dp</dimen>
+    <dimen name="dialog_menu_text_spacing">24dp</dimen>
     <dimen name="fab_spacing">16dp</dimen>
     <dimen name="scroll_view_padding_top">30dp</dimen>
     <dimen name="list_placeholder_image_size">128dp</dimen>

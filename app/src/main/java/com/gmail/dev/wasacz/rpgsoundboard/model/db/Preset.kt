@@ -10,12 +10,11 @@ data class DBPreset(
 
 @Entity(
     tableName = "preset_cross_ref",
-    primaryKeys = ["presetId", "playlistId"],
-    indices = [Index("playlistId")]
+    primaryKeys = ["presetId", "playlistId"]
 )
 data class DBPresetPlaylistCrossRef(
-    val presetId: Long,
-    val playlistId: Long
+    @ColumnInfo(index = true) val presetId: Long,
+    @ColumnInfo(index = true) val playlistId: Long
 )
 
 data class DBPresetWithPlaylists(

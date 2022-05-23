@@ -51,7 +51,7 @@ object DatabaseController {
     suspend fun AppDatabase.addPreset(preset: DBPreset): Long = presetDao().insertPreset(preset)
 
     /**
-     * Deletes preset with [preset]'s id and all its associations with playlists from database
+     * Deletes preset with [preset]'s id and all its associations with playlists from database.
      */
     suspend fun AppDatabase.deletePreset(preset: DBPreset) {
         presetDao().deletePreset(preset)
@@ -59,9 +59,12 @@ object DatabaseController {
     }
 
     /**
-     * Loads all playlists saved in the database.
+     * Loads all playlists saved in the database that are not associated with preset with [presetId].
      */
-    suspend fun AppDatabase.loadPlaylists(): List<PlaylistItem> = playlistDao().loadPlaylists().map { PlaylistItem(it) }
+    suspend fun AppDatabase.loadPlaylistsNotFromPreset(presetId: Long): List<PlaylistItem> {
+        val ids = presetDao().loadPlaylistIdsFromPreset(presetId)
+        return playlistDao().loadPlaylistsNotInSet(ids).map { PlaylistItem(it) }
+    }
 
     /**
      * Loads playlists included in provided preset from database and converts them to appropriate typed viewmodel objects.
@@ -110,6 +113,47 @@ object DatabaseController {
         DBPlaylistType.PlaylistType.CLASSIC -> loadClassicPlaylist(playlistItem)
         DBPlaylistType.PlaylistType.SPOTIFY -> loadSpotifyPlaylist(playlistItem)
     }
+
+    /**
+     * Adds new classic playlist to the database and associates it with the preset with provided [presetId].
+     * @return Id of the new [playlist][DBPlaylist].
+     */
+    suspend fun AppDatabase.addClassicPlaylist(playlist: DBPlaylist, presetId: Long): Long {
+        val id = playlistDao().insertPlaylist(playlist)
+        playlistDao().insertPlaylistToPreset(DBPresetPlaylistCrossRef(presetId, id))
+        return id
+    }
+
+    /**
+     * Adds association between playlist with [playlistId] and preset with [presetId] to the database.
+     */
+    suspend fun AppDatabase.addPlaylistToPreset(playlistId: Long, presetId: Long) =
+        playlistDao().insertPlaylistToPreset(DBPresetPlaylistCrossRef(presetId, playlistId))
+
+    /**
+     * Deletes association between playlist and preset with provided [ids][playlistWithPreset] from database.
+     */
+    suspend fun AppDatabase.removePlaylistFromPreset(playlistWithPreset: DBPresetPlaylistCrossRef) =
+        playlistDao().removePlaylistFromPreset(playlistWithPreset)
+
+    /**
+     * Deletes playlist with [playlist]'s id and all it's associations with presets from the database.
+     * __Remember to call type specific functions to delete the playlist from typed tables!__
+     */
+    suspend fun AppDatabase.deletePlaylist(playlist: DBPlaylist) {
+        playlistDao().deletePlaylist(playlist)
+        playlistDao().deletePlaylistFromAllPresets(playlist.playlistId)
+    }
+
+    /**
+     * Deletes all associations between classic playlist with provided [id][playlistId] and songs from database.
+     */
+    suspend fun AppDatabase.deleteClassicPlaylist(playlistId: Long) = classicPlaylistDao().deletePlaylist(playlistId)
+
+    /**
+     * Deletes spotify playlist with [playlist]'s id from database.
+     */
+    suspend fun AppDatabase.deleteSpotifyPlaylist(playlist: DBSpotifyPlaylist) = spotifyPlaylistsDao().deletePlaylist(playlist)
 
     //#region Loading typed playlists
     private suspend fun AppDatabase.loadClassicPlaylist(playlistItem: PlaylistItem): LocalPlaylist? =
