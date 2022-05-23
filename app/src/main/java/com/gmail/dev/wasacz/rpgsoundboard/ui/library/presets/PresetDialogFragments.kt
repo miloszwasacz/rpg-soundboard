@@ -3,46 +3,43 @@ package com.gmail.dev.wasacz.rpgsoundboard.ui.library.presets
 import android.app.Dialog
 import android.content.DialogInterface
 import android.os.Bundle
-import android.view.WindowManager
-import androidx.fragment.app.DialogFragment
 import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import com.gmail.dev.wasacz.rpgsoundboard.R
-import com.gmail.dev.wasacz.rpgsoundboard.databinding.DialogAddPresetBinding
 import com.gmail.dev.wasacz.rpgsoundboard.ui.DatabaseViewModel
 import com.gmail.dev.wasacz.rpgsoundboard.ui.generic.AlertDialogFragment
+import com.gmail.dev.wasacz.rpgsoundboard.ui.generic.SingleInputDialogFragment
 import com.gmail.dev.wasacz.rpgsoundboard.ui.setNavigationResult
-import com.google.android.material.dialog.MaterialAlertDialogBuilder
+import kotlinx.coroutines.launch
 
-class AddPresetFragment : DialogFragment() {
+class CreatePresetFragment : SingleInputDialogFragment(
+    R.string.dialog_title_new_preset,
+    R.string.hint_name,
+    R.string.action_create
+) {
+    private lateinit var viewModel: PresetViewModel
+
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
         val dbViewModel by activityViewModels<DatabaseViewModel>()
         val viewModel by viewModels<PresetViewModel> { PresetViewModel.Factory(dbViewModel) }
-        val binding = DialogAddPresetBinding.inflate(layoutInflater)
-        return MaterialAlertDialogBuilder(requireContext())
-            .setTitle(R.string.dialog_title_add_preset)
-            .setView(binding.root)
-            .setPositiveButton(R.string.action_add) { _, _ ->
-                binding.inputLayout.editText?.text?.toString()?.let {
-                    val name = it.trim()
-                    if (name.isNotBlank()) {
-                        lifecycleScope.launchWhenResumed {
-                            val (id, presetName) = viewModel.addPreset(name)
-                            requireDialog().dismiss()
-                            val action = AddPresetFragmentDirections.navigationNewPresetToPlaylists(id, presetName)
-                            findNavController().navigate(action)
-                        }
-                    }
+        this.viewModel = viewModel
+        return super.onCreateDialog(savedInstanceState)
+    }
+
+    override fun onConfirm() {
+        getInputText()?.let {
+            val name = it.trim()
+            if (name.isNotBlank()) {
+                lifecycleScope.launch {
+                    val (id, presetName) = viewModel.addPreset(name)
+                    val action = CreatePresetFragmentDirections.navigationNewPresetToPlaylists(id, presetName)
+                    findNavController().navigate(action)
+                    requireDialog().dismiss()
                 }
             }
-            .setNegativeButton(R.string.action_cancel) { _, _ ->
-                findNavController().navigateUp()
-            }
-            .create().also {
-                it.window?.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_VISIBLE)
-            }
+        }
     }
 }
 
