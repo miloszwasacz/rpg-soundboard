@@ -18,6 +18,7 @@ import com.gmail.dev.wasacz.rpgsoundboard.model.DatabaseController.loadPlaylists
 import com.gmail.dev.wasacz.rpgsoundboard.model.DatabaseController.loadPlaylistsNotFromPreset
 import com.gmail.dev.wasacz.rpgsoundboard.model.DatabaseController.loadPresets
 import com.gmail.dev.wasacz.rpgsoundboard.model.DatabaseController.removePlaylistFromPreset
+import com.gmail.dev.wasacz.rpgsoundboard.model.DatabaseController.renamePreset
 import com.gmail.dev.wasacz.rpgsoundboard.model.SongType
 import com.gmail.dev.wasacz.rpgsoundboard.model.db.*
 import com.gmail.dev.wasacz.rpgsoundboard.viewmodel.Playlist
@@ -43,6 +44,11 @@ class DatabaseViewModel(application: Application) : AndroidViewModel(application
      * Deletes preset with provided [id].
      */
     suspend fun deletePreset(id: Long) = db.deletePreset(DBPreset(id, ""))
+
+    /**
+     * Sets name of the preset with provided [id] to [newName].
+     */
+    suspend fun renamePreset(id: Long, newName: String) = db.renamePreset(DBPreset(id, newName))
 
     /**
      * Fetches all saved playlists that are not already in the preset with [presetId].

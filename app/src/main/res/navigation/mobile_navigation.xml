@@ -80,6 +80,9 @@
             android:id="@+id/navigation_library_playlists_to_songs"
             app:destination="@id/navigation_library_songs" />
         <action
+            android:id="@+id/navigation_library_rename_preset"
+            app:destination="@id/navigation_dialog_rename_preset" />
+        <action
             android:id="@+id/navigation_library_new_playlist"
             app:destination="@id/navigation_dialog_new_playlist"
             app:launchSingleTop="true"
@@ -99,7 +102,21 @@
             app:destination="@id/navigation_dialog_delete_playlists"
             app:launchSingleTop="true"
             app:restoreState="true" />
+        <action
+            android:id="@+id/refresh_library_playlists"
+            app:destination="@id/navigation_library_playlists"
+            app:popUpTo="@id/navigation_library_playlists"
+            app:popUpToInclusive="true" />
     </fragment>
+
+    <dialog
+        android:id="@+id/navigation_dialog_rename_preset"
+        android:name="com.gmail.dev.wasacz.rpgsoundboard.ui.library.playlists.RenamePresetDialogFragment"
+        tools:layout="@layout/dialog_single_input">
+        <argument
+            android:name="currentName"
+            app:argType="string" />
+    </dialog>
 
     <dialog
         android:id="@+id/navigation_dialog_new_playlist"

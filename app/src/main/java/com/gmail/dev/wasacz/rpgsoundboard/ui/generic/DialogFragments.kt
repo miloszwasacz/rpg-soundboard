@@ -60,6 +60,12 @@ abstract class SingleInputDialogFragment(
         binding = DialogSingleInputBinding.inflate(layoutInflater).apply {
             hint = resources.getString(inputHint)
         }
+        setInitText()?.let {
+            binding?.inputLayout?.editText?.apply {
+                setText(it)
+                setSelection(length())
+            }
+        }
         val builder =
             if (icon == null) MaterialAlertDialogBuilder(requireContext())
             else MaterialAlertDialogBuilder(requireContext(), R.style.MaterialAlertDialog_Centered)
@@ -79,6 +85,8 @@ abstract class SingleInputDialogFragment(
     }
 
     protected fun getInputText(): String? = binding?.inputLayout?.editText?.text?.toString()
+
+    open fun setInitText(): String? = null
 
     @CallSuper
     override fun onCancel() {

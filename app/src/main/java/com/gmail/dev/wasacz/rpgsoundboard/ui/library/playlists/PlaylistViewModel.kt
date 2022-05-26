@@ -21,13 +21,17 @@ class PlaylistViewModel(private val dbViewModel: DatabaseViewModel, private val 
         }
     }
 
-    suspend fun getAllPlaylists(): List<PlaylistItem> = withContext(viewModelScope.coroutineContext) {
-        dbViewModel.getNewPlaylists(presetId)
+    suspend fun renamePreset(newName: String) = withContext(viewModelScope.coroutineContext) {
+        dbViewModel.renamePreset(presetId, newName)
     }
 
     suspend fun createPlaylist(name: String): PlaylistItem = withContext(viewModelScope.coroutineContext) {
         val id = dbViewModel.createClassicPlaylist(name, presetId)
         PlaylistItem(id, name, DBPlaylistType.PlaylistType.CLASSIC)
+    }
+
+    suspend fun getAllPlaylists(): List<PlaylistItem> = withContext(viewModelScope.coroutineContext) {
+        dbViewModel.getNewPlaylists(presetId)
     }
 
     suspend fun addPlaylists(playlists: List<PlaylistItem>) = withContext(viewModelScope.coroutineContext) {

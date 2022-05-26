@@ -27,6 +27,28 @@ import com.google.android.material.transition.MaterialElevationScale
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
+class RenamePresetDialogFragment : SingleInputDialogFragment(
+    title = R.string.dialog_title_rename_preset,
+    inputHint = R.string.hint_name,
+    confirmButtonText = R.string.action_rename
+) {
+    private val navArgs by navArgs<RenamePresetDialogFragmentArgs>()
+
+    override fun setInitText(): String = navArgs.currentName
+
+    override fun onConfirm() {
+        getInputText()?.let {
+            val name = it.trim()
+            if(it.isNotBlank()) {
+                lifecycleScope.launch {
+                    setNavigationResult(R.string.nav_arg_rename_preset_result, name)
+                    findNavController().navigateUp()
+                }
+            }
+        }
+    }
+}
+
 class CreatePlaylistDialogFragment : SingleInputDialogFragment(
     R.string.dialog_title_new_playlist,
     R.string.hint_name,

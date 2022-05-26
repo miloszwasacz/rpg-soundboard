@@ -106,6 +106,11 @@ class PlaylistFragment : ContextMenuFragment<FragmentLibraryPresetBinding, Playl
                         findNavController().navigate(action)
                         true
                     }
+                    R.id.action_rename -> {
+                        val action = PlaylistFragmentDirections.navigationLibraryRenamePreset(navArgs.presetName)
+                        findNavController().navigate(action)
+                        true
+                    }
                     else -> false
                 }
             }
@@ -142,6 +147,15 @@ class PlaylistFragment : ContextMenuFragment<FragmentLibraryPresetBinding, Playl
                         viewModel.refreshList(requireContext())
                         it.finishActionMode()
                     }
+                }
+            }
+        }
+        getNavigationResult<String>(R.id.navigation_library_playlists, R.string.nav_arg_rename_preset_result) { result ->
+            if (result != navArgs.presetName) {
+                viewModel.viewModelScope.launch {
+                    viewModel.renamePreset(result)
+                    val action = PlaylistFragmentDirections.refreshLibraryPlaylists(navArgs.presetId, result)
+                    findNavController().navigate(action, binding.toolbar)
                 }
             }
         }

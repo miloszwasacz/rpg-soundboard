@@ -59,6 +59,11 @@ object DatabaseController {
     }
 
     /**
+     * Updates preset to have a new name.
+     */
+    suspend fun AppDatabase.renamePreset(preset: DBPreset) = presetDao().updatePreset(preset)
+
+    /**
      * Loads all playlists saved in the database that are not associated with preset with [presetId].
      */
     suspend fun AppDatabase.loadPlaylistsNotFromPreset(presetId: Long): List<PlaylistItem> {

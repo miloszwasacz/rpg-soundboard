@@ -8,6 +8,7 @@
     <string name="dialog_title_new_preset">Create new preset</string>
     <string name="dialog_title_delete_presets">Delete presets?</string>
     <string name="dialog_message_delete_presets">This presets will be permanently deleted. Note that no playlists included in this presets will be affected and they will still be available later.</string>
+    <string name="dialog_title_rename_preset">Rename preset</string>
     <string name="dialog_title_new_playlist">Create new playlist</string>
     <string name="dialog_title_add_playlists">Add playlists</string>
     <string name="dialog_title_add_playlists_all">Playlists</string>
@@ -24,6 +25,8 @@
     <string name="action_rename">Rename</string>
     <string name="action_manage">Manage</string>
 
+    <string name="action_create_playlist">Create playlist</string>
+
     <string name="hint_name">Name</string>
 
     <string name="placeholder_fallback_message">There is nothing to show here</string>
@@ -38,6 +41,7 @@
     <string name="nav_arg_preset_id" translatable="false">presetId</string>
     <string name="nav_arg_delete_presets_result" translatable="false">deletePresetsResult</string>
     <string name="nav_arg_playlist_item" translatable="false">playlistItem</string>
+    <string name="nav_arg_rename_preset_result" translatable="false">renamePresetResult</string>
     <string name="nav_arg_remove_playlists_result" translatable="false">removePlaylistsResult</string>
     <string name="nav_arg_delete_playlists_result" translatable="false">deletePlaylistsResult</string>
 
