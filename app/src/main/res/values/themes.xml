@@ -1,4 +1,4 @@
-<resources>
+<resources xmlns:tools="http://schemas.android.com/tools">
 
     <style name="Theme.Default" parent="Theme.Material3.DayNight.NoActionBar">
         <!--#region Colors -->
@@ -49,6 +49,11 @@
     <style name="Theme.RPGSoundboard.RootScrollView" parent="Theme.RPGSoundboard">
         <item name="android:paddingTop">@dimen/scroll_view_padding_top</item>
         <item name="android:clipToPadding">false</item>
+    </style>
+
+    <style name="Theme.RPGSoundboard.TextMenuItemToolbar" parent="">
+        <item name="actionMenuTextColor" tools:ignore="PrivateResource">@color/m3_text_button_foreground_color_selector</item>
+        <item name="materialThemeOverlay">@style/ThemeOverlay.Material3.Button.TextButton</item>
     </style>
 
     <style name="ProgressStyle" parent="Widget.Material3.CircularProgressIndicator">

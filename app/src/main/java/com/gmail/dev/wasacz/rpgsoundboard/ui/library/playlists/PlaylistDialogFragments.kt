@@ -9,6 +9,7 @@ import android.view.Window
 import androidx.fragment.app.DialogFragment
 import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.viewModels
+import androidx.lifecycle.LifecycleCoroutineScope
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
@@ -16,12 +17,14 @@ import androidx.recyclerview.widget.GridLayoutManager
 import androidx.transition.Slide
 import com.gmail.dev.wasacz.rpgsoundboard.R
 import com.gmail.dev.wasacz.rpgsoundboard.databinding.DialogAddPlaylistsBinding
-import com.gmail.dev.wasacz.rpgsoundboard.databinding.ListItemPlaylistBinding
+import com.gmail.dev.wasacz.rpgsoundboard.databinding.ListItemPlaylistAddBinding
 import com.gmail.dev.wasacz.rpgsoundboard.ui.*
 import com.gmail.dev.wasacz.rpgsoundboard.ui.generic.*
 import com.gmail.dev.wasacz.rpgsoundboard.viewmodel.PlaylistItem
+import com.google.android.material.appbar.AppBarLayout
 import com.google.android.material.transition.MaterialContainerTransform
 import com.google.android.material.transition.MaterialElevationScale
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
 class CreatePlaylistDialogFragment : SingleInputDialogFragment(
@@ -55,6 +58,9 @@ class CreatePlaylistDialogFragment : SingleInputDialogFragment(
 }
 
 class AddPlaylistsFragment : DialogFragment() {
+    private companion object {
+        const val MENU_CONFIRM_ID = R.id.action_add
+    }
     private lateinit var binding: DialogAddPlaylistsBinding
     private lateinit var viewModel: PlaylistViewModel
     private val navArgs by navArgs<AddPlaylistsFragmentArgs>()
@@ -74,7 +80,7 @@ class AddPlaylistsFragment : DialogFragment() {
             toolbar.setNavigationOnClickListener { findNavController().navigateUp() }
             toolbar.setOnMenuItemClickListener {
                 when (it.itemId) {
-                    R.id.action_add -> {
+                    MENU_CONFIRM_ID -> {
                         getAdapter()?.let {
                             lifecycleScope.launch {
                                 viewModel.addPlaylists(it.getSelectedItems())
@@ -129,11 +135,15 @@ class AddPlaylistsFragment : DialogFragment() {
                 if (list.isEmpty()) {
                     placeholderBinding.placeholderLayout.show()
                 } else {
-                    recyclerView.adapter = Adapter(list)
+                    recyclerView.adapter = Adapter(list, binding.appbar, lifecycleScope, ::toggleConfirmButton)
                     recyclerView.show()
                 }
             }
         }
+    }
+
+    private fun toggleConfirmButton(enabled: Boolean) {
+        binding.toolbar.menu.findItem(MENU_CONFIRM_ID)?.isEnabled = enabled
     }
 
     private fun getAdapter(): Adapter? = binding.listLayout.recyclerView.adapter as? Adapter
@@ -152,12 +162,15 @@ class AddPlaylistsFragment : DialogFragment() {
         viewModel.onFragmentPause()
     }
 
-    class Adapter(list: List<PlaylistItem>) :
-        DataBindingListAdapter<ListItemPlaylistBinding, PlaylistItem>(list, ListItemPlaylistBinding::inflate) {
+    class Adapter(list: List<PlaylistItem>, private val appBar: AppBarLayout, private val lifecycleScope: LifecycleCoroutineScope, private val toggleConfirmButton: (enabled: Boolean) -> Unit) :
+        DataBindingListAdapter<ListItemPlaylistAddBinding, PlaylistItem>(list, ListItemPlaylistAddBinding::inflate) {
         private val selected = mutableSetOf<Int>()
-        override fun onBindViewHolder(holder: ViewHolder<ListItemPlaylistBinding>, position: Int) {
+
+        override fun onBindViewHolder(holder: ViewHolder<ListItemPlaylistAddBinding>, position: Int) {
+            toggleConfirmButton(selected.size > 0)
             holder.binding.apply {
                 cardView.setOnClickListener {
+                    appBar.setLiftableOverrideEnabled(true)
                     selected.toggle(position)
                     notifyItemChanged(position)
                 }
@@ -165,6 +178,10 @@ class AddPlaylistsFragment : DialogFragment() {
                 updateBindings {
                     playlist = list[position]
                 }
+            }
+            lifecycleScope.launch {
+                delay(10)
+                appBar.setLiftableOverrideEnabled(false)
             }
         }
 

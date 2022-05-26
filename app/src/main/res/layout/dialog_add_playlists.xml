@@ -11,16 +11,18 @@
         android:transitionName="@string/transition_name_fab">
 
         <com.google.android.material.appbar.AppBarLayout
+            android:id="@+id/appbar"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:fitsSystemWindows="true"
-            app:liftOnScroll="false">
+            app:liftOnScroll="true">
 
             <com.google.android.material.appbar.MaterialToolbar
                 android:id="@+id/toolbar"
                 android:layout_width="match_parent"
                 android:layout_height="?attr/actionBarSize"
                 android:paddingEnd="@dimen/dialog_menu_text_spacing"
+                android:theme="@style/Theme.RPGSoundboard.TextMenuItemToolbar"
                 app:menu="@menu/dialog_add_playlists_menu"
                 app:navigationIcon="@drawable/ic_close_24dp"
                 app:title="@string/dialog_title_add_playlists_all"
