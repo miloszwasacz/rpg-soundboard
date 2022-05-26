@@ -3,7 +3,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools">
 
-    <androidx.coordinatorlayout.widget.CoordinatorLayout
+    <com.gmail.dev.wasacz.rpgsoundboard.ui.generic.NestedCoordinatorLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent">
 
@@ -31,5 +31,5 @@
             android:layout_height="match_parent"
             app:layout_behavior="com.google.android.material.appbar.AppBarLayout$ScrollingViewBehavior" />
 
-    </androidx.coordinatorlayout.widget.CoordinatorLayout>
+    </com.gmail.dev.wasacz.rpgsoundboard.ui.generic.NestedCoordinatorLayout>
 </layout>

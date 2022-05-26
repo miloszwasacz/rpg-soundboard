@@ -20,10 +20,6 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             app:defaultNavHost="true"
-            app:layout_constraintBottom_toTopOf="@+id/nav_view"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
             app:navGraph="@navigation/mobile_navigation" />
 
         <com.google.android.material.floatingactionbutton.FloatingActionButton
@@ -35,6 +31,7 @@
             android:contentDescription="@string/content_desc_fab"
             android:transitionName="@string/transition_name_fab"
             android:visibility="gone"
+            app:layout_behavior="com.google.android.material.behavior.HideBottomViewOnScrollBehavior"
             tools:srcCompat="@drawable/ic_add_24dp"
             tools:visibility="visible" />
 

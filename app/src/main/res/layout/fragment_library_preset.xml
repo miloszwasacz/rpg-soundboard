@@ -10,7 +10,7 @@
             type="Long" />
     </data>
 
-    <androidx.coordinatorlayout.widget.CoordinatorLayout
+    <com.gmail.dev.wasacz.rpgsoundboard.ui.generic.NestedCoordinatorLayout
         android:id="@+id/main_layout"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
@@ -20,7 +20,8 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:fitsSystemWindows="true"
-            app:liftOnScroll="true">
+            app:liftOnScroll="true"
+            tools:liftOnScroll="false">
 
             <com.google.android.material.appbar.MaterialToolbar
                 android:id="@+id/toolbar"
@@ -30,7 +31,6 @@
                 app:menu="@menu/library_preset_menu"
                 app:navigationIcon="@drawable/ic_arrow_back_24dp"
                 app:titleCentered="true"
-                tools:background="?attr/colorSurface"
                 tools:title="Preset name" />
         </com.google.android.material.appbar.AppBarLayout>
 
@@ -41,5 +41,5 @@
             android:layout_height="match_parent"
             app:layout_behavior="com.google.android.material.appbar.AppBarLayout$ScrollingViewBehavior" />
 
-    </androidx.coordinatorlayout.widget.CoordinatorLayout>
+    </com.gmail.dev.wasacz.rpgsoundboard.ui.generic.NestedCoordinatorLayout>
 </layout>

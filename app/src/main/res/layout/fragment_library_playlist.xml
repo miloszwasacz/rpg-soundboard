@@ -10,7 +10,7 @@
             type="Long" />
     </data>
 
-    <androidx.coordinatorlayout.widget.CoordinatorLayout
+    <com.gmail.dev.wasacz.rpgsoundboard.ui.generic.NestedCoordinatorLayout
         android:id="@+id/main_layout"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
@@ -65,5 +65,5 @@
             android:layout_height="match_parent"
             app:layout_behavior="com.google.android.material.appbar.AppBarLayout$ScrollingViewBehavior" />
 
-    </androidx.coordinatorlayout.widget.CoordinatorLayout>
+    </com.gmail.dev.wasacz.rpgsoundboard.ui.generic.NestedCoordinatorLayout>
 </layout>
