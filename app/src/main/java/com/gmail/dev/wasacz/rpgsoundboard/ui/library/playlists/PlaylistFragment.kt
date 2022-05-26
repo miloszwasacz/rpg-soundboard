@@ -16,6 +16,7 @@ import com.gmail.dev.wasacz.rpgsoundboard.R
 import com.gmail.dev.wasacz.rpgsoundboard.databinding.FragmentLibraryPresetBinding
 import com.gmail.dev.wasacz.rpgsoundboard.ui.*
 import com.gmail.dev.wasacz.rpgsoundboard.ui.generic.ContextMenuFragment
+import com.gmail.dev.wasacz.rpgsoundboard.ui.generic.ListViewModel
 import com.gmail.dev.wasacz.rpgsoundboard.ui.generic.MarginItemDecoration
 import com.gmail.dev.wasacz.rpgsoundboard.ui.generic.Placeholder
 import com.gmail.dev.wasacz.rpgsoundboard.viewmodel.PlaylistItem
@@ -111,8 +112,11 @@ class PlaylistFragment : ContextMenuFragment<FragmentLibraryPresetBinding, Playl
             inflateList(listLayout)
         }
         setupFAB(R.drawable.ic_playlist_add_24dp, R.string.action_add) {
-            val action = PlaylistFragmentDirections.navigationLibraryAddPlaylists(navArgs.presetId)
-            findNavController().navigate(action, binding.toolbar)
+            val state = viewModel.list.value.state.first
+            if (state == ListViewModel.ListState.READY || state == ListViewModel.ListState.EMPTY) {
+                val action = PlaylistFragmentDirections.navigationLibraryAddPlaylists(navArgs.presetId)
+                findNavController().navigate(action, binding.toolbar)
+            }
         }
         return binding.root
     }
@@ -124,10 +128,8 @@ class PlaylistFragment : ContextMenuFragment<FragmentLibraryPresetBinding, Playl
                 getAdapter()?.let {
                     viewModel.viewModelScope.launch {
                         viewModel.removePlaylists(it.getSelectedItems())
-                        it.notifyItemsRemoved()
-                        it.finishActionMode()
-                        delay(resources.getDefaultAnimTimeLong(AnimTime.LONG))
                         viewModel.refreshList(requireContext())
+                        it.finishActionMode()
                     }
                 }
             }
@@ -137,10 +139,8 @@ class PlaylistFragment : ContextMenuFragment<FragmentLibraryPresetBinding, Playl
                 getAdapter()?.let {
                     viewModel.viewModelScope.launch {
                         viewModel.deletePlaylists(it.getSelectedItems())
-                        it.notifyItemsRemoved()
-                        it.finishActionMode()
-                        delay(resources.getDefaultAnimTimeLong(AnimTime.LONG))
                         viewModel.refreshList(requireContext())
+                        it.finishActionMode()
                     }
                 }
             }

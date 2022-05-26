@@ -22,9 +22,6 @@ class PlaylistAdapter(
 ) : DataBindingListAdapter<ListItemPlaylistBinding, PlaylistItem>(list, ListItemPlaylistBinding::inflate), IContextMenuAdapter {
     override var actionMode: ActionMode? = null
     private val selected = mutableSetOf<Int>()
-    private var size = list.size
-
-    override fun getItemCount(): Int = size
 
     override fun onBindViewHolder(holder: ViewHolder<ListItemPlaylistBinding>, position: Int) {
         val resources = holder.itemView.resources
@@ -68,13 +65,6 @@ class PlaylistAdapter(
     }
 
     fun getSelectedItems(): List<PlaylistItem> = selected.map { list[it] }
-
-    fun notifyItemsRemoved() {
-        for (i in selected) {
-            size--
-            notifyItemRemoved(i)
-        }
-    }
 
     override fun onCreateActionMode() {}
 

@@ -16,6 +16,7 @@ import com.gmail.dev.wasacz.rpgsoundboard.R
 import com.gmail.dev.wasacz.rpgsoundboard.databinding.FragmentLibraryBinding
 import com.gmail.dev.wasacz.rpgsoundboard.ui.*
 import com.gmail.dev.wasacz.rpgsoundboard.ui.generic.ContextMenuFragment
+import com.gmail.dev.wasacz.rpgsoundboard.ui.generic.ListViewModel
 import com.gmail.dev.wasacz.rpgsoundboard.ui.generic.Placeholder
 import com.gmail.dev.wasacz.rpgsoundboard.ui.generic.SelectableItemListAdapter
 import com.gmail.dev.wasacz.rpgsoundboard.viewmodel.Preset
@@ -78,8 +79,11 @@ class PresetFragment : ContextMenuFragment<FragmentLibraryBinding, Preset, Prese
             inflateList(listLayout)
         }
         setupFAB(R.drawable.ic_add_24dp, R.string.action_create) {
-            val action = PresetFragmentDirections.navigationLibraryNewPreset()
-            findNavController().navigate(action)
+            val state = viewModel.list.value.state.first
+            if (state == ListViewModel.ListState.READY || state == ListViewModel.ListState.EMPTY) {
+                val action = PresetFragmentDirections.navigationLibraryNewPreset()
+                findNavController().navigate(action)
+            }
         }
         return binding.root
     }
@@ -91,10 +95,8 @@ class PresetFragment : ContextMenuFragment<FragmentLibraryBinding, Preset, Prese
                 getAdapter()?.let {
                     viewModel.viewModelScope.launch {
                         viewModel.deletePresets(it.getSelectedItems())
-                        it.notifyItemsRemoved()
-                        it.finishActionMode()
-                        delay(resources.getDefaultAnimTimeLong(AnimTime.LONG))
                         viewModel.refreshList(requireContext())
+                        it.finishActionMode()
                     }
                 }
             }

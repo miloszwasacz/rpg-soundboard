@@ -20,9 +20,6 @@ class PresetAdapter(
     private val onItemClickAnimationSetter: () -> Unit
 ) : SelectableItemListAdapter<Preset>(list, { it.name }), IContextMenuAdapter {
     override var actionMode: ActionMode? = null
-    private var size = list.size
-
-    override fun getItemCount(): Int = size
 
     override fun onBindViewHolder(holder: ViewHolder<ListItemSelectableBinding>, position: Int) {
         val resources = holder.itemView.resources
@@ -62,20 +59,13 @@ class PresetAdapter(
         return true
     }
 
-    fun notifyItemsRemoved() {
-        for (i in selected) {
-            size--
-            notifyItemRemoved(i)
-        }
-    }
-
     override fun onCreateActionMode() {
-        notifyItemRangeChanged(0, size)
+        notifyItemRangeChanged(0, list.size)
     }
 
     override fun onDestroyActionMode() {
         actionMode = null
-        notifyItemRangeChanged(0, size)
+        notifyItemRangeChanged(0, list.size)
         selected.clear()
     }
 }
