@@ -7,7 +7,7 @@
         android:title="@string/title_player" />
 
     <item
-        android:id="@+id/navigation_library_presets"
+        android:id="@+id/navigation_library"
         android:icon="@drawable/ic_library_24dp"
         android:title="@string/title_library" />
 

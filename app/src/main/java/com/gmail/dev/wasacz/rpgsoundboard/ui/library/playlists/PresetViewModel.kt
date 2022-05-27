@@ -11,7 +11,7 @@ import com.gmail.dev.wasacz.rpgsoundboard.ui.generic.ListViewModel
 import com.gmail.dev.wasacz.rpgsoundboard.viewmodel.PlaylistItem
 import kotlinx.coroutines.withContext
 
-class PlaylistViewModel(private val dbViewModel: DatabaseViewModel, private val presetId: Long) : ListViewModel<PlaylistItem>() {
+class PresetViewModel(private val dbViewModel: DatabaseViewModel, private val presetId: Long) : ListViewModel<PlaylistItem>() {
     override suspend fun getList(context: Context): List<PlaylistItem>? {
         return try {
             dbViewModel.getPlaylistsFromPreset(presetId)
@@ -51,6 +51,6 @@ class PlaylistViewModel(private val dbViewModel: DatabaseViewModel, private val 
 
     @Suppress("UNCHECKED_CAST")
     class Factory(private val dbViewModel: DatabaseViewModel, private val presetId: Long) : ViewModelProvider.Factory {
-        override fun <T : ViewModel> create(modelClass: Class<T>): T = PlaylistViewModel(dbViewModel, presetId) as T
+        override fun <T : ViewModel> create(modelClass: Class<T>): T = PresetViewModel(dbViewModel, presetId) as T
     }
 }

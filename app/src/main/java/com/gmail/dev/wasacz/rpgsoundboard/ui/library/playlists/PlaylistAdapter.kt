@@ -31,7 +31,7 @@ class PlaylistAdapter(
                 if (actionMode == null) {
                     when (playlistItem.type) {
                         DBPlaylistType.PlaylistType.CLASSIC -> {
-                            val action = PlaylistFragmentDirections.navigationLibraryPlaylistsToSongs(playlistItem, playlistItem.name)
+                            val action = PresetFragmentDirections.navigationLibraryToPlaylist(playlistItem, playlistItem.name)
                             val extras = FragmentNavigatorExtras(
                                 cardView to resources.getString(R.string.transition_name_playlist, playlistItem.id)
                             )

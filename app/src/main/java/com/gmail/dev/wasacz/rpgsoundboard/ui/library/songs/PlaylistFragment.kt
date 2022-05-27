@@ -23,14 +23,14 @@ import com.google.android.material.appbar.MaterialToolbar
 import com.google.android.material.transition.MaterialContainerTransform
 import com.google.android.material.transition.MaterialElevationScale
 
-class SongFragment : StaticListFragment<FragmentLibraryPlaylistBinding, Song, SongViewModel>(
+class PlaylistFragment : StaticListFragment<FragmentLibraryPlaylistBinding, Song, PlaylistViewModel>(
     Placeholder(
         R.drawable.ic_dashboard_black_24dp,
         R.string.app_name
     ),
     FragmentLibraryPlaylistBinding::inflate
 ), IToolbarFragment {
-    private val navArgs by navArgs<SongFragmentArgs>()
+    private val navArgs by navArgs<PlaylistFragmentArgs>()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -66,9 +66,9 @@ class SongFragment : StaticListFragment<FragmentLibraryPlaylistBinding, Song, So
         return binding.root
     }
 
-    override fun initViewModel(): SongViewModel {
+    override fun initViewModel(): PlaylistViewModel {
         val dbViewModel by activityViewModels<DatabaseViewModel>()
-        val viewModel by viewModels<SongViewModel> { SongViewModel.Factory(dbViewModel, navArgs.playlistItem) }
+        val viewModel by viewModels<PlaylistViewModel> { PlaylistViewModel.Factory(dbViewModel, navArgs.playlistItem) }
         return viewModel
     }
 

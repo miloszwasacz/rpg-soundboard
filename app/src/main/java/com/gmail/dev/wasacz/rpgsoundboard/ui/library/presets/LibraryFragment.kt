@@ -26,7 +26,7 @@ import com.google.android.material.transition.MaterialFadeThrough
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
-class PresetFragment : ContextMenuFragment<FragmentLibraryBinding, Preset, PresetViewModel>(
+class LibraryFragment : ContextMenuFragment<FragmentLibraryBinding, Preset, LibraryViewModel>(
     R.menu.library_simple_context_menu,
     Placeholder(
         R.drawable.ic_dashboard_black_24dp,
@@ -39,14 +39,14 @@ class PresetFragment : ContextMenuFragment<FragmentLibraryBinding, Preset, Prese
 ), IToolbarFragment {
     //#region Context menu
     override val navigationGroup: List<Int> = listOf(
-        R.id.navigation_library_presets,
+        R.id.navigation_library,
         R.id.navigation_dialog_delete_presets
     )
 
     override fun getAdapter(): PresetAdapter? = binding.listLayout.recyclerView.adapter as? PresetAdapter
     override fun onActionItemClicked(itemId: Int?): Boolean = when (itemId) {
         R.id.action_delete -> {
-            val action = PresetFragmentDirections.navigationLibraryDeletePresets()
+            val action = LibraryFragmentDirections.navigationLibraryDeletePresets()
             findNavController().navigate(action)
             true
         }
@@ -81,7 +81,7 @@ class PresetFragment : ContextMenuFragment<FragmentLibraryBinding, Preset, Prese
         setupFAB(R.drawable.ic_add_24dp, R.string.action_create) {
             val state = viewModel.list.value.state.first
             if (state == ListViewModel.ListState.READY || state == ListViewModel.ListState.EMPTY) {
-                val action = PresetFragmentDirections.navigationLibraryNewPreset()
+                val action = LibraryFragmentDirections.navigationLibraryNewPreset()
                 findNavController().navigate(action)
             }
         }
@@ -90,7 +90,7 @@ class PresetFragment : ContextMenuFragment<FragmentLibraryBinding, Preset, Prese
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        getNavigationResult<Boolean>(R.id.navigation_library_presets, R.string.nav_arg_delete_presets_result) { result ->
+        getNavigationResult<Boolean>(R.id.navigation_library, R.string.nav_arg_delete_presets_result) { result ->
             if (result) {
                 getAdapter()?.let {
                     viewModel.viewModelScope.launch {
@@ -103,9 +103,9 @@ class PresetFragment : ContextMenuFragment<FragmentLibraryBinding, Preset, Prese
         }
     }
 
-    override fun initViewModel(): PresetViewModel {
+    override fun initViewModel(): LibraryViewModel {
         val dbViewModel by activityViewModels<DatabaseViewModel>()
-        val viewModel by viewModels<PresetViewModel> { PresetViewModel.Factory(dbViewModel) }
+        val viewModel by viewModels<LibraryViewModel> { LibraryViewModel.Factory(dbViewModel) }
         return viewModel
     }
 

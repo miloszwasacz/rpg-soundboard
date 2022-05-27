@@ -9,7 +9,7 @@ import com.gmail.dev.wasacz.rpgsoundboard.ui.generic.ListViewModel
 import com.gmail.dev.wasacz.rpgsoundboard.viewmodel.Preset
 import kotlinx.coroutines.withContext
 
-class PresetViewModel(private val dbViewModel: DatabaseViewModel) : ListViewModel<Preset>() {
+class LibraryViewModel(private val dbViewModel: DatabaseViewModel) : ListViewModel<Preset>() {
     override suspend fun getList(context: Context): List<Preset> = withContext(viewModelScope.coroutineContext) {
         dbViewModel.getPresets()
     }
@@ -63,6 +63,6 @@ class PresetViewModel(private val dbViewModel: DatabaseViewModel) : ListViewMode
 
     @Suppress("UNCHECKED_CAST")
     class Factory(private val dbViewModel: DatabaseViewModel) : ViewModelProvider.Factory {
-        override fun <T : ViewModel> create(modelClass: Class<T>): T = PresetViewModel(dbViewModel) as T
+        override fun <T : ViewModel> create(modelClass: Class<T>): T = LibraryViewModel(dbViewModel) as T
     }
 }

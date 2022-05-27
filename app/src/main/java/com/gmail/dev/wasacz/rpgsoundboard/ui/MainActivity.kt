@@ -11,6 +11,8 @@ import androidx.annotation.StringRes
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.WindowCompat
 import androidx.lifecycle.lifecycleScope
+import androidx.navigation.NavGraph.Companion.findStartDestination
+import androidx.navigation.NavOptions
 import androidx.navigation.fragment.NavHostFragment
 import androidx.navigation.navOptions
 import androidx.navigation.ui.setupWithNavController
@@ -18,10 +20,11 @@ import com.gmail.dev.wasacz.rpgsoundboard.R
 import com.gmail.dev.wasacz.rpgsoundboard.databinding.ActivityMainBinding
 import com.gmail.dev.wasacz.rpgsoundboard.services.MediaPlayerService
 import com.gmail.dev.wasacz.rpgsoundboard.ui.generic.ContextMenuFragment
+import com.google.android.material.navigation.NavigationBarView
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
-class MainActivity : AppCompatActivity(), IFABActivity, IBottomNavActivity {
+class MainActivity : AppCompatActivity(), IFABActivity, INavBarActivity {
     private lateinit var binding: ActivityMainBinding
     private lateinit var viewModel: DatabaseViewModel
 
@@ -37,20 +40,32 @@ class MainActivity : AppCompatActivity(), IFABActivity, IBottomNavActivity {
         val navController = navHost.navController
         binding.navView.apply {
             setupWithNavController(navController)
-            setOnItemSelectedListener { menuItem ->
-                val navOptions = navOptions {
-                    navController.currentDestination?.id?.let {
-                        popUpTo(it)
-                    }
-                }
+            val navigate = { id: Int, navOptions: NavOptions ->
                 with(navController) {
                     navHost.childFragmentManager.primaryNavigationFragment.let {
                         if (it !== null && it is IToolbarFragment)
-                            navigate(menuItem.itemId, it.getToolbar(), it.getToolbarLayout(), navOptions)
-                        else navigate(menuItem.itemId, null, navOptions)
+                            navigate(id, it.getToolbar(), it.getToolbarLayout(), navOptions)
+                        else navigate(id, null, navOptions)
                     }
                 }
+            }
+            setOnItemSelectedListener { menuItem ->
+                val navOptions = navOptions {
+                    launchSingleTop = true
+                    restoreState = true
+                    popUpTo(navController.graph.findStartDestination().id) {
+                        saveState = true
+                    }
+                }
+                navigate(menuItem.itemId, navOptions)
                 true
+            }
+            setOnItemReselectedListener { menuItem ->
+                val navOptions = navOptions {
+                    launchSingleTop = true
+                    popUpTo(navController.graph.findStartDestination().id)
+                }
+                navigate(menuItem.itemId, navOptions)
             }
         }
         navController.addOnDestinationChangedListener { _, _, args ->
@@ -87,7 +102,10 @@ class MainActivity : AppCompatActivity(), IFABActivity, IBottomNavActivity {
     }
     //#endregion
 
-    override fun getBottomMenu(): Menu = binding.navView.menu
+    //#region IBottomNavActivity
+    override fun getNavMenu(): Menu = binding.navView.menu
+    override fun getNavView(): NavigationBarView = binding.navView
+    //#endregion
 
     override fun onBackPressed() {
         binding.navHostFragment.getFragment<NavHostFragment>().navController.navigateUp()

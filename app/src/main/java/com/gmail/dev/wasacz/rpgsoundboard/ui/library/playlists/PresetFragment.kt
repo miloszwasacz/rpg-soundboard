@@ -26,7 +26,7 @@ import com.google.android.material.transition.MaterialElevationScale
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
-class PlaylistFragment : ContextMenuFragment<FragmentLibraryPresetBinding, PlaylistItem, PlaylistViewModel>(
+class PresetFragment : ContextMenuFragment<FragmentLibraryPresetBinding, PlaylistItem, PresetViewModel>(
     R.menu.library_context_menu,
     Placeholder(
         R.drawable.ic_dashboard_black_24dp,
@@ -42,11 +42,11 @@ class PlaylistFragment : ContextMenuFragment<FragmentLibraryPresetBinding, Playl
         )
     }
 ), IToolbarFragment {
-    private val navArgs by navArgs<PlaylistFragmentArgs>()
+    private val navArgs by navArgs<PresetFragmentArgs>()
 
     //#region Context menu
     override val navigationGroup: List<Int> = listOf(
-        R.id.navigation_library_playlists,
+        R.id.navigation_library_preset,
         R.id.navigation_dialog_remove_playlists,
         R.id.navigation_dialog_delete_playlists
     )
@@ -55,12 +55,12 @@ class PlaylistFragment : ContextMenuFragment<FragmentLibraryPresetBinding, Playl
 
     override fun onActionItemClicked(itemId: Int?): Boolean = when (itemId) {
         R.id.action_remove -> {
-            val action = PlaylistFragmentDirections.navigationLibraryRemovePlaylists(navArgs.presetId)
+            val action = PresetFragmentDirections.navigationLibraryRemovePlaylists(navArgs.presetId)
             findNavController().navigate(action)
             true
         }
         R.id.action_delete -> {
-            val action = PlaylistFragmentDirections.navigationLibraryDeletePlaylists(navArgs.presetId)
+            val action = PresetFragmentDirections.navigationLibraryDeletePlaylists(navArgs.presetId)
             findNavController().navigate(action)
             true
         }
@@ -102,12 +102,12 @@ class PlaylistFragment : ContextMenuFragment<FragmentLibraryPresetBinding, Playl
                 when (menuItem.itemId) {
                     //TODO Add Spotify playlist
                     R.id.action_create -> {
-                        val action = PlaylistFragmentDirections.navigationLibraryNewPlaylist(navArgs.presetId)
+                        val action = PresetFragmentDirections.navigationLibraryNewPlaylist(navArgs.presetId)
                         findNavController().navigate(action)
                         true
                     }
                     R.id.action_rename -> {
-                        val action = PlaylistFragmentDirections.navigationLibraryRenamePreset(navArgs.presetName)
+                        val action = PresetFragmentDirections.navigationLibraryRenamePreset(navArgs.presetName)
                         findNavController().navigate(action)
                         true
                     }
@@ -119,7 +119,7 @@ class PlaylistFragment : ContextMenuFragment<FragmentLibraryPresetBinding, Playl
         setupFAB(R.drawable.ic_playlist_add_24dp, R.string.action_add) {
             val state = viewModel.list.value.state.first
             if (state == ListViewModel.ListState.READY || state == ListViewModel.ListState.EMPTY) {
-                val action = PlaylistFragmentDirections.navigationLibraryAddPlaylists(navArgs.presetId)
+                val action = PresetFragmentDirections.navigationLibraryAddPlaylists(navArgs.presetId)
                 findNavController().navigate(action, binding.toolbar)
             }
         }
@@ -128,7 +128,7 @@ class PlaylistFragment : ContextMenuFragment<FragmentLibraryPresetBinding, Playl
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        getNavigationResult<Boolean>(R.id.navigation_library_playlists, R.string.nav_arg_remove_playlists_result) { result ->
+        getNavigationResult<Boolean>(R.id.navigation_library_preset, R.string.nav_arg_remove_playlists_result) { result ->
             if (result) {
                 getAdapter()?.let {
                     viewModel.viewModelScope.launch {
@@ -139,7 +139,7 @@ class PlaylistFragment : ContextMenuFragment<FragmentLibraryPresetBinding, Playl
                 }
             }
         }
-        getNavigationResult<Boolean>(R.id.navigation_library_playlists, R.string.nav_arg_delete_playlists_result) { result ->
+        getNavigationResult<Boolean>(R.id.navigation_library_preset, R.string.nav_arg_delete_playlists_result) { result ->
             if (result) {
                 getAdapter()?.let {
                     viewModel.viewModelScope.launch {
@@ -150,20 +150,20 @@ class PlaylistFragment : ContextMenuFragment<FragmentLibraryPresetBinding, Playl
                 }
             }
         }
-        getNavigationResult<String>(R.id.navigation_library_playlists, R.string.nav_arg_rename_preset_result) { result ->
+        getNavigationResult<String>(R.id.navigation_library_preset, R.string.nav_arg_rename_preset_result) { result ->
             if (result != navArgs.presetName) {
                 viewModel.viewModelScope.launch {
                     viewModel.renamePreset(result)
-                    val action = PlaylistFragmentDirections.refreshLibraryPlaylists(navArgs.presetId, result)
+                    val action = PresetFragmentDirections.refreshLibraryPreset(navArgs.presetId, result)
                     findNavController().navigate(action, binding.toolbar)
                 }
             }
         }
     }
 
-    override fun initViewModel(): PlaylistViewModel {
+    override fun initViewModel(): PresetViewModel {
         val dbViewModel by activityViewModels<DatabaseViewModel>()
-        val viewModel by viewModels<PlaylistViewModel> { PlaylistViewModel.Factory(dbViewModel, navArgs.presetId) }
+        val viewModel by viewModels<PresetViewModel> { PresetViewModel.Factory(dbViewModel, navArgs.presetId) }
         return viewModel
     }
 

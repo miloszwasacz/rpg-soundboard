@@ -49,7 +49,7 @@ class PresetAdapter(
             if (actionMode == null) {
                 onItemClickAnimationSetter()
                 finishActionMode()
-                val action = PresetFragmentDirections.navigationLibraryPresetsToPlaylists(item.id, item.name)
+                val action = LibraryFragmentDirections.navigationLibraryToPreset(item.id, item.name)
                 val extras = FragmentNavigatorExtras(
                     itemLayout to root.resources.getString(R.string.transition_name_preset, item.id)
                 )

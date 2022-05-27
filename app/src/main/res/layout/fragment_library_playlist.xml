@@ -50,7 +50,7 @@
                     android:elevation="0dp"
                     app:layout_collapseMode="pin"
                     app:layout_scrollFlags="scroll|enterAlways|snap"
-                    app:menu="@menu/song_menu"
+                    app:menu="@menu/library_playlist_menu"
                     app:navigationIcon="@drawable/ic_arrow_back_24dp"
                     tools:title="Playlist name" />
 

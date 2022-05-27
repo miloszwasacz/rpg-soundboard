@@ -14,7 +14,7 @@ import com.gmail.dev.wasacz.rpgsoundboard.viewmodel.Song
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 
-class SongViewModel(private val dbViewModel: DatabaseViewModel, private val playlistItem: PlaylistItem) : ListViewModel<Song>() {
+class PlaylistViewModel(private val dbViewModel: DatabaseViewModel, private val playlistItem: PlaylistItem) : ListViewModel<Song>() {
     private val playlist = MutableStateFlow<Playlist?>(null)
 
     override suspend fun getList(context: Context): List<Song>? {
@@ -42,6 +42,6 @@ class SongViewModel(private val dbViewModel: DatabaseViewModel, private val play
 
     @Suppress("UNCHECKED_CAST")
     class Factory(private val dbViewModel: DatabaseViewModel, private val playlistItem: PlaylistItem) : ViewModelProvider.Factory {
-        override fun <T : ViewModel> create(modelClass: Class<T>): T = SongViewModel(dbViewModel, playlistItem) as T
+        override fun <T : ViewModel> create(modelClass: Class<T>): T = PlaylistViewModel(dbViewModel, playlistItem) as T
     }
 }

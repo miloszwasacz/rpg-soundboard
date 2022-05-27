@@ -27,39 +27,17 @@ import com.google.android.material.transition.MaterialElevationScale
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
-class RenamePresetDialogFragment : SingleInputDialogFragment(
-    title = R.string.dialog_title_rename_preset,
-    inputHint = R.string.hint_name,
-    confirmButtonText = R.string.action_rename
-) {
-    private val navArgs by navArgs<RenamePresetDialogFragmentArgs>()
-
-    override fun setInitText(): String = navArgs.currentName
-
-    override fun onConfirm() {
-        getInputText()?.let {
-            val name = it.trim()
-            if(it.isNotBlank()) {
-                lifecycleScope.launch {
-                    setNavigationResult(R.string.nav_arg_rename_preset_result, name)
-                    findNavController().navigateUp()
-                }
-            }
-        }
-    }
-}
-
 class CreatePlaylistDialogFragment : SingleInputDialogFragment(
     R.string.dialog_title_new_playlist,
     R.string.hint_name,
     R.string.action_create
 ) {
-    private lateinit var viewModel: PlaylistViewModel
+    private lateinit var viewModel: PresetViewModel
     private val navArgs by navArgs<CreatePlaylistDialogFragmentArgs>()
 
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
         val dbViewModel by activityViewModels<DatabaseViewModel>()
-        val viewModel by viewModels<PlaylistViewModel> { PlaylistViewModel.Factory(dbViewModel, navArgs.presetId) }
+        val viewModel by viewModels<PresetViewModel> { PresetViewModel.Factory(dbViewModel, navArgs.presetId) }
         this.viewModel = viewModel
         return super.onCreateDialog(savedInstanceState)
     }
@@ -71,7 +49,7 @@ class CreatePlaylistDialogFragment : SingleInputDialogFragment(
                 lifecycleScope.launch {
                     val playlist = viewModel.createPlaylist(name)
                     requireDialog().dismiss()
-                    val action = CreatePlaylistDialogFragmentDirections.navigationNewPlaylistToSongs(playlist, playlist.name)
+                    val action = CreatePlaylistDialogFragmentDirections.navigationLibraryToNewPlaylist(playlist, playlist.name)
                     findNavController().navigate(action)
                 }
             }
@@ -84,13 +62,13 @@ class AddPlaylistsFragment : DialogFragment() {
         const val MENU_CONFIRM_ID = R.id.action_add
     }
     private lateinit var binding: DialogAddPlaylistsBinding
-    private lateinit var viewModel: PlaylistViewModel
+    private lateinit var viewModel: PresetViewModel
     private val navArgs by navArgs<AddPlaylistsFragmentArgs>()
     private val placeholder = Placeholder(R.drawable.ic_dashboard_black_24dp, R.string.app_name)
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
         val dbViewModel by activityViewModels<DatabaseViewModel>()
-        val viewModel by viewModels<PlaylistViewModel> { PlaylistViewModel.Factory(dbViewModel, navArgs.presetId) }
+        val viewModel by viewModels<PresetViewModel> { PresetViewModel.Factory(dbViewModel, navArgs.presetId) }
         this.viewModel = viewModel
         binding = DialogAddPlaylistsBinding.inflate(inflater, container, false)
         with(binding) {
@@ -121,7 +99,6 @@ class AddPlaylistsFragment : DialogFragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         enterTransition = MaterialContainerTransform().apply {
-            drawingViewId = R.id.nav_host_fragment
             startView = requireActivity().findViewById(R.id.main_fab)
             endView = binding.mainLayout
         }
@@ -130,6 +107,7 @@ class AddPlaylistsFragment : DialogFragment() {
         }
         exitTransition = MaterialElevationScale(false)
         super.onViewCreated(view, savedInstanceState)
+        hideNavView()
     }
 
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
@@ -182,6 +160,7 @@ class AddPlaylistsFragment : DialogFragment() {
     override fun onPause() {
         super.onPause()
         viewModel.onFragmentPause()
+        showNavView()
     }
 
     class Adapter(list: List<PlaylistItem>, private val appBar: AppBarLayout, private val lifecycleScope: LifecycleCoroutineScope, private val toggleConfirmButton: (enabled: Boolean) -> Unit) :
@@ -217,13 +196,13 @@ class RemovePlaylistsFragment : AlertDialogFragment(
     icon = R.drawable.ic_delete_24dp,
     confirmButtonText = R.string.action_remove
 ) {
-    private lateinit var viewModel: PlaylistViewModel
+    private lateinit var viewModel: PresetViewModel
     private val navArgs by navArgs<RemovePlaylistsFragmentArgs>()
 
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
         val dialog = super.onCreateDialog(savedInstanceState)
         val dbViewModel by activityViewModels<DatabaseViewModel>()
-        val viewModel by viewModels<PlaylistViewModel> { PlaylistViewModel.Factory(dbViewModel, navArgs.presetId) }
+        val viewModel by viewModels<PresetViewModel> { PresetViewModel.Factory(dbViewModel, navArgs.presetId) }
         this.viewModel = viewModel
         return dialog
     }
@@ -240,13 +219,13 @@ class DeletePlaylistsFragment : AlertDialogFragment(
     icon = R.drawable.ic_delete_forever_24dp,
     confirmButtonText = R.string.action_delete
 ) {
-    private lateinit var viewModel: PlaylistViewModel
+    private lateinit var viewModel: PresetViewModel
     private val navArgs by navArgs<DeletePlaylistsFragmentArgs>()
 
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
         val dialog = super.onCreateDialog(savedInstanceState)
         val dbViewModel by activityViewModels<DatabaseViewModel>()
-        val viewModel by viewModels<PlaylistViewModel> { PlaylistViewModel.Factory(dbViewModel, navArgs.presetId) }
+        val viewModel by viewModels<PresetViewModel> { PresetViewModel.Factory(dbViewModel, navArgs.presetId) }
         this.viewModel = viewModel
         return dialog
     }

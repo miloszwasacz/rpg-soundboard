@@ -1,0 +1,118 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/preset_navigation"
+    app:startDestination="@id/navigation_library_preset">
+    <argument
+        android:name="presetId"
+        app:argType="long" />
+    <argument
+        android:name="presetName"
+        app:argType="string" />
+
+    <fragment
+        android:id="@+id/navigation_library_preset"
+        android:name="com.gmail.dev.wasacz.rpgsoundboard.ui.library.playlists.PresetFragment"
+        android:label="{presetName}"
+        tools:layout="@layout/list_item_playlist">
+        <argument
+            android:name="presetId"
+            app:argType="long" />
+        <argument
+            android:name="presetName"
+            app:argType="string" />
+        <argument
+            android:name="@string/nav_arg_show_fab"
+            android:defaultValue="true" />
+        <action
+            android:id="@+id/navigation_library_to_playlist"
+            app:destination="@id/playlist_navigation">
+            <argument
+                android:name="playlistItem"
+                app:argType="com.gmail.dev.wasacz.rpgsoundboard.viewmodel.PlaylistItem" />
+            <argument
+                android:name="playlistName"
+                app:argType="string" />
+        </action>
+        <action
+            android:id="@+id/navigation_library_rename_preset"
+            app:destination="@id/navigation_dialog_rename_preset" />
+        <action
+            android:id="@+id/navigation_library_new_playlist"
+            app:destination="@id/navigation_dialog_new_playlist"
+            app:launchSingleTop="true"
+            app:restoreState="true" />
+        <action
+            android:id="@+id/navigation_library_add_playlists"
+            app:destination="@id/navigation_dialog_add_playlists"
+            app:launchSingleTop="true"
+            app:restoreState="true" />
+        <action
+            android:id="@+id/navigation_library_remove_playlists"
+            app:destination="@id/navigation_dialog_remove_playlists"
+            app:launchSingleTop="true"
+            app:restoreState="true" />
+        <action
+            android:id="@+id/navigation_library_delete_playlists"
+            app:destination="@id/navigation_dialog_delete_playlists"
+            app:launchSingleTop="true"
+            app:restoreState="true" />
+        <action
+            android:id="@+id/refresh_library_preset"
+            app:destination="@id/navigation_library_preset"
+            app:popUpTo="@id/navigation_library_preset"
+            app:popUpToInclusive="true" />
+    </fragment>
+    <dialog
+        android:id="@+id/navigation_dialog_rename_preset"
+        android:name="com.gmail.dev.wasacz.rpgsoundboard.ui.library.presets.RenamePresetDialogFragment"
+        tools:layout="@layout/dialog_single_input">
+        <argument
+            android:name="currentName"
+            app:argType="string" />
+    </dialog>
+    <dialog
+        android:id="@+id/navigation_dialog_new_playlist"
+        android:name="com.gmail.dev.wasacz.rpgsoundboard.ui.library.playlists.CreatePlaylistDialogFragment"
+        tools:layout="@layout/dialog_single_input">
+        <argument
+            android:name="presetId"
+            app:argType="long" />
+        <action
+            android:id="@+id/navigation_library_to_new_playlist"
+            app:destination="@id/playlist_navigation">
+            <argument
+                android:name="playlistItem"
+                app:argType="com.gmail.dev.wasacz.rpgsoundboard.viewmodel.PlaylistItem" />
+            <argument
+                android:name="playlistName"
+                app:argType="string" />
+        </action>
+    </dialog>
+    <fragment
+        android:id="@+id/navigation_dialog_add_playlists"
+        android:name="com.gmail.dev.wasacz.rpgsoundboard.ui.library.playlists.AddPlaylistsFragment"
+        android:label="@string/dialog_title_add_playlists"
+        tools:layout="@layout/dialog_add_playlists">
+        <argument
+            android:name="presetId"
+            app:argType="long" />
+    </fragment>
+    <dialog
+        android:id="@+id/navigation_dialog_remove_playlists"
+        android:name="com.gmail.dev.wasacz.rpgsoundboard.ui.library.playlists.RemovePlaylistsFragment">
+        <argument
+            android:name="presetId"
+            app:argType="long" />
+    </dialog>
+    <dialog
+        android:id="@+id/navigation_dialog_delete_playlists"
+        android:name="com.gmail.dev.wasacz.rpgsoundboard.ui.library.playlists.DeletePlaylistsFragment">
+        <argument
+            android:name="presetId"
+            app:argType="long" />
+    </dialog>
+
+    <include app:graph="@navigation/playlist_navigation" />
+</navigation>

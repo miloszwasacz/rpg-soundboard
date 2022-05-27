@@ -2,14 +2,17 @@ package com.gmail.dev.wasacz.rpgsoundboard.ui
 
 import android.animation.Animator
 import android.animation.AnimatorListenerAdapter
+import android.animation.ObjectAnimator
 import android.app.Activity
 import android.content.Context
 import android.content.res.Resources
+import android.content.res.TypedArray
 import android.graphics.Paint
 import android.util.Log
 import android.view.Menu
 import android.view.View
 import androidx.annotation.*
+import androidx.core.animation.doOnStart
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
@@ -25,6 +28,9 @@ import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 import com.google.android.material.appbar.CollapsingToolbarLayout
 import com.google.android.material.appbar.MaterialToolbar
 import com.google.android.material.elevation.SurfaceColors
+import com.google.android.material.navigation.NavigationBarView
+import com.google.android.material.navigationrail.NavigationRailView
+
 
 //#region FAB
 interface IFABActivity {
@@ -51,6 +57,40 @@ fun Fragment.hideFAB() {
     activity?.let {
         if (it is IFABActivity)
             it.hideFAB()
+    }
+}
+//#endregion
+
+//#region NavBar
+interface INavBarActivity {
+    fun getNavMenu(): Menu
+    fun getNavView(): NavigationBarView
+}
+
+fun Fragment.showNavView() {
+    activity?.let {
+        if (it is INavBarActivity) {
+            it.getNavView().also { view ->
+                val dimension = if (view is NavigationRailView) "X" else "Y"
+                ObjectAnimator.ofFloat(view, "translation${dimension}", 0f).apply {
+                    duration = requireContext().getDuration(com.google.android.material.R.attr.motionDurationMedium1)
+                    doOnStart { view.visibility = View.VISIBLE }
+                    start()
+                }
+            }
+        }
+    }
+}
+
+fun Fragment.hideNavView() {
+    activity?.let {
+        if (it is INavBarActivity) {
+            it.getNavView().also { view ->
+                view.visibility = View.GONE
+                if (view is NavigationRailView) view.translationX = -view.width.toFloat()
+                else view.translationY = view.height.toFloat()
+            }
+        }
     }
 }
 //#endregion
@@ -108,23 +148,26 @@ fun SwipeRefreshLayout.setStyle(
     }
 }
 
-interface IBottomNavActivity {
-    fun getBottomMenu(): Menu
-}
-
 fun CollapsingToolbarLayout.setupDefault(context: Context?, toolbar: MaterialToolbar, navController: NavController, activity: Activity?) {
-    if (activity is IBottomNavActivity) setupWithNavController(toolbar, navController, AppBarConfiguration(activity.getBottomMenu()))
+    if (activity is INavBarActivity) setupWithNavController(toolbar, navController, AppBarConfiguration(activity.getNavMenu()))
     else setupWithNavController(toolbar, navController)
     context?.let { setContentScrimColor(SurfaceColors.SURFACE_2.getColor(it)) }
 }
 
 fun MaterialToolbar.setupDefault(navController: NavController, activity: Activity?) {
-    if (activity is IBottomNavActivity) setupWithNavController(navController, AppBarConfiguration(activity.getBottomMenu()))
+    if (activity is INavBarActivity) setupWithNavController(navController, AppBarConfiguration(activity.getNavMenu()))
     else setupWithNavController(navController)
 }
 //#endregion
 
 //#region Resources
+fun  Context.getDuration(@AttrRes id: Int): Long {
+    val a: TypedArray = obtainStyledAttributes(intArrayOf(id))
+    val duration = a.getInt(0, 2000)
+    a.recycle()
+    return duration.toLong()
+}
+
 fun Resources.getSummedDimensionPixelOffset(@DimenRes vararg ids: Int): Int {
     var result = 0
     for (id in ids)
@@ -208,7 +251,7 @@ fun NavController.navigate(
 //#endregion
 
 /**
- * If the set contains the [element] it is removed from the set; otherwise it is added to the set.
+ * If the set contains the [element], it is removed from the set; otherwise it is added to the set.
  */
 fun <E> MutableSet<E>.toggle(element: E) {
     if (contains(element)) remove(element)
