@@ -6,6 +6,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.annotation.CallSuper
+import androidx.core.view.doOnPreDraw
 import androidx.databinding.ViewDataBinding
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.RecyclerView
@@ -27,6 +28,7 @@ abstract class StaticListFragment<B : ViewDataBinding, T, VM : ListViewModel<T>>
 
     @CallSuper
     protected fun inflateList(binding: FragmentListBinding) {
+        postponeEnterTransition()
         with(binding) {
             placeholder = this@StaticListFragment.placeholder
             recyclerView.layoutManager = initLayoutManager()
@@ -91,6 +93,14 @@ abstract class StaticListFragment<B : ViewDataBinding, T, VM : ListViewModel<T>>
         if (binding is FragmentListBinding)
             (binding as FragmentListBinding).paddingTop = resources.getDimension(R.dimen.scroll_view_padding_top)
         return binding.root
+    }
+
+    @CallSuper
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+        view.doOnPreDraw {
+            startPostponedEnterTransition()
+        }
     }
 
     @CallSuper

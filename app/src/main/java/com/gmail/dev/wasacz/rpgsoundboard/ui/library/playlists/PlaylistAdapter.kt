@@ -1,7 +1,7 @@
 package com.gmail.dev.wasacz.rpgsoundboard.ui.library.playlists
 
 import android.view.ActionMode
-import androidx.navigation.NavController
+import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.FragmentNavigatorExtras
 import com.gmail.dev.wasacz.rpgsoundboard.R
 import com.gmail.dev.wasacz.rpgsoundboard.databinding.ListItemPlaylistBinding
@@ -12,12 +12,12 @@ import com.gmail.dev.wasacz.rpgsoundboard.ui.generic.updateBindings
 import com.gmail.dev.wasacz.rpgsoundboard.ui.navigate
 import com.gmail.dev.wasacz.rpgsoundboard.ui.toggle
 import com.gmail.dev.wasacz.rpgsoundboard.viewmodel.PlaylistItem
-import com.google.android.material.appbar.MaterialToolbar
+import com.google.android.material.transition.MaterialContainerTransform
+import com.google.android.material.transition.MaterialElevationScale
 
 class PlaylistAdapter(
     list: List<PlaylistItem>,
-    private val navController: NavController,
-    private val toolbar: MaterialToolbar,
+    private val fragment: Fragment,
     override val startActionMode: () -> ActionMode?
 ) : DataBindingListAdapter<ListItemPlaylistBinding, PlaylistItem>(list, ListItemPlaylistBinding::inflate), IContextMenuAdapter {
     override var actionMode: ActionMode? = null
@@ -35,7 +35,11 @@ class PlaylistAdapter(
                             val extras = FragmentNavigatorExtras(
                                 cardView to resources.getString(R.string.transition_name_playlist, playlistItem.id)
                             )
-                            navController.navigate(action, toolbar, extras)
+                            fragment.navigate(action, extras) {
+                                sharedEnter = MaterialContainerTransform().apply { drawingViewId = R.id.nav_host_fragment }
+                                exit = MaterialElevationScale(false)
+                                reenter = MaterialElevationScale(true)
+                            }
                         }
                         DBPlaylistType.PlaylistType.SPOTIFY -> {
                             //TODO Open playlist in spotify

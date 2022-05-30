@@ -21,8 +21,8 @@ import com.gmail.dev.wasacz.rpgsoundboard.ui.generic.MarginItemDecoration
 import com.gmail.dev.wasacz.rpgsoundboard.ui.generic.Placeholder
 import com.gmail.dev.wasacz.rpgsoundboard.viewmodel.PlaylistItem
 import com.google.android.material.appbar.MaterialToolbar
-import com.google.android.material.transition.MaterialContainerTransform
 import com.google.android.material.transition.MaterialElevationScale
+import com.google.android.material.transition.MaterialFadeThrough
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
@@ -81,13 +81,6 @@ class PresetFragment : ContextMenuFragment<FragmentLibraryPresetBinding, Playlis
     }
     //#endregion
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        sharedElementEnterTransition = MaterialContainerTransform().apply { drawingViewId = R.id.nav_host_fragment }
-        exitTransition = MaterialElevationScale(false)
-        reenterTransition = MaterialElevationScale(true)
-    }
-
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
         super.onCreateView(inflater, container, savedInstanceState)
         with(binding) {
@@ -97,7 +90,7 @@ class PresetFragment : ContextMenuFragment<FragmentLibraryPresetBinding, Playlis
                 startPostponedEnterTransition()
                 true
             }
-            toolbar.setupDefault(findNavController(), activity)
+            toolbar.setupDefault(this@PresetFragment, navArgs.presetName)
             toolbar.setOnMenuItemClickListener { menuItem ->
                 when (menuItem.itemId) {
                     //TODO Add Spotify playlist
@@ -120,7 +113,7 @@ class PresetFragment : ContextMenuFragment<FragmentLibraryPresetBinding, Playlis
             val state = viewModel.list.value.state.first
             if (state == ListViewModel.ListState.READY || state == ListViewModel.ListState.EMPTY) {
                 val action = PresetFragmentDirections.navigationLibraryAddPlaylists(navArgs.presetId)
-                findNavController().navigate(action, binding.toolbar)
+                findNavController().navigate(action)
             }
         }
         return binding.root
@@ -128,6 +121,11 @@ class PresetFragment : ContextMenuFragment<FragmentLibraryPresetBinding, Playlis
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        applyTransitions {
+            enterTransition = MaterialFadeThrough()
+            exitTransition = MaterialElevationScale(false)
+            reenterTransition = MaterialElevationScale(true)
+        }
         getNavigationResult<Boolean>(R.id.navigation_library_preset, R.string.nav_arg_remove_playlists_result) { result ->
             if (result) {
                 getAdapter()?.let {
@@ -155,7 +153,7 @@ class PresetFragment : ContextMenuFragment<FragmentLibraryPresetBinding, Playlis
                 viewModel.viewModelScope.launch {
                     viewModel.renamePreset(result)
                     val action = PresetFragmentDirections.refreshLibraryPreset(navArgs.presetId, result)
-                    findNavController().navigate(action, binding.toolbar)
+                    refresh(action)
                 }
             }
         }
@@ -167,8 +165,9 @@ class PresetFragment : ContextMenuFragment<FragmentLibraryPresetBinding, Playlis
         return viewModel
     }
 
-    override fun List<PlaylistItem>.initAdapter(): PlaylistAdapter =
-        PlaylistAdapter(this, findNavController(), binding.toolbar) { startActionMode() }
+    override fun List<PlaylistItem>.initAdapter(): PlaylistAdapter = PlaylistAdapter(this, this@PresetFragment) {
+        startActionMode()
+    }
 
     override fun initLayoutManager(): RecyclerView.LayoutManager =
         GridLayoutManager(context, resources.getInteger(R.integer.playlist_span_count))

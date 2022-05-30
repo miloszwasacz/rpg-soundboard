@@ -3,7 +3,15 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/mobile_navigation"
-    app:startDestination="@+id/navigation_home">
+    app:startDestination="@+id/navigation_dummy">
+
+    <fragment
+        android:id="@+id/navigation_dummy"
+        android:name="com.gmail.dev.wasacz.rpgsoundboard.ui.DummyFragment">
+        <action
+            android:id="@+id/navigation_to_home"
+            app:destination="@id/navigation_home" />
+    </fragment>
 
     <fragment
         android:id="@+id/navigation_home"

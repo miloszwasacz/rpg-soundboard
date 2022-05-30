@@ -1,7 +1,7 @@
 package com.gmail.dev.wasacz.rpgsoundboard.ui.library.presets
 
 import android.view.ActionMode
-import androidx.navigation.NavController
+import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.FragmentNavigatorExtras
 import com.gmail.dev.wasacz.rpgsoundboard.R
 import com.gmail.dev.wasacz.rpgsoundboard.databinding.ListItemSelectableBinding
@@ -10,14 +10,13 @@ import com.gmail.dev.wasacz.rpgsoundboard.ui.generic.SelectableItemListAdapter
 import com.gmail.dev.wasacz.rpgsoundboard.ui.generic.updateBindings
 import com.gmail.dev.wasacz.rpgsoundboard.ui.navigate
 import com.gmail.dev.wasacz.rpgsoundboard.viewmodel.Preset
-import com.google.android.material.appbar.MaterialToolbar
+import com.google.android.material.transition.MaterialContainerTransform
+import com.google.android.material.transition.MaterialElevationScale
 
 class PresetAdapter(
     list: List<Preset>,
-    private val navController: NavController,
-    private val toolbar: MaterialToolbar,
-    override val startActionMode: () -> ActionMode?,
-    private val onItemClickAnimationSetter: () -> Unit
+    private val fragment: Fragment,
+    override val startActionMode: () -> ActionMode?
 ) : SelectableItemListAdapter<Preset>(list, { it.name }), IContextMenuAdapter {
     override var actionMode: ActionMode? = null
 
@@ -47,13 +46,16 @@ class PresetAdapter(
     override fun onItemClick(item: Preset, binding: ListItemSelectableBinding): Boolean {
         with(binding) {
             if (actionMode == null) {
-                onItemClickAnimationSetter()
                 finishActionMode()
                 val action = LibraryFragmentDirections.navigationLibraryToPreset(item.id, item.name)
                 val extras = FragmentNavigatorExtras(
                     itemLayout to root.resources.getString(R.string.transition_name_preset, item.id)
                 )
-                navController.navigate(action, toolbar, extras)
+                fragment.navigate(action, extras) {
+                    sharedEnter = MaterialContainerTransform().apply { drawingViewId = R.id.nav_host_fragment }
+                    exit = MaterialElevationScale(false)
+                    reenter = MaterialElevationScale(true)
+                }
             } else itemLayout.performLongClick()
         }
         return true

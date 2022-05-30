@@ -3,7 +3,6 @@ package com.gmail.dev.wasacz.rpgsoundboard.ui
 import android.animation.Animator
 import android.animation.AnimatorListenerAdapter
 import android.animation.ObjectAnimator
-import android.app.Activity
 import android.content.Context
 import android.content.res.Resources
 import android.content.res.TypedArray
@@ -14,22 +13,27 @@ import android.view.View
 import androidx.annotation.*
 import androidx.core.animation.doOnStart
 import androidx.fragment.app.Fragment
-import androidx.lifecycle.Lifecycle
-import androidx.lifecycle.LifecycleEventObserver
-import androidx.navigation.NavController
-import androidx.navigation.NavDirections
-import androidx.navigation.NavOptions
-import androidx.navigation.Navigator
+import androidx.fragment.app.activityViewModels
+import androidx.lifecycle.*
+import androidx.navigation.*
+import androidx.navigation.NavDestination.Companion.hierarchy
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.ui.AppBarConfiguration
 import androidx.navigation.ui.setupWithNavController
 import androidx.swiperefreshlayout.widget.CircularProgressDrawable
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
+import androidx.transition.Transition
+import com.gmail.dev.wasacz.rpgsoundboard.R
 import com.google.android.material.appbar.CollapsingToolbarLayout
 import com.google.android.material.appbar.MaterialToolbar
 import com.google.android.material.elevation.SurfaceColors
 import com.google.android.material.navigation.NavigationBarView
 import com.google.android.material.navigationrail.NavigationRailView
+import com.google.android.material.transition.MaterialFade
+import com.google.android.material.transition.MaterialFadeThrough
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
+import java.util.*
 
 
 //#region FAB
@@ -148,20 +152,52 @@ fun SwipeRefreshLayout.setStyle(
     }
 }
 
-fun CollapsingToolbarLayout.setupDefault(context: Context?, toolbar: MaterialToolbar, navController: NavController, activity: Activity?) {
-    if (activity is INavBarActivity) setupWithNavController(toolbar, navController, AppBarConfiguration(activity.getNavMenu()))
-    else setupWithNavController(toolbar, navController)
-    context?.let { setContentScrimColor(SurfaceColors.SURFACE_2.getColor(it)) }
+/**
+ * Sets up the toolbar with [NavController]. Provide [label] if current destination's label is based on navArg.
+ * If [fragment's][fragment] [activity][Fragment.getActivity] is [INavBarActivity] it will use [navigation with transitions][navigateUp] for up navigation.
+ * **Note** that in that case [fragment's][fragment] [activity][Fragment.getActivity] must use [TransitionViewModel].
+ * @see TransitionViewModel
+ */
+fun MaterialToolbar.setupDefault(fragment: Fragment, label: String? = null) {
+    with(fragment) {
+        val activity = activity
+        val navController = findNavController()
+        if (activity is INavBarActivity) {
+            setNavigationOnClickListener { navigateUp() }
+            val topLevelDestinations = AppBarConfiguration(activity.getNavMenu()).topLevelDestinations
+            val isTopLevel = navController.currentDestination?.matchDestinations(topLevelDestinations) ?: true
+            if (!isTopLevel) setNavigationIcon(R.drawable.ic_arrow_back_24dp) else navigationIcon = null
+            title = label ?: navController.currentDestination?.label
+        } else setupWithNavController(navController)
+    }
 }
 
-fun MaterialToolbar.setupDefault(navController: NavController, activity: Activity?) {
-    if (activity is INavBarActivity) setupWithNavController(navController, AppBarConfiguration(activity.getNavMenu()))
-    else setupWithNavController(navController)
+/**
+ * Sets up the toolbar layout with [NavController]. Provide [label] if current destination's label is based on navArg.
+ * **Note** that if [fragment's][fragment] [activity][Fragment.getActivity] is [INavBarActivity], it must use [TransitionViewModel]
+ * _([toolbar] is setup with [MaterialToolbar.setupDefault])_.
+ * @see MaterialToolbar.setupDefault
+ * @see TransitionViewModel
+ */
+fun CollapsingToolbarLayout.setupDefault(
+    toolbar: MaterialToolbar,
+    fragment: Fragment,
+    label: String? = null
+) {
+    setContentScrimColor(SurfaceColors.SURFACE_2.getColor(context))
+    with(fragment) {
+        if (activity is INavBarActivity) {
+            toolbar.setupDefault(this)
+            title = label ?: findNavController().currentDestination?.label
+        } else setupWithNavController(toolbar, findNavController())
+    }
 }
+
+private fun NavDestination.matchDestinations(destinationIds: Set<Int?>): Boolean = hierarchy.any { destinationIds.contains(it.id) }
 //#endregion
 
 //#region Resources
-fun  Context.getDuration(@AttrRes id: Int): Long {
+fun Context.getDuration(@AttrRes id: Int): Long {
     val a: TypedArray = obtainStyledAttributes(intArrayOf(id))
     val duration = a.getInt(0, 2000)
     a.recycle()
@@ -222,32 +258,200 @@ interface IToolbarFragment {
 }
 
 /**
- * Navigate using provided [NavDirections][action] with compensation for changing [toolbar] title during animation.
+ * Navigate to sibling destination (eg. from BottomNav).
+ * If fragment is specified, transitions will be applied and transition back stack will be switched to this new destination.
+ *
+ * **Note**: [Fragment's][fragment] [activity][Fragment.getActivity] must use [TransitionViewModel].
+ * @see TransitionViewModel
  */
-fun NavController.navigate(action: NavDirections, toolbar: MaterialToolbar, extras: Navigator.Extras? = null) {
-    val label = toolbar.title
-    if (extras != null) navigate(action, extras)
-    else navigate(action)
-    label?.let { toolbar.title = label }
+fun NavController.navigate(
+    @IdRes id: Int,
+    fragment: Fragment?,
+    navOptions: NavOptions? = null
+) {
+    fragment?.run {
+        val viewModel by activityViewModels<TransitionViewModel>()
+        viewModel.switchBackStack(id)
+        TransitionViewModel.applySwitchingTransitions(this)
+    }
+    navigate(id, null, navOptions)
 }
 
 /**
- * Navigate to a destination from the current navigation graph with compensation for changing [toolbar] title during animation.
- * This supports both navigating via an action and directly navigating to a destination.
+ * Navigate to new destination using provided [action] with [transitions][transitionsBuilder] applied.
+ * Use this instead of [NavController.navigate].
+ *
+ * **Note**: [Fragment's activity][Fragment.getActivity] must use [TransitionViewModel].
+ * @see TransitionViewModel
  */
-fun NavController.navigate(
-    @IdRes resId: Int,
-    toolbar: MaterialToolbar,
-    toolbarLayout: CollapsingToolbarLayout? = null,
-    navOptions: NavOptions? = null
-) {
-    val label = toolbarLayout?.title ?: toolbar.title
-    navigate(resId, null, navOptions)
-    label?.let {
-        toolbar.title = label
-        toolbarLayout?.title = label
+fun Fragment.navigate(action: NavDirections, extras: Navigator.Extras? = null, transitionsBuilder: NavTransitions.() -> Unit) {
+    val viewModel by activityViewModels<TransitionViewModel>()
+    viewModel.pushBackStack(navTransitions(transitionsBuilder))
+    with(findNavController()) {
+        if (extras != null) navigate(action, extras)
+        else navigate(action)
     }
 }
+
+/**
+ * Navigate up the navigation hierarchy with transitions applied.
+ * Use this instead of [NavController.navigateUp].
+ *
+ * **Note**: [Fragment's activity][Fragment.getActivity] must use [TransitionViewModel].
+ * @see TransitionViewModel
+ */
+fun Fragment.navigateUp(): Boolean {
+    val transitionViewModel by activityViewModels<TransitionViewModel>()
+    findNavController().let {
+        val current = it.currentDestination?.id
+        val prev = it.previousBackStackEntry?.destination?.id
+        val result = it.navigateUp()
+        if (result && current != null && prev != null) {
+            if (transitionViewModel.isTopLevel(current, prev))
+                transitionViewModel.switchBackStack(prev)
+            else transitionViewModel.popBackStack()
+        }
+        return result
+    }
+}
+
+/**
+ * Navigate using provided [action] without any animation.
+ * Should be used to navigate to the same fragment with different arguments.
+ *
+ * **Note**: [Fragment's activity][Fragment.getActivity] must use [TransitionViewModel].
+ * @see TransitionViewModel
+ */
+fun Fragment.refresh(action: NavDirections, navOptions: NavOptions? = null) {
+    val transitionViewModel by activityViewModels<TransitionViewModel>()
+    transitionViewModel.refresh()
+    applyExitTransitions(navTransitions {
+        exit = MaterialFade()
+    })
+    findNavController().navigate(action, navOptions)
+}
+
+//#region Transitions
+class TransitionViewModel(appBarConfiguration: AppBarConfiguration, @IdRes private val startDestination: Int) : ViewModel() {
+    private val topLevelDestinations = appBarConfiguration.topLevelDestinations
+    private val backStacks: Map<Int, Stack<NavTransitions>> = topLevelDestinations.associateWith { Stack() }
+    private var currentBackStack: Int = topLevelDestinations.run {
+        if (contains(startDestination)) startDestination else first()
+    }
+    private var isSwitchingBackStacks = false
+    private var isSwitchFirstDestination = true
+    private var isRefreshing = false
+    val enterTransitions: NavTransitions?
+        get() {
+            return when {
+                isRefreshing -> {
+                    isRefreshing = false
+                    navTransitions {}
+                }
+                isSwitchFirstDestination -> {
+                    if (isSwitchFirstDestination) {
+                        viewModelScope.launch {
+                            delay(10)
+                            isSwitchingBackStacks = false
+                        }
+                    }
+                    isSwitchFirstDestination = false
+                    navTransitions {
+                        enter = MaterialFadeThrough()
+                    }
+                }
+                else -> {
+                    try {
+                        backStacks[currentBackStack]?.peek()
+                    } catch (e: EmptyStackException) {
+                        null
+                    }
+                }
+            }
+        }
+
+    fun pushBackStack(navTransitions: NavTransitions) {
+        backStacks[currentBackStack]?.push(navTransitions) ?: throw NoSuchElementException()
+    }
+
+    fun popBackStack() {
+        backStacks[currentBackStack]?.pop() ?: throw NoSuchElementException()
+    }
+
+    fun switchBackStack(@IdRes id: Int) {
+        val newId = if (id == DUMMY_DESTINATION_ID) startDestination else id
+        if (!topLevelDestinations.contains(newId)) throw NoSuchElementException()
+        currentBackStack = newId
+        isSwitchingBackStacks = true
+        isSwitchFirstDestination = true
+    }
+
+    fun refresh() {
+        isRefreshing = true
+    }
+
+    fun isTopLevel(@IdRes vararg ids: Int) = ids.all { topLevelDestinations.contains(it) || it == DUMMY_DESTINATION_ID }
+
+    companion object {
+        const val DUMMY_DESTINATION_ID = R.id.navigation_dummy
+
+        fun applySwitchingTransitions(fragment: Fragment) {
+            fragment.applyExitTransitions(navTransitions {
+                exit = MaterialFadeThrough()
+            })
+        }
+    }
+
+    @Suppress("UNCHECKED_CAST")
+    class Factory(
+        private val appBarConfiguration: AppBarConfiguration,
+        @IdRes private val startDestination: Int
+    ) : ViewModelProvider.Factory {
+        override fun <T : ViewModel> create(modelClass: Class<T>): T = TransitionViewModel(appBarConfiguration, startDestination) as T
+    }
+}
+
+class NavTransitions {
+    var enter: Transition? = null
+    var reenter: Transition? = null
+    var exit: Transition? = null
+    var returnT: Transition? = null
+    var sharedEnter: Transition? = null
+    var sharedReturn: Transition? = null
+}
+
+fun navTransitions(transitionsBuilder: NavTransitions.() -> Unit): NavTransitions = NavTransitions().apply(transitionsBuilder)
+
+fun Fragment.applyTransitions(applyDefault: () -> Unit) {
+    try {
+        val transitionViewModel by activityViewModels<TransitionViewModel>()
+        transitionViewModel.enterTransitions?.let {
+            applyTransitions(it)
+        } ?: applyDefault()
+    } catch (e: RuntimeException) {
+        applyDefault()
+    }
+}
+
+private fun Fragment.applyTransitions(navTransitions: NavTransitions) {
+    with(navTransitions) {
+        enterTransition = enter
+        returnTransition = returnT
+        sharedElementEnterTransition = sharedEnter
+        sharedElementReturnTransition = sharedReturn
+
+        reenterTransition = reenter
+        exitTransition = exit
+    }
+}
+
+private fun Fragment.applyExitTransitions(navTransitions: NavTransitions) {
+    with(navTransitions) {
+        reenterTransition = reenter
+        exitTransition = exit
+    }
+}
+//#endregion
 //#endregion
 
 /**

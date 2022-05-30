@@ -6,7 +6,6 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.viewModels
-import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -14,14 +13,15 @@ import com.gmail.dev.wasacz.rpgsoundboard.R
 import com.gmail.dev.wasacz.rpgsoundboard.databinding.FragmentLibraryPlaylistBinding
 import com.gmail.dev.wasacz.rpgsoundboard.ui.DatabaseViewModel
 import com.gmail.dev.wasacz.rpgsoundboard.ui.IToolbarFragment
+import com.gmail.dev.wasacz.rpgsoundboard.ui.applyTransitions
 import com.gmail.dev.wasacz.rpgsoundboard.ui.generic.Placeholder
 import com.gmail.dev.wasacz.rpgsoundboard.ui.generic.StaticListFragment
 import com.gmail.dev.wasacz.rpgsoundboard.ui.setupDefault
 import com.gmail.dev.wasacz.rpgsoundboard.viewmodel.Song
 import com.google.android.material.appbar.CollapsingToolbarLayout
 import com.google.android.material.appbar.MaterialToolbar
-import com.google.android.material.transition.MaterialContainerTransform
 import com.google.android.material.transition.MaterialElevationScale
+import com.google.android.material.transition.MaterialFadeThrough
 
 class PlaylistFragment : StaticListFragment<FragmentLibraryPlaylistBinding, Song, PlaylistViewModel>(
     Placeholder(
@@ -32,20 +32,12 @@ class PlaylistFragment : StaticListFragment<FragmentLibraryPlaylistBinding, Song
 ), IToolbarFragment {
     private val navArgs by navArgs<PlaylistFragmentArgs>()
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        enterTransition = MaterialElevationScale(true)
-        sharedElementEnterTransition = MaterialContainerTransform().apply { drawingViewId = R.id.nav_host_fragment }
-        exitTransition = MaterialElevationScale(false)
-        reenterTransition = MaterialElevationScale(true)
-    }
-
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
         super.onCreateView(inflater, container, savedInstanceState)
         with(binding) {
             lifecycleOwner = viewLifecycleOwner
             playlistId = navArgs.playlistItem.id
-            toolbarLayout.setupDefault(context, toolbar, findNavController(), activity)
+            toolbarLayout.setupDefault(toolbar, this@PlaylistFragment, navArgs.playlistName)
             //TODO Playlist background image
             toolbarBackground.setImageResource(R.drawable.ic_launcher_background)
             toolbar.setOnMenuItemClickListener { menuItem ->
@@ -64,6 +56,15 @@ class PlaylistFragment : StaticListFragment<FragmentLibraryPlaylistBinding, Song
             inflateList(listLayout)
         }
         return binding.root
+    }
+
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+        applyTransitions {
+            enterTransition = MaterialFadeThrough()
+            exitTransition = MaterialElevationScale(false)
+            reenterTransition = MaterialElevationScale(true)
+        }
     }
 
     override fun initViewModel(): PlaylistViewModel {

@@ -15,6 +15,7 @@ import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.NavOptions
 import androidx.navigation.fragment.NavHostFragment
 import androidx.navigation.navOptions
+import androidx.navigation.ui.AppBarConfiguration
 import androidx.navigation.ui.setupWithNavController
 import com.gmail.dev.wasacz.rpgsoundboard.R
 import com.gmail.dev.wasacz.rpgsoundboard.databinding.ActivityMainBinding
@@ -27,6 +28,8 @@ import kotlinx.coroutines.launch
 class MainActivity : AppCompatActivity(), IFABActivity, INavBarActivity {
     private lateinit var binding: ActivityMainBinding
     private lateinit var viewModel: DatabaseViewModel
+    private lateinit var transitionViewModel: TransitionViewModel
+    private lateinit var navHost: NavHostFragment
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -36,16 +39,16 @@ class MainActivity : AppCompatActivity(), IFABActivity, INavBarActivity {
         viewModel = vM
         setContentView(binding.root)
 
-        val navHost = binding.navHostFragment.getFragment<NavHostFragment>()
+        navHost = binding.navHostFragment.getFragment()
         val navController = navHost.navController
+        val tVM by viewModels<TransitionViewModel> { TransitionViewModel.Factory(AppBarConfiguration(getNavMenu()), R.id.navigation_home) }
+        transitionViewModel = tVM
         binding.navView.apply {
             setupWithNavController(navController)
             val navigate = { id: Int, navOptions: NavOptions ->
                 with(navController) {
                     navHost.childFragmentManager.primaryNavigationFragment.let {
-                        if (it !== null && it is IToolbarFragment)
-                            navigate(id, it.getToolbar(), it.getToolbarLayout(), navOptions)
-                        else navigate(id, null, navOptions)
+                        navigate(id, it, navOptions)
                     }
                 }
             }
@@ -108,7 +111,16 @@ class MainActivity : AppCompatActivity(), IFABActivity, INavBarActivity {
     //#endregion
 
     override fun onBackPressed() {
-        binding.navHostFragment.getFragment<NavHostFragment>().navController.navigateUp()
+        with(navHost) {
+            childFragmentManager.primaryNavigationFragment?.navigateUp() ?: navController.navigateUp()
+        }
+    }
+
+    override fun onSupportNavigateUp(): Boolean {
+        navHost.childFragmentManager.primaryNavigationFragment?.let {
+            return it.navigateUp()
+        }
+        return super.onSupportNavigateUp()
     }
 
     private fun stopService() {

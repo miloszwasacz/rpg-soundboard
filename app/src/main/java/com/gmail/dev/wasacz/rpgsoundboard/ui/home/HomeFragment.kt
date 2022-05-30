@@ -9,9 +9,19 @@ import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.findNavController
 import com.gmail.dev.wasacz.rpgsoundboard.R
 import com.gmail.dev.wasacz.rpgsoundboard.databinding.FragmentHomeBinding
+import com.gmail.dev.wasacz.rpgsoundboard.ui.applyTransitions
 import com.gmail.dev.wasacz.rpgsoundboard.ui.generic.DataBindingFragment
+import com.google.android.material.transition.MaterialFadeThrough
 
 class HomeFragment : DataBindingFragment<FragmentHomeBinding>(FragmentHomeBinding::inflate) {
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        applyTransitions {
+            enterTransition = MaterialFadeThrough()
+            exitTransition = MaterialFadeThrough()
+        }
+    }
+
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
         super.onCreateView(inflater, container, savedInstanceState)
         val homeViewModel by viewModels<HomeViewModel>()

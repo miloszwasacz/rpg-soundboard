@@ -71,11 +71,7 @@ class LibraryFragment : ContextMenuFragment<FragmentLibraryBinding, Preset, Libr
         super.onCreateView(inflater, container, savedInstanceState)
         with(binding) {
             lifecycleOwner = viewLifecycleOwner
-            toolbar.setupDefault(findNavController(), activity)
-            listLayout.recyclerView.viewTreeObserver.addOnPreDrawListener {
-                startPostponedEnterTransition()
-                true
-            }
+            toolbar.setupDefault(this@LibraryFragment)
             inflateList(listLayout)
         }
         setupFAB(R.drawable.ic_add_24dp, R.string.action_create) {
@@ -90,6 +86,11 @@ class LibraryFragment : ContextMenuFragment<FragmentLibraryBinding, Preset, Libr
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        applyTransitions {
+            enterTransition = MaterialFadeThrough()
+            exitTransition = MaterialElevationScale(false)
+            reenterTransition = MaterialElevationScale(true)
+        }
         getNavigationResult<Boolean>(R.id.navigation_library, R.string.nav_arg_delete_presets_result) { result ->
             if (result) {
                 getAdapter()?.let {
@@ -109,31 +110,10 @@ class LibraryFragment : ContextMenuFragment<FragmentLibraryBinding, Preset, Libr
         return viewModel
     }
 
-    override fun List<Preset>.initAdapter(): SelectableItemListAdapter<Preset> = PresetAdapter(
-        this,
-        findNavController(),
-        binding.toolbar,
-        { startActionMode() },
-        ::setItemClickedExitAnimation
-    )
+    override fun List<Preset>.initAdapter(): SelectableItemListAdapter<Preset> = PresetAdapter(this, this@LibraryFragment) {
+        startActionMode()
+    }
 
     override fun initLayoutManager(): RecyclerView.LayoutManager = LinearLayoutManager(context)
     override fun getToolbar(): MaterialToolbar = binding.toolbar
-
-    //#region Transitions
-    override fun onResume() {
-        super.onResume()
-        setDefaultExitAnimation()
-    }
-
-    private fun setItemClickedExitAnimation() {
-        exitTransition = MaterialElevationScale(false)
-        reenterTransition = MaterialElevationScale(true)
-    }
-
-    private fun setDefaultExitAnimation() {
-        exitTransition = MaterialFadeThrough()
-        reenterTransition = null
-    }
-    //#endregion
 }
