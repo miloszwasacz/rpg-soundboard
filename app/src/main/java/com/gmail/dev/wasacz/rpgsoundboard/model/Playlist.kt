@@ -1,12 +1,13 @@
 package com.gmail.dev.wasacz.rpgsoundboard.model
 
+import com.gmail.dev.wasacz.rpgsoundboard.model.db.DBPlaylistType
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.Transient
 
-enum class PlaylistType {
-    LOCAL,
-    SPOTIFY
+enum class PlaylistType(val dbType: DBPlaylistType) {
+    LOCAL(DBPlaylistType.CLASSIC),
+    SPOTIFY(DBPlaylistType.SPOTIFY)
 }
 
 @Serializable

@@ -24,7 +24,6 @@ import com.gmail.dev.wasacz.rpgsoundboard.viewmodel.PlaylistItem
 import com.google.android.material.appbar.AppBarLayout
 import com.google.android.material.transition.MaterialContainerTransform
 import com.google.android.material.transition.MaterialElevationScale
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
 class CreatePlaylistDialogFragment : SingleInputDialogFragment(
@@ -57,10 +56,11 @@ class CreatePlaylistDialogFragment : SingleInputDialogFragment(
     }
 }
 
-class AddPlaylistsFragment : DialogFragment() {
+class AddPlaylistsFragment : DialogFragment(), ICustomTransitionFragment {
     private companion object {
         const val MENU_CONFIRM_ID = R.id.action_add
     }
+
     private lateinit var binding: DialogAddPlaylistsBinding
     private lateinit var viewModel: PresetViewModel
     private val navArgs by navArgs<AddPlaylistsFragmentArgs>()
@@ -163,30 +163,27 @@ class AddPlaylistsFragment : DialogFragment() {
         showNavView()
     }
 
-    class Adapter(list: List<PlaylistItem>, private val appBar: AppBarLayout, private val lifecycleScope: LifecycleCoroutineScope, private val toggleConfirmButton: (enabled: Boolean) -> Unit) :
-        DataBindingListAdapter<ListItemPlaylistAddBinding, PlaylistItem>(list, ListItemPlaylistAddBinding::inflate) {
-        private val selected = mutableSetOf<Int>()
+    class Adapter(
+        list: List<PlaylistItem>,
+        appBar: AppBarLayout,
+        lifecycleScope: LifecycleCoroutineScope,
+        toggleConfirmButton: (Boolean) -> Unit
+    ) : SelectAdapter<ListItemPlaylistAddBinding, PlaylistItem>(
+        list,
+        ListItemPlaylistAddBinding::inflate,
+        appBar,
+        lifecycleScope,
+        toggleConfirmButton
+    ) {
+        override fun ListItemPlaylistAddBinding.getClickableView(): View = cardView
 
-        override fun onBindViewHolder(holder: ViewHolder<ListItemPlaylistAddBinding>, position: Int) {
-            toggleConfirmButton(selected.size > 0)
-            holder.binding.apply {
-                cardView.setOnClickListener {
-                    appBar.setLiftableOverrideEnabled(true)
-                    selected.toggle(position)
-                    notifyItemChanged(position)
-                }
-                cardView.isChecked = selected.contains(position)
-                updateBindings {
-                    playlist = list[position]
-                }
-            }
-            lifecycleScope.launch {
-                delay(10)
-                appBar.setLiftableOverrideEnabled(false)
-            }
+        override fun ListItemPlaylistAddBinding.setItemSelection(position: Int) {
+            cardView.isChecked = isItemSelected(position)
         }
 
-        fun getSelectedItems(): List<PlaylistItem> = selected.map { list[it] }
+        override fun ListItemPlaylistAddBinding.updateItemBindings(position: Int) {
+            playlist = list[position]
+        }
     }
 }
 

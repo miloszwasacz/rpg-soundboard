@@ -11,11 +11,11 @@
     <string name="dialog_title_rename_preset">Rename preset</string>
     <string name="dialog_title_new_playlist">Create new playlist</string>
     <string name="dialog_title_add_playlists">Add playlists</string>
-    <string name="dialog_title_add_playlists_all">Playlists</string>
     <string name="dialog_title_remove_playlists">Remove playlists?</string>
     <string name="dialog_message_remove_playlists">This playlists will be removed from this preset. Note that they won\'t be removed from any other presets and they will still be available to add later.</string>
     <string name="dialog_title_delete_playlists">Delete playlists permanently?</string>
     <string name="dialog_message_delete_playlists">This playlists will be permanently deleted from this and all other presets. Note that no songs will be affected. THIS ACTION IS IRREVERSIBLE!</string>
+    <string name="dialog_title_add_local_songs">Add songs from device</string>
 
     <string name="action_cancel">Cancel</string>
     <string name="action_add">Add</string>

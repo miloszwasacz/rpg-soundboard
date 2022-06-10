@@ -3,31 +3,25 @@ package com.gmail.dev.wasacz.rpgsoundboard.model.db
 import androidx.room.*
 import com.gmail.dev.wasacz.rpgsoundboard.model.PlaylistType as ModelPlaylistType
 
-object DBPlaylistType {
-    enum class PlaylistType(val value: String) {
-        CLASSIC(DBPlaylistType.CLASSIC),
-        SPOTIFY(DBPlaylistType.SPOTIFY)
-    }
+enum class DBPlaylistType {
+    CLASSIC,
+    SPOTIFY;
 
-    const val CLASSIC = "classic"
-    const val SPOTIFY = "spotify"
+    companion object {
+        /**
+         * Converts enum type to database-specific type.
+         */
+        fun map(type: ModelPlaylistType): DBPlaylistType = type.dbType
 
-    /**
-     * Converts enum type to database-specific type.
-     */
-    fun map(type: ModelPlaylistType): PlaylistType = when (type) {
-        ModelPlaylistType.LOCAL -> PlaylistType.CLASSIC
-        ModelPlaylistType.SPOTIFY -> PlaylistType.SPOTIFY
-    }
-
-    /**
-     * Converts database-specific type string to enum type.
-     * @throws TypeCastException No corresponding enum type exists for provided string
-     */
-    fun map(type: String): PlaylistType = when (type) {
-        CLASSIC -> PlaylistType.CLASSIC
-        SPOTIFY -> PlaylistType.SPOTIFY
-        else -> throw TypeCastException()
+        /**
+         * Converts database-specific type string to enum type.
+         * @throws TypeCastException No corresponding enum type exists for provided string
+         */
+        fun map(type: String): DBPlaylistType = try {
+            enumValueOf(type)
+        } catch (e: IllegalArgumentException) {
+            throw TypeCastException()
+        }
     }
 }
 
@@ -88,7 +82,7 @@ abstract class TypedPlaylistDao<T, U>(private val type: String) : GenericPlaylis
 abstract class PlaylistDao : GenericPlaylistDao<DBPlaylist>() {
     @Query(
         value = "SELECT * FROM playlists " +
-                "WHERE playlistId Not In (:ids)"
+                "WHERE playlistId NOT IN (:ids)"
     )
     abstract suspend fun loadPlaylistsNotInSet(ids: List<Long>): List<DBPlaylist>
 
@@ -101,15 +95,14 @@ abstract class PlaylistDao : GenericPlaylistDao<DBPlaylist>() {
     @Transaction
     @Query("DELETE FROM preset_cross_ref WHERE playlistId = :playlistId")
     abstract suspend fun deletePlaylistFromAllPresets(playlistId: Long)
+
+    @Transaction
+    @Query("DELETE FROM classic_playlist_cross_ref WHERE playlistId = :playlistId")
+    abstract suspend fun removeAllSongsFromPlaylist(playlistId: Long)
 }
 
 @Dao
-abstract class ClassicPlaylistDao : TypedPlaylistDao<DBPlaylist, DBClassicPlaylistWithSongs>(DBPlaylistType.CLASSIC) {
-    /*@Query(
-        value = "SELECT * FROM playlists " +
-                "WHERE type = ${DBPlaylistType.CLASSIC}"
-    )
-    abstract suspend fun loadPlaylists(): List<DBClassicPlaylistWithSongs>*/
+abstract class ClassicPlaylistDao : TypedPlaylistDao<DBPlaylist, DBClassicPlaylistWithSongs>(DBPlaylistType.CLASSIC.name) {
     @Transaction
     @Query(
         value = "SELECT songId FROM classic_playlist_cross_ref " +
@@ -130,13 +123,8 @@ abstract class ClassicPlaylistDao : TypedPlaylistDao<DBPlaylist, DBClassicPlayli
 }
 
 @Dao
-abstract class SpotifyPlaylistDao : TypedPlaylistDao<DBSpotifyPlaylist, DBSpotifyPlaylist>(DBPlaylistType.SPOTIFY) {
-    /*@Query(
-        value = "SELECT * FROM playlists " +
-                "WHERE type = ${DBPlaylistType.SPOTIFY}"
-    )
-    abstract suspend fun loadPlaylists(): List<DBSpotifyPlaylist>*/
-
+abstract class SpotifyPlaylistDao : TypedPlaylistDao<DBSpotifyPlaylist, DBSpotifyPlaylist>(DBPlaylistType.SPOTIFY.name) {
+    @Transaction
     @Query(
         value = "SELECT * FROM spotify_playlists " +
                 "WHERE playlistId = :id"

@@ -27,7 +27,7 @@ class PresetViewModel(private val dbViewModel: DatabaseViewModel, private val pr
 
     suspend fun createPlaylist(name: String): PlaylistItem = withContext(viewModelScope.coroutineContext) {
         val id = dbViewModel.createClassicPlaylist(name, presetId)
-        PlaylistItem(id, name, DBPlaylistType.PlaylistType.CLASSIC)
+        PlaylistItem(id, name, DBPlaylistType.CLASSIC)
     }
 
     suspend fun getAllPlaylists(): List<PlaylistItem> = withContext(viewModelScope.coroutineContext) {

@@ -6,17 +6,16 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.viewModels
+import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.gmail.dev.wasacz.rpgsoundboard.R
 import com.gmail.dev.wasacz.rpgsoundboard.databinding.FragmentLibraryPlaylistBinding
-import com.gmail.dev.wasacz.rpgsoundboard.ui.DatabaseViewModel
-import com.gmail.dev.wasacz.rpgsoundboard.ui.IToolbarFragment
-import com.gmail.dev.wasacz.rpgsoundboard.ui.applyTransitions
+import com.gmail.dev.wasacz.rpgsoundboard.ui.*
+import com.gmail.dev.wasacz.rpgsoundboard.ui.generic.ListViewModel
 import com.gmail.dev.wasacz.rpgsoundboard.ui.generic.Placeholder
 import com.gmail.dev.wasacz.rpgsoundboard.ui.generic.StaticListFragment
-import com.gmail.dev.wasacz.rpgsoundboard.ui.setupDefault
 import com.gmail.dev.wasacz.rpgsoundboard.viewmodel.Song
 import com.google.android.material.appbar.CollapsingToolbarLayout
 import com.google.android.material.appbar.MaterialToolbar
@@ -54,6 +53,13 @@ class PlaylistFragment : StaticListFragment<FragmentLibraryPlaylistBinding, Song
                 }
             }
             inflateList(listLayout)
+        }
+        setupFAB(R.drawable.ic_folder_open_24dp, R.string.action_add) {
+            val state = viewModel.list.value.state.first
+            if (state == ListViewModel.ListState.READY || state == ListViewModel.ListState.EMPTY) {
+                val action = PlaylistFragmentDirections.navigationLibraryAddLocalSongs(navArgs.playlistItem.id)
+                findNavController().navigate(action)
+            }
         }
         return binding.root
     }

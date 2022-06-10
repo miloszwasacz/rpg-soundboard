@@ -30,7 +30,7 @@ class PlaylistAdapter(
             cardView.setOnClickListener {
                 if (actionMode == null) {
                     when (playlistItem.type) {
-                        DBPlaylistType.PlaylistType.CLASSIC -> {
+                        DBPlaylistType.CLASSIC -> {
                             val action = PresetFragmentDirections.navigationLibraryToPlaylist(playlistItem, playlistItem.name)
                             val extras = FragmentNavigatorExtras(
                                 cardView to resources.getString(R.string.transition_name_playlist, playlistItem.id)
@@ -41,7 +41,7 @@ class PlaylistAdapter(
                                 reenter = MaterialElevationScale(true)
                             }
                         }
-                        DBPlaylistType.PlaylistType.SPOTIFY -> {
+                        DBPlaylistType.SPOTIFY -> {
                             //TODO Open playlist in spotify
                         }
                     }

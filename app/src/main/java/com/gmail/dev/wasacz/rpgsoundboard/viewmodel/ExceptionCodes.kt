@@ -5,7 +5,7 @@ import com.gmail.dev.wasacz.rpgsoundboard.model.DatabaseController
 object ExceptionCodes {
     object Database {
         private const val BASE_DB_EXCEPTION_CODE: Int = 0x845DBE0
-        fun DatabaseController.DBException.Cause.getCode() = BASE_DB_EXCEPTION_CODE and (ordinal + 1)
+        fun DatabaseController.DBException.Cause.getCode() = BASE_DB_EXCEPTION_CODE or id
     }
 
     const val NAVIGATION_ARG_EXCEPTION = 0x1147A9E0

@@ -1,12 +1,13 @@
 package com.gmail.dev.wasacz.rpgsoundboard.model
 
 import android.net.Uri
+import com.gmail.dev.wasacz.rpgsoundboard.model.db.DBSongType
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.Transient
 
-enum class SongType {
-    LOCAL
+enum class SongType(val dbType: DBSongType) {
+    LOCAL(DBSongType.LOCAL)
 }
 
 @Serializable

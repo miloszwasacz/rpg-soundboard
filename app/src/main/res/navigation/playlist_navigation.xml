@@ -22,5 +22,22 @@
         <argument
             android:name="playlistName"
             app:argType="string" />
+        <argument
+            android:name="@string/nav_arg_show_fab"
+            android:defaultValue="true" />
+        <action
+            android:id="@+id/navigation_library_add_local_songs"
+            app:destination="@id/navigation_dialog_add_local_songs"
+            app:launchSingleTop="true"
+            app:restoreState="true" />
+    </fragment>
+    <fragment
+        android:id="@+id/navigation_dialog_add_local_songs"
+        android:name="com.gmail.dev.wasacz.rpgsoundboard.ui.library.songs.AddLocalSongFragment"
+        android:label="@string/dialog_title_add_local_songs"
+        tools:layout="@layout/dialog_add_local_songs">
+        <argument
+            android:name="playlistId"
+            app:argType="long" />
     </fragment>
 </navigation>

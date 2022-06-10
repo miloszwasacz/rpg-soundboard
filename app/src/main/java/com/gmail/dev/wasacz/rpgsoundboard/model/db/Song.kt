@@ -3,24 +3,24 @@ package com.gmail.dev.wasacz.rpgsoundboard.model.db
 import androidx.room.*
 import com.gmail.dev.wasacz.rpgsoundboard.model.SongType
 
-object DBSongType {
-    const val LOCAL = "local"
+enum class DBSongType {
+    LOCAL;
 
+    companion object {
+        /**
+         * Converts enum type to database-specific type.
+         */
+        fun map(type: SongType): DBSongType = type.dbType
 
-    /**
-     * Converts enum type to database-specific type.
-     */
-    fun map(type: SongType): String = when(type) {
-        SongType.LOCAL -> LOCAL
-    }
-
-    /**
-     * Converts database-specific type string to enum type.
-     * @throws TypeCastException No corresponding enum type exists for provided string
-     */
-    fun map(type: String): SongType = when (type) {
-        LOCAL -> SongType.LOCAL
-        else -> throw TypeCastException()
+        /**
+         * Converts database-specific type string to enum type.
+         * @throws TypeCastException No corresponding enum type exists for provided string.
+         */
+        fun map(type: String): DBSongType = try {
+            enumValueOf(type)
+        } catch (e: IllegalArgumentException) {
+            throw TypeCastException()
+        }
     }
 }
 
@@ -39,48 +39,59 @@ data class DBLocalSong(
 
 abstract class TypedSongDao<T> {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    abstract suspend fun insertSongs(vararg songs: T): List<Long>
+    abstract suspend fun insertSong(song: T): Long
 
     @Update
     abstract suspend fun updateSong(songs: T)
 
     @Delete
     abstract suspend fun deleteSong(songs: T)
-
-    /*@Query(
-        value = "SELECT * FROM songs " +
-                "WHERE songId IN (:songIds)"
-    )
-    abstract suspend fun loadSongs(songIds: List<Int>): List<T>*/
 }
 
 @Dao
 abstract class SongDao : TypedSongDao<DBSong>() {
+    @Transaction
     @Query("SELECT * FROM songs")
     abstract suspend fun loadSongs(): List<DBSong>
 
+    @Transaction
     @Query(
         value = "SELECT * FROM songs " +
                 "WHERE songId IN (:songIds)"
     )
     abstract suspend fun loadSongs(songIds: List<Long>): List<DBSong>
 
+    @Transaction
+    @Query(
+        value = "SELECT * FROM songs " +
+                "WHERE songId NOT IN (:songIds)"
+    )
+    abstract suspend fun loadSongsNotInSet(songIds: List<Long>): List<DBSong>
+
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     abstract suspend fun insertSongToPlaylist(songWithPlaylist: DBClassicPlaylistSongCrossRef)
+
+    @Delete
+    abstract suspend fun removeSongFromPlaylist(songWithPlaylist: DBClassicPlaylistSongCrossRef)
+
+    @Transaction
+    @Query("DELETE FROM classic_playlist_cross_ref WHERE songId = :songId")
+    abstract suspend fun deleteSongFromAllPlaylists(songId: Long)
 }
 
 @Dao
 abstract class LocalSongDao : TypedSongDao<DBLocalSong>() {
-    /*@Query(
-        value = "SELECT * FROM songs " +
-                "INNER JOIN local_songs ON local_songs.songId = songId " +
-                "WHERE type = ${DBSongType.LOCAL}"
-    )
-    abstract suspend fun loadSongs(): List<DBLocalSong>*/
-
+    @Transaction
     @Query(
         value = "SELECT * FROM local_songs " +
                 "WHERE songId IN (:songIds)"
     )
     abstract suspend fun loadSongs(songIds: List<Long>): List<DBLocalSong>
+
+    @Transaction
+    @Query(
+        value = "SELECT uri FROM local_songs " +
+                "WHERE songId = :songId"
+    )
+    abstract suspend fun getSongUri(songId: Long): String?
 }

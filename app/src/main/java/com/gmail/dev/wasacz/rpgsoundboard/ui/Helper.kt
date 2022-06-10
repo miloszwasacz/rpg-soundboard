@@ -303,6 +303,8 @@ fun Fragment.navigate(action: NavDirections, extras: Navigator.Extras? = null, t
 fun Fragment.navigateUp(): Boolean {
     val transitionViewModel by activityViewModels<TransitionViewModel>()
     findNavController().let {
+        if (this is ICustomTransitionFragment && !useTransitionViewModel)
+            return it.navigateUp()
         val current = it.currentDestination?.id
         val prev = it.previousBackStackEntry?.destination?.id
         val result = it.navigateUp()
@@ -409,6 +411,11 @@ class TransitionViewModel(appBarConfiguration: AppBarConfiguration, @IdRes priva
     ) : ViewModelProvider.Factory {
         override fun <T : ViewModel> create(modelClass: Class<T>): T = TransitionViewModel(appBarConfiguration, startDestination) as T
     }
+}
+
+interface ICustomTransitionFragment {
+    val useTransitionViewModel: Boolean
+        get() = false
 }
 
 class NavTransitions {

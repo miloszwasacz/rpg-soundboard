@@ -43,7 +43,7 @@ sealed class Playlist {
 }
 
 @Parcelize
-class PlaylistItem(val id: Long, val name: String, val type: DBPlaylistType.PlaylistType) : Parcelable {
+class PlaylistItem(val id: Long, val name: String, val type: DBPlaylistType) : Parcelable {
     constructor(dbPlaylist: DBPlaylist) : this(
         dbPlaylist.playlistId,
         dbPlaylist.name,

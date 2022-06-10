@@ -14,13 +14,13 @@ import com.gmail.dev.wasacz.rpgsoundboard.viewmodel.SpotifyPlaylist
 
 object DatabaseController {
     class DBException(cause: Cause) : Exception() {
-        val code = ExceptionCodes.getCodeString(cause.getCode())
+        val code by lazy { ExceptionCodes.getCodeString(cause.getCode()) }
 
-        enum class Cause {
-            MULTIPLE_PRESETS,
-            INVALID_PLAYLIST_TYPE,
-            INVALID_SONG_TYPE,
-            INCONSISTENT_DATA
+        enum class Cause(val id: Int) {
+            MULTIPLE_PRESETS(1),
+            INVALID_PLAYLIST_TYPE(2),
+            INVALID_SONG_TYPE(3),
+            INCONSISTENT_DATA(4)
         }
     }
 
@@ -82,8 +82,8 @@ object DatabaseController {
         return presets[0].playlists.map {
             try {
                 when (DBPlaylistType.map(it.type)) {
-                    DBPlaylistType.PlaylistType.CLASSIC -> loadClassicPlaylist(it.playlistId, it.name)
-                    DBPlaylistType.PlaylistType.SPOTIFY -> loadSpotifyPlaylist(it.playlistId, it.name)
+                    DBPlaylistType.CLASSIC -> loadClassicPlaylist(it.playlistId, it.name)
+                    DBPlaylistType.SPOTIFY -> loadSpotifyPlaylist(it.playlistId, it.name)
                 } ?: throw DBException(DBException.Cause.INCONSISTENT_DATA)
             } catch (e: TypeCastException) {
                 throw DBException(DBException.Cause.INVALID_PLAYLIST_TYPE)
@@ -115,8 +115,8 @@ object DatabaseController {
      * See [DBException.code] for more information about the cause.
      */
     suspend fun AppDatabase.loadPlaylist(playlistItem: PlaylistItem): Playlist? = when (playlistItem.type) {
-        DBPlaylistType.PlaylistType.CLASSIC -> loadClassicPlaylist(playlistItem)
-        DBPlaylistType.PlaylistType.SPOTIFY -> loadSpotifyPlaylist(playlistItem)
+        DBPlaylistType.CLASSIC -> loadClassicPlaylist(playlistItem)
+        DBPlaylistType.SPOTIFY -> loadSpotifyPlaylist(playlistItem)
     }
 
     /**
@@ -136,18 +136,19 @@ object DatabaseController {
         playlistDao().insertPlaylistToPreset(DBPresetPlaylistCrossRef(presetId, playlistId))
 
     /**
-     * Deletes association between playlist and preset with provided [ids][playlistWithPreset] from database.
+     * Deletes association between playlist and preset with provided ids from database.
      */
-    suspend fun AppDatabase.removePlaylistFromPreset(playlistWithPreset: DBPresetPlaylistCrossRef) =
-        playlistDao().removePlaylistFromPreset(playlistWithPreset)
+    suspend fun AppDatabase.removePlaylistFromPreset(playlistId: Long, presetId: Long) =
+        playlistDao().removePlaylistFromPreset(DBPresetPlaylistCrossRef(presetId, playlistId))
 
     /**
-     * Deletes playlist with [playlist]'s id and all it's associations with presets from the database.
+     * Deletes playlist with [playlist]'s [id][DBPlaylist.playlistId] and all its associations with presets from the database.
      * __Remember to call type specific functions to delete the playlist from typed tables!__
      */
     suspend fun AppDatabase.deletePlaylist(playlist: DBPlaylist) {
         playlistDao().deletePlaylist(playlist)
         playlistDao().deletePlaylistFromAllPresets(playlist.playlistId)
+        playlistDao().removeAllSongsFromPlaylist(playlist.playlistId)
     }
 
     /**
@@ -160,14 +161,71 @@ object DatabaseController {
      */
     suspend fun AppDatabase.deleteSpotifyPlaylist(playlist: DBSpotifyPlaylist) = spotifyPlaylistsDao().deletePlaylist(playlist)
 
+    /**
+     * Loads all songs that aren't already present in playlist with [playlistId] from database.
+     * @throws DBException There has been a problem while loading data from database or converting it.
+     * See [DBException.code] for more information about the cause.
+     */
+    suspend fun AppDatabase.loadSongsNotInPlaylist(playlistId: Long): List<Song> {
+        val ids = classicPlaylistDao().loadSongIdsFromPlaylist(playlistId)
+        val songs = songDao().loadSongsNotInSet(ids)
+        return try {
+            songs.map {
+                when (DBSongType.map(it.type)) {
+                    DBSongType.LOCAL -> {
+                        val uri = localSongDao().getSongUri(it.songId) ?: throw DBException(DBException.Cause.INCONSISTENT_DATA)
+                        LocalSong(it.songId, it.title, uri)
+                    }
+                }
+            }
+        } catch (e: TypeCastException) {
+            throw DBException(DBException.Cause.INVALID_SONG_TYPE)
+        }
+    }
+
+    /**
+     * Adds new song to the database.
+     * @return Id of the new [song][DBSong].
+     */
+    suspend fun AppDatabase.addSong(song: DBSong): Long = songDao().insertSong(song)
+
+    /**
+     * Adds new local song to the database.
+     */
+    suspend fun AppDatabase.addLocalSong(song: DBLocalSong) = localSongDao().insertSong(song)
+
+    /**
+     * Adds association between song with [songId] and playlist with [playlistId] to the database.
+     */
+    suspend fun AppDatabase.addSongToPlaylist(songId: Long, playlistId: Long) =
+        songDao().insertSongToPlaylist(DBClassicPlaylistSongCrossRef(playlistId, songId))
+
+    /**
+     * Deletes association between song and playlist with provided ids from database.
+     */
+    suspend fun AppDatabase.removeSongFromPlaylist(songId: Long, playlistId: Long) =
+        songDao().removeSongFromPlaylist(DBClassicPlaylistSongCrossRef(playlistId, songId))
+
+    /**
+     * Deletes song with [song]'s [id][DBSong.songId] and all its associations with playlists.
+     */
+    suspend fun AppDatabase.deleteSong(song: DBSong, type: DBSongType) {
+        val id = song.songId
+        when (type) {
+            DBSongType.LOCAL -> localSongDao().deleteSong(DBLocalSong(id, ""))
+        }
+        songDao().deleteSong(song)
+        songDao().deleteSongFromAllPlaylists(id)
+    }
+
     //#region Loading typed playlists
     private suspend fun AppDatabase.loadClassicPlaylist(playlistItem: PlaylistItem): LocalPlaylist? =
         loadClassicPlaylist(playlistItem.id, playlistItem.name)
 
     private suspend fun AppDatabase.loadClassicPlaylist(id: Long, name: String): LocalPlaylist? {
         val playlist = classicPlaylistDao().loadPlaylist(id) ?: return null
-        val typedIdMap = mutableMapOf<SongType, ArrayList<DBSong>>()
-        SongType.values().forEach { typedIdMap[it] = arrayListOf() }
+        val typedIdMap = mutableMapOf<DBSongType, ArrayList<DBSong>>()
+        DBSongType.values().forEach { typedIdMap[it] = arrayListOf() }
         playlist.songs.forEach {
             try {
                 typedIdMap[DBSongType.map(it.type)]?.add(it) ?: throw TypeCastException()
@@ -177,7 +235,7 @@ object DatabaseController {
         }
         val songs: List<Song> = typedIdMap.flatMap { (type, ids) ->
             when (type) {
-                SongType.LOCAL -> loadLocalSongs(ids)
+                DBSongType.LOCAL -> loadLocalSongs(ids)
             }
         }
         return try {
@@ -197,7 +255,9 @@ object DatabaseController {
         spotifyPlaylistsDao().loadPlaylist(id)?.run {
             SpotifyPlaylist(playlistId, name, uri)
         }
+
     //#endregion
+
     //#region Loading typed songs
     private suspend fun AppDatabase.loadLocalSongs(songs: List<DBSong>): List<LocalSong> {
         val songMap = songs.associateBy { it.songId }
