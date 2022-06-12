@@ -30,13 +30,12 @@ abstract class SelectAdapter<B: ViewDataBinding, T>(
     list: List<T>,
     itemInflate: DataBindingInflate<B>,
     private val appBar: AppBarLayout,
-    private val lifecycleScope: LifecycleCoroutineScope,
-    private val toggleConfirmButton: (enabled: Boolean) -> Unit
+    private val lifecycleScope: LifecycleCoroutineScope
 ): DataBindingListAdapter<B, T>(list, itemInflate) {
     private val selected = mutableSetOf<Int>()
 
     override fun onBindViewHolder(holder: ViewHolder<B>, position: Int) {
-        toggleConfirmButton(selected.size > 0)
+        toggleConfirmButton(selected.isNotEmpty())
         with(holder.binding) {
             getClickableView().setOnClickListener {
                 appBar.setLiftableOverrideEnabled(true)
@@ -61,4 +60,8 @@ abstract class SelectAdapter<B: ViewDataBinding, T>(
     protected fun isItemSelected(position: Int): Boolean = selected.contains(position)
 
     fun getSelectedItems(): List<T> = selected.map { list[it] }
+
+    fun getSelectedItemsCount(): Int = selected.size
+
+    protected abstract fun toggleConfirmButton(enabled: Boolean)
 }

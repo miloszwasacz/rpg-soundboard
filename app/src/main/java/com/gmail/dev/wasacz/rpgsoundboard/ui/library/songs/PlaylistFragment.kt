@@ -54,7 +54,7 @@ class PlaylistFragment : StaticListFragment<FragmentLibraryPlaylistBinding, Song
             }
             inflateList(listLayout)
         }
-        setupFAB(R.drawable.ic_folder_open_24dp, R.string.action_add) {
+        setupFAB(R.drawable.ic_playlist_add_24dp, R.string.action_add) {
             val state = viewModel.list.value.state.first
             if (state == ListViewModel.ListState.READY || state == ListViewModel.ListState.EMPTY) {
                 val action = PlaylistFragmentDirections.navigationLibraryAddLocalSongs(navArgs.playlistItem.id)

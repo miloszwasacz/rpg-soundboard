@@ -12,6 +12,7 @@ import android.view.Menu
 import android.view.View
 import androidx.annotation.*
 import androidx.core.animation.doOnStart
+import androidx.fragment.app.DialogFragment
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.*
@@ -35,6 +36,16 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import java.util.*
 
+abstract class FullscreenDialogFragment : DialogFragment(), ICustomTransitionFragment {
+    fun finish() {
+        findNavController().navigateUp()
+        showNavView()
+    }
+}
+
+interface INavigationActivity {
+    fun getCurrentFragment(): Fragment?
+}
 
 //#region FAB
 interface IFABActivity {

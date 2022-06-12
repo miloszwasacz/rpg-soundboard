@@ -15,7 +15,11 @@
     <string name="dialog_message_remove_playlists">This playlists will be removed from this preset. Note that they won\'t be removed from any other presets and they will still be available to add later.</string>
     <string name="dialog_title_delete_playlists">Delete playlists permanently?</string>
     <string name="dialog_message_delete_playlists">This playlists will be permanently deleted from this and all other presets. Note that no songs will be affected. THIS ACTION IS IRREVERSIBLE!</string>
-    <string name="dialog_title_add_local_songs">Add songs from device</string>
+    <string name="dialog_title_add_songs">Add songs</string>
+
+    <string name="tab_from_saved">Saved</string>
+    <string name="tab_from_device">Device</string>
+    <string name="tab_from_spotify">Spotify</string>
 
     <string name="action_cancel">Cancel</string>
     <string name="action_add">Add</string>

@@ -6,7 +6,6 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.view.Window
-import androidx.fragment.app.DialogFragment
 import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.LifecycleCoroutineScope
@@ -56,7 +55,7 @@ class CreatePlaylistDialogFragment : SingleInputDialogFragment(
     }
 }
 
-class AddPlaylistsFragment : DialogFragment(), ICustomTransitionFragment {
+class AddPlaylistsFragment : FullscreenDialogFragment() {
     private companion object {
         const val MENU_CONFIRM_ID = R.id.action_add
     }
@@ -77,14 +76,14 @@ class AddPlaylistsFragment : DialogFragment(), ICustomTransitionFragment {
                 startPostponedEnterTransition()
                 true
             }
-            toolbar.setNavigationOnClickListener { findNavController().navigateUp() }
+            toolbar.setNavigationOnClickListener { finish() }
             toolbar.setOnMenuItemClickListener {
                 when (it.itemId) {
                     MENU_CONFIRM_ID -> {
                         getAdapter()?.let {
                             lifecycleScope.launch {
                                 viewModel.addPlaylists(it.getSelectedItems())
-                                findNavController().navigateUp()
+                                finish()
                             }
                             true
                         } ?: false
@@ -157,23 +156,16 @@ class AddPlaylistsFragment : DialogFragment(), ICustomTransitionFragment {
         }
     }
 
-    override fun onPause() {
-        super.onPause()
-        viewModel.onFragmentPause()
-        showNavView()
-    }
-
     class Adapter(
         list: List<PlaylistItem>,
         appBar: AppBarLayout,
         lifecycleScope: LifecycleCoroutineScope,
-        toggleConfirmButton: (Boolean) -> Unit
+        private val toggleConfirmButtonCallback: (Boolean) -> Unit
     ) : SelectAdapter<ListItemPlaylistAddBinding, PlaylistItem>(
         list,
         ListItemPlaylistAddBinding::inflate,
         appBar,
-        lifecycleScope,
-        toggleConfirmButton
+        lifecycleScope
     ) {
         override fun ListItemPlaylistAddBinding.getClickableView(): View = cardView
 
@@ -183,6 +175,10 @@ class AddPlaylistsFragment : DialogFragment(), ICustomTransitionFragment {
 
         override fun ListItemPlaylistAddBinding.updateItemBindings(position: Int) {
             playlist = list[position]
+        }
+
+        override fun toggleConfirmButton(enabled: Boolean) {
+            toggleConfirmButtonCallback(enabled)
         }
     }
 }

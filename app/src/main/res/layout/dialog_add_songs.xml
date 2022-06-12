@@ -15,7 +15,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:fitsSystemWindows="true"
-            app:liftOnScroll="true">
+            app:liftOnScroll="false">
 
             <com.google.android.material.appbar.MaterialToolbar
                 android:id="@+id/toolbar"
@@ -25,15 +25,44 @@
                 android:theme="@style/Theme.RPGSoundboard.TextMenuItemToolbar"
                 app:menu="@menu/dialog_add_items_menu"
                 app:navigationIcon="@drawable/ic_close_24dp"
-                app:title="@string/dialog_title_add_local_songs"
+                app:title="@string/dialog_title_add_songs"
                 tools:ignore="RtlSymmetry" />
+
+            <com.google.android.material.tabs.TabLayout
+                android:id="@+id/tab_layout"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="@android:color/transparent"
+                app:tabRippleColor="@null">
+
+                <com.google.android.material.tabs.TabItem
+                    android:id="@+id/tab_saved"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/tab_from_saved" />
+
+                <com.google.android.material.tabs.TabItem
+                    android:id="@+id/tab_device"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/tab_from_device" />
+
+                <!--TODO Spotify tab -->
+                <!--<com.google.android.material.tabs.TabItem
+                    android:id="@+id/tab_spotify"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/tab_from_spotify" />-->
+
+            </com.google.android.material.tabs.TabLayout>
+
         </com.google.android.material.appbar.AppBarLayout>
 
-        <include
-            android:id="@+id/list_layout"
-            layout="@layout/fragment_list"
+        <androidx.viewpager2.widget.ViewPager2
+            android:id="@+id/view_pager"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
+            android:background="?attr/colorSurface"
             app:layout_behavior="com.google.android.material.appbar.AppBarLayout$ScrollingViewBehavior" />
 
     </androidx.coordinatorlayout.widget.CoordinatorLayout>

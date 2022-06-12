@@ -33,9 +33,9 @@
     </fragment>
     <fragment
         android:id="@+id/navigation_dialog_add_local_songs"
-        android:name="com.gmail.dev.wasacz.rpgsoundboard.ui.library.songs.AddLocalSongFragment"
-        android:label="@string/dialog_title_add_local_songs"
-        tools:layout="@layout/dialog_add_local_songs">
+        android:name="com.gmail.dev.wasacz.rpgsoundboard.ui.library.songs.AddSongFragment"
+        android:label="@string/dialog_title_add_songs"
+        tools:layout="@layout/dialog_add_songs">
         <argument
             android:name="playlistId"
             app:argType="long" />

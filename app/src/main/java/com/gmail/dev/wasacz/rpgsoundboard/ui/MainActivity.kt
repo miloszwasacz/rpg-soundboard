@@ -10,6 +10,7 @@ import androidx.annotation.DrawableRes
 import androidx.annotation.StringRes
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.WindowCompat
+import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.NavOptions
@@ -25,7 +26,7 @@ import com.google.android.material.navigation.NavigationBarView
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
-class MainActivity : AppCompatActivity(), IFABActivity, INavBarActivity {
+class MainActivity : AppCompatActivity(), IFABActivity, INavBarActivity, INavigationActivity {
     private lateinit var binding: ActivityMainBinding
     private lateinit var viewModel: DatabaseViewModel
     private lateinit var transitionViewModel: TransitionViewModel
@@ -46,11 +47,7 @@ class MainActivity : AppCompatActivity(), IFABActivity, INavBarActivity {
         binding.navView.apply {
             setupWithNavController(navController)
             val navigate = { id: Int, navOptions: NavOptions ->
-                with(navController) {
-                    navHost.childFragmentManager.primaryNavigationFragment.let {
-                        navigate(id, it, navOptions)
-                    }
-                }
+                navController.navigate(id, getCurrentFragment(), navOptions)
             }
             setOnItemSelectedListener { menuItem ->
                 val navOptions = navOptions {
@@ -110,14 +107,20 @@ class MainActivity : AppCompatActivity(), IFABActivity, INavBarActivity {
     override fun getNavView(): NavigationBarView = binding.navView
     //#endregion
 
+    //#region INavigationActivity
+    override fun getCurrentFragment(): Fragment? = navHost.childFragmentManager.primaryNavigationFragment
+    //#endregion
+
     override fun onBackPressed() {
-        with(navHost) {
-            childFragmentManager.primaryNavigationFragment?.navigateUp() ?: navController.navigateUp()
-        }
+        getCurrentFragment()?.let {
+            if (it is FullscreenDialogFragment) it.showNavView()
+            it.navigateUp()
+        } ?: navHost.navController.navigateUp()
     }
 
     override fun onSupportNavigateUp(): Boolean {
-        navHost.childFragmentManager.primaryNavigationFragment?.let {
+        getCurrentFragment()?.let {
+            if (it is FullscreenDialogFragment) it.showNavView()
             return it.navigateUp()
         }
         return super.onSupportNavigateUp()
@@ -128,6 +131,7 @@ class MainActivity : AppCompatActivity(), IFABActivity, INavBarActivity {
             stopService(Intent(applicationContext, MediaPlayerService::class.java))
         } catch (e: IllegalStateException) {
             Log.e("SERVICE", "stopService: ${e.cause}\n\n${e.message}")
+            e.printStackTrace()
         }
     }
 

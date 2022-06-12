@@ -6,8 +6,8 @@
     <data>
 
         <variable
-            name="song"
-            type="com.gmail.dev.wasacz.rpgsoundboard.viewmodel.TempLocalSong" />
+            name="songName"
+            type="String" />
     </data>
 
     <com.google.android.material.card.MaterialCardView
@@ -29,7 +29,7 @@
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="@{song.name}"
+                android:text="@{songName}"
                 android:textAppearance="?attr/textAppearanceTitleLarge"
                 tools:text="Song title" />
 
