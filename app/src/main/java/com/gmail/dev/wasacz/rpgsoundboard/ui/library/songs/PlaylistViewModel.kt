@@ -11,14 +11,12 @@ import com.gmail.dev.wasacz.rpgsoundboard.viewmodel.LocalPlaylist
 import com.gmail.dev.wasacz.rpgsoundboard.viewmodel.Playlist
 import com.gmail.dev.wasacz.rpgsoundboard.viewmodel.PlaylistItem
 import com.gmail.dev.wasacz.rpgsoundboard.viewmodel.Song
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 
 class PlaylistViewModel(private val dbViewModel: DatabaseViewModel, private val playlistItem: PlaylistItem) : ListViewModel<Song>() {
     private val playlist = MutableStateFlow<Playlist?>(null)
 
     override suspend fun getList(context: Context): List<Song>? {
-        delay(1000)
         return try {
             val result = dbViewModel.getPlaylistWithSongs(playlistItem)
             result?.let {

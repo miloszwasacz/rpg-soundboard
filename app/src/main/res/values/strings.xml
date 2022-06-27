@@ -29,6 +29,7 @@
     <string name="action_rename">Rename</string>
     <string name="action_manage">Manage</string>
 
+    <string name="action_open_explorer">Open file explorer</string>
     <string name="action_create_playlist">Create playlist</string>
 
     <string name="hint_name">Name</string>
@@ -37,6 +38,7 @@
     <string name="placeholder_timeout_message">Something went wrong, try again</string>
     <string name="placeholder_error_message">Oops, something went wrong</string>
     <string name="db_exception">Database error occurred</string>
+    <string name="file_explorer_song_exception">An error occurred when fetching %d of selected songs</string>
 
     <string name="default_shared_preferences" translatable="false">com.gmail.dev.wasacz.rpgsoundboard.defSharedPrefs</string>
     <string name="content_desc_fab" translatable="false">Main Action</string>

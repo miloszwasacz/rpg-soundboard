@@ -7,6 +7,8 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.view.Window
+import android.widget.Toast
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.annotation.IdRes
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
@@ -46,7 +48,7 @@ class AddSongFragment : FullscreenDialogFragment() {
         )
         val tabNames = mapOf(
             R.id.tab_saved to (R.string.tab_from_saved to R.drawable.ic_library_24dp),
-            R.id.tab_device to (R.string.tab_from_device to R.drawable.ic_folder_open_24dp)
+            R.id.tab_device to (R.string.tab_from_device to R.drawable.ic_folder_24dp)
         )
         val placeholder = Placeholder(R.drawable.ic_dashboard_black_24dp, R.string.app_name)
     }
@@ -54,6 +56,19 @@ class AddSongFragment : FullscreenDialogFragment() {
     private lateinit var binding: DialogAddSongsBinding
     private lateinit var viewModel: NewSongViewModel
     private val navArgs by navArgs<AddSongFragmentArgs>()
+    private val explorerContract = registerForActivityResult(ActivityResultContracts.GetMultipleContents()) { uris ->
+        lifecycleScope.launch {
+            val failed = viewModel.addSongsFromFileExplorer(uris)
+            if (failed > 0) {
+                Toast.makeText(
+                    this@AddSongFragment.requireContext(),
+                    resources.getString(R.string.file_explorer_song_exception, failed),
+                    Toast.LENGTH_LONG
+                ).show()
+            }
+            finish()
+        }
+    }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
         val dbViewModel by activityViewModels<DatabaseViewModel>()
@@ -65,6 +80,8 @@ class AddSongFragment : FullscreenDialogFragment() {
         with(binding) {
             lifecycleOwner = viewLifecycleOwner
             toolbar.setNavigationOnClickListener { finish() }
+            toolbar.inflateMenu(R.menu.open_file_explorer_menu)
+            toolbar.inflateMenu(R.menu.dialog_add_items_menu)
             toolbar.setOnMenuItemClickListener { menuItem ->
                 when (menuItem.itemId) {
                     MENU_CONFIRM_ID -> {
@@ -77,6 +94,10 @@ class AddSongFragment : FullscreenDialogFragment() {
                             }
                             finish()
                         }
+                        true
+                    }
+                    R.id.action_open_explorer -> {
+                        openFileExplorer()
                         true
                     }
                     else -> false
@@ -128,6 +149,10 @@ class AddSongFragment : FullscreenDialogFragment() {
     private fun getAdapters(): List<Adapter<*>> = (binding.viewPager.adapter as? TabAdapter)?.getAllFragments()?.mapNotNull {
         it.getAdapter()
     } ?: listOf()
+
+    private fun openFileExplorer() {
+        explorerContract.launch("audio/*")
+    }
 
     inner class TabAdapter(private val fragment: AddSongFragment) : FragmentStateAdapter(fragment) {
         var areAllSelectedEmpty: Boolean = true

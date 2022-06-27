@@ -89,9 +89,20 @@ abstract class LocalSongDao : TypedSongDao<DBLocalSong>() {
     abstract suspend fun loadSongs(songIds: List<Long>): List<DBLocalSong>
 
     @Transaction
+    @Query("SELECT uri FROM local_songs")
+    abstract suspend fun loadUris(): List<String>
+
+    @Transaction
     @Query(
         value = "SELECT uri FROM local_songs " +
                 "WHERE songId = :songId"
     )
     abstract suspend fun getSongUri(songId: Long): String?
+
+    @Transaction
+    @Query(
+        value = "SELECT songId FROM local_songs " +
+                "WHERE uri = :uri"
+    )
+    abstract suspend fun getSongIdByUri(uri: String): Long?
 }

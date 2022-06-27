@@ -16,6 +16,8 @@ import com.gmail.dev.wasacz.rpgsoundboard.model.DatabaseController.deletePlaylis
 import com.gmail.dev.wasacz.rpgsoundboard.model.DatabaseController.deletePreset
 import com.gmail.dev.wasacz.rpgsoundboard.model.DatabaseController.deleteSong
 import com.gmail.dev.wasacz.rpgsoundboard.model.DatabaseController.deleteSpotifyPlaylist
+import com.gmail.dev.wasacz.rpgsoundboard.model.DatabaseController.loadLocalSongIdByUri
+import com.gmail.dev.wasacz.rpgsoundboard.model.DatabaseController.loadLocalSongUris
 import com.gmail.dev.wasacz.rpgsoundboard.model.DatabaseController.loadPlaylist
 import com.gmail.dev.wasacz.rpgsoundboard.model.DatabaseController.loadPlaylistItemsFromPreset
 import com.gmail.dev.wasacz.rpgsoundboard.model.DatabaseController.loadPlaylistsFromPreset
@@ -112,6 +114,17 @@ class DatabaseViewModel(application: Application) : AndroidViewModel(application
      * @throws DBException See [loadSongsNotInPlaylist].
      */
     suspend fun getNewSongs(playlistId: Long): List<Song> = db.loadSongsNotInPlaylist(playlistId)
+
+    /**
+     * Fetches id of a song with provided uri.
+     * @return Song's [id][Song.id] if there is a song with provided [uri]; null otherwise.
+     */
+    suspend fun getSongIdByUri(uri: String): Long? = db.loadLocalSongIdByUri(uri) //TODO ?: spotify songs
+
+    /**
+     * Fetches uri-based ids of all saved local songs.
+     */
+    suspend fun getLocalSongsStorageIds(): List<Long> = db.loadLocalSongUris().mapNotNull { TempLocalSong.getIdFromUri(it) }
 
     /**
      * Adds song from local device storage.

@@ -23,10 +23,10 @@
                 android:layout_height="?attr/actionBarSize"
                 android:paddingEnd="@dimen/dialog_menu_text_spacing"
                 android:theme="@style/Theme.RPGSoundboard.TextMenuItemToolbar"
-                app:menu="@menu/dialog_add_items_menu"
                 app:navigationIcon="@drawable/ic_close_24dp"
                 app:title="@string/dialog_title_add_songs"
-                tools:ignore="RtlSymmetry" />
+                tools:ignore="RtlSymmetry"
+                tools:menu="@menu/dialog_add_items_menu" />
 
             <com.google.android.material.tabs.TabLayout
                 android:id="@+id/tab_layout"
@@ -39,12 +39,14 @@
                     android:id="@+id/tab_saved"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
+                    android:icon="@drawable/ic_library_24dp"
                     android:text="@string/tab_from_saved" />
 
                 <com.google.android.material.tabs.TabItem
                     android:id="@+id/tab_device"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
+                    android:icon="@drawable/ic_folder_24dp"
                     android:text="@string/tab_from_device" />
 
                 <!--TODO Spotify tab -->

@@ -29,8 +29,21 @@ class LocalSong(override val id: Long, override var title: String, private val _
 }
 
 class TempLocalSong(private val id: Long, val name: String) {
-    val uri: Uri by lazy { ContentUris.withAppendedId(MediaStore.Audio.Media.EXTERNAL_CONTENT_URI, id) }
+    private var _uri: Uri? = null
+    val uri: Uri by lazy { _uri ?: ContentUris.withAppendedId(MediaStore.Audio.Media.EXTERNAL_CONTENT_URI, id) }
+    val localStorageId get() = id
+
+    constructor(name: String, uri: Uri) : this(-1, name) {
+        _uri = uri
+    }
 
     fun toDBSong(): DBSong = DBSong(title = name, type = DBSongType.LOCAL.name)
     fun toDBLocalSong(id: Long): DBLocalSong = DBLocalSong(id, uri.toString())
+
+    companion object {
+        fun getIdFromUri(uri: String): Long? {
+            val regex = "^${MediaStore.Audio.Media.EXTERNAL_CONTENT_URI}/(\\d+)$".toRegex()
+            return regex.find(uri)?.groupValues?.takeIf { it.size >= 2 }?.get(1)?.toLongOrNull()
+        }
+    }
 }

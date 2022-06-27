@@ -1,6 +1,7 @@
 package com.gmail.dev.wasacz.rpgsoundboard.ui.library.songs
 
 import android.app.Application
+import android.net.Uri
 import android.provider.MediaStore
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.ViewModel
@@ -49,7 +50,6 @@ class NewSongViewModel(
                 MediaStore.Audio.Media._ID,
                 MediaStore.Audio.Media.DISPLAY_NAME
             )
-            //TODO Filtering out already added songs
             getApplication<Application>().applicationContext.contentResolver.query(
                 MediaStore.Audio.Media.EXTERNAL_CONTENT_URI,
                 projection,
@@ -68,7 +68,8 @@ class NewSongViewModel(
             }
         }
 
-        return queryResult
+        val library = dbViewModel.getLocalSongsStorageIds().toSet()
+        return queryResult.filter { it.localStorageId !in library }
     }
 
     @JvmName("addSavedSongs")
@@ -84,6 +85,44 @@ class NewSongViewModel(
             val id = dbViewModel.addLocalSong(it)
             dbViewModel.addSongToPlaylist(id, playListId)
         }
+    }
+
+    /**
+     * Adds songs selected in file explorer *(additionally checks if a song with an uri
+     * already exists - in that case adds it from the library)*.
+     * @return Number of errors that occurred during the process
+     */
+    suspend fun addSongsFromFileExplorer(uris: List<Uri>) = withContext(viewModelScope.coroutineContext) {
+        var failed = 0
+        uris.forEach { uri ->
+            val songId = dbViewModel.getSongIdByUri(uri.toString())
+            songId?.let { dbViewModel.addSongToPlaylist(it, playListId) } ?: kotlin.run {
+                var queryResult: TempLocalSong? = null
+                //#region MediaStore query
+                withContext(Dispatchers.IO) {
+                    val projection = arrayOf(
+                        MediaStore.Audio.Media.DISPLAY_NAME
+                    )
+                    getApplication<Application>().applicationContext.contentResolver.query(
+                        uri,
+                        projection,
+                        null,
+                        null,
+                        MediaStore.Audio.Media.DISPLAY_NAME
+                    )?.use {
+                        val nameIndex = it.getColumnIndexOrThrow(MediaStore.Audio.Media.DISPLAY_NAME)
+
+                        if (it.moveToNext()) {
+                            val name = it.getString(nameIndex)
+                            queryResult = TempLocalSong(name, uri)
+                        }
+                    }
+                }
+                //#endregion
+                queryResult?.let { addSongs(listOf(it)) } ?: failed++
+            }
+        }
+        return@withContext failed
     }
 
     private fun <T : Any> flowLazy(

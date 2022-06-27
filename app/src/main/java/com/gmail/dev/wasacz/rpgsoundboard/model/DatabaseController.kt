@@ -184,6 +184,16 @@ object DatabaseController {
     }
 
     /**
+     * Loads uris of all local songs from the database.
+     */
+    suspend fun AppDatabase.loadLocalSongUris(): List<String> = localSongDao().loadUris()
+
+    /**
+     * Loads id of a song with provided [uri] (if any exists).
+     */
+    suspend fun AppDatabase.loadLocalSongIdByUri(uri: String): Long? = localSongDao().getSongIdByUri(uri)
+
+    /**
      * Adds new song to the database.
      * @return Id of the new [song][DBSong].
      */
