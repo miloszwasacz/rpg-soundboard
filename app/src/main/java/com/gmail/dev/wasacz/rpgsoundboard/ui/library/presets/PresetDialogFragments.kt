@@ -9,10 +9,13 @@ import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
 import com.gmail.dev.wasacz.rpgsoundboard.R
-import com.gmail.dev.wasacz.rpgsoundboard.ui.DatabaseViewModel
+import com.gmail.dev.wasacz.rpgsoundboard.viewmodel.DatabaseViewModel
 import com.gmail.dev.wasacz.rpgsoundboard.ui.generic.AlertDialogFragment
 import com.gmail.dev.wasacz.rpgsoundboard.ui.generic.SingleInputDialogFragment
+import com.gmail.dev.wasacz.rpgsoundboard.ui.navigate
 import com.gmail.dev.wasacz.rpgsoundboard.ui.setNavigationResult
+import com.google.android.material.transition.MaterialElevationScale
+import com.google.android.material.transition.MaterialFadeThrough
 import kotlinx.coroutines.launch
 
 class CreatePresetFragment : SingleInputDialogFragment(
@@ -36,7 +39,11 @@ class CreatePresetFragment : SingleInputDialogFragment(
                 lifecycleScope.launch {
                     val (id, presetName) = viewModel.addPreset(name)
                     val action = CreatePresetFragmentDirections.navigationLibraryToNewPreset(id, presetName)
-                    findNavController().navigate(action)
+                    navigate(action) {
+                        enter = MaterialFadeThrough()
+                        exit = MaterialElevationScale(false)
+                        reenter = MaterialElevationScale(true)
+                    }
                     requireDialog().dismiss()
                 }
             }

@@ -1,7 +1,7 @@
 package com.gmail.dev.wasacz.rpgsoundboard.model.db
 
 import androidx.room.*
-import com.gmail.dev.wasacz.rpgsoundboard.model.SongType
+import com.gmail.dev.wasacz.rpgsoundboard.viewmodel.SongType
 
 enum class DBSongType {
     LOCAL;

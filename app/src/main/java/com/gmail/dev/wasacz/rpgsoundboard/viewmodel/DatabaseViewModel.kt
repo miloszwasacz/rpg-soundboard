@@ -1,8 +1,7 @@
-package com.gmail.dev.wasacz.rpgsoundboard.ui
+package com.gmail.dev.wasacz.rpgsoundboard.viewmodel
 
 import android.app.Application
 import androidx.lifecycle.AndroidViewModel
-import androidx.lifecycle.viewModelScope
 import com.gmail.dev.wasacz.rpgsoundboard.model.DatabaseController
 import com.gmail.dev.wasacz.rpgsoundboard.model.DatabaseController.DBException
 import com.gmail.dev.wasacz.rpgsoundboard.model.DatabaseController.addClassicPlaylist
@@ -27,10 +26,7 @@ import com.gmail.dev.wasacz.rpgsoundboard.model.DatabaseController.loadSongsNotI
 import com.gmail.dev.wasacz.rpgsoundboard.model.DatabaseController.removePlaylistFromPreset
 import com.gmail.dev.wasacz.rpgsoundboard.model.DatabaseController.removeSongFromPlaylist
 import com.gmail.dev.wasacz.rpgsoundboard.model.DatabaseController.renamePreset
-import com.gmail.dev.wasacz.rpgsoundboard.model.SongType
 import com.gmail.dev.wasacz.rpgsoundboard.model.db.*
-import com.gmail.dev.wasacz.rpgsoundboard.viewmodel.*
-import kotlinx.coroutines.launch
 
 class DatabaseViewModel(application: Application) : AndroidViewModel(application) {
     private val db by lazy { DatabaseController.getInstance(application) }
@@ -149,49 +145,4 @@ class DatabaseViewModel(application: Application) : AndroidViewModel(application
      * Permanently deletes [song].
      */
     suspend fun deleteSong(song: Song) = db.deleteSong(DBSong(song.id, "", ""), song.type.dbType)
-
-    //TODO Not yet implemented
-    fun addData() {
-        viewModelScope.launch {
-            val presetIds = arrayListOf<Long>()
-            val presetCount = 2
-            List(presetCount) { DBPreset(name = "preset${it + 1}") }.forEach {
-                presetIds.add(db.presetDao().insertPreset(it))
-            }
-
-            val classicIds = arrayListOf<Long>()
-            val playlistCount = 5
-            List(playlistCount) {
-                val prefix: String
-                val type: DBPlaylistType
-                if (it % 2 != 0) {
-                    prefix = "s"
-                    type = DBPlaylistType.SPOTIFY
-                } else {
-                    prefix = "c"
-                    type = DBPlaylistType.CLASSIC
-                }
-                DBPlaylist(name = "${prefix}_playlist${it + 1}", type = type.name) to type
-            }.forEachIndexed { i, (it, type) ->
-                val id = db.playlistDao().insertPlaylist(it)
-                when (type) {
-                    DBPlaylistType.CLASSIC -> classicIds.add(id)
-                    DBPlaylistType.SPOTIFY -> db.spotifyPlaylistsDao().insertPlaylist(DBSpotifyPlaylist(id, "testUri"))
-                }
-                db.playlistDao().insertPlaylistToPreset(DBPresetPlaylistCrossRef(presetIds[i % presetCount], id))
-            }
-
-            val songCount = 10
-            List(songCount) {
-                val type = SongType.LOCAL
-                DBSong(title = "song${it + 1}", type = DBSongType.map(type).name) to type
-            }.forEachIndexed { i, (dbSong, type) ->
-                val id = db.songDao().insertSong(dbSong)
-                when (type) {
-                    SongType.LOCAL -> db.localSongDao().insertSong(DBLocalSong(id, "testUri"))
-                }
-                db.songDao().insertSongToPlaylist(DBClassicPlaylistSongCrossRef(classicIds[i % classicIds.size], id))
-            }
-        }
-    }
 }

@@ -4,8 +4,8 @@ import android.content.Context
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import com.gmail.dev.wasacz.rpgsoundboard.model.DatabaseController
-import com.gmail.dev.wasacz.rpgsoundboard.model.PlaylistType
-import com.gmail.dev.wasacz.rpgsoundboard.ui.DatabaseViewModel
+import com.gmail.dev.wasacz.rpgsoundboard.viewmodel.PlaylistType
+import com.gmail.dev.wasacz.rpgsoundboard.viewmodel.DatabaseViewModel
 import com.gmail.dev.wasacz.rpgsoundboard.ui.generic.ListViewModel
 import com.gmail.dev.wasacz.rpgsoundboard.viewmodel.LocalPlaylist
 import com.gmail.dev.wasacz.rpgsoundboard.viewmodel.Playlist

@@ -11,6 +11,7 @@ import android.util.Log
 import android.view.Menu
 import android.view.View
 import androidx.annotation.*
+import androidx.coordinatorlayout.widget.CoordinatorLayout
 import androidx.core.animation.doOnStart
 import androidx.fragment.app.DialogFragment
 import androidx.fragment.app.Fragment
@@ -27,7 +28,9 @@ import androidx.transition.Transition
 import com.gmail.dev.wasacz.rpgsoundboard.R
 import com.google.android.material.appbar.CollapsingToolbarLayout
 import com.google.android.material.appbar.MaterialToolbar
+import com.google.android.material.behavior.HideBottomViewOnScrollBehavior
 import com.google.android.material.elevation.SurfaceColors
+import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.google.android.material.navigation.NavigationBarView
 import com.google.android.material.navigationrail.NavigationRailView
 import com.google.android.material.transition.MaterialFade
@@ -49,6 +52,7 @@ interface INavigationActivity {
 
 //#region FAB
 interface IFABActivity {
+    fun getFAB(): FloatingActionButton?
     fun setupFAB(@DrawableRes drawableRes: Int, @StringRes descriptionRes: Int, listener: View.OnClickListener)
     fun showFAB()
     fun hideFAB()
@@ -56,15 +60,19 @@ interface IFABActivity {
 
 fun Fragment.setupFAB(@DrawableRes drawableRes: Int, @StringRes descriptionRes: Int, listener: View.OnClickListener) {
     activity?.let {
-        if (it is IFABActivity)
+        if (it is IFABActivity) {
             it.setupFAB(drawableRes, descriptionRes, listener)
+            it.getFAB()?.slideUp()
+        }
     }
 }
 
 fun Fragment.showFAB() {
     activity?.let {
-        if (it is IFABActivity)
+        if (it is IFABActivity) {
+            it.getFAB()?.slideUp()
             it.showFAB()
+        }
     }
 }
 
@@ -135,6 +143,13 @@ fun View.hide(targetVisibility: Int = View.GONE) {
                 }
             })
     }
+}
+
+/**
+ * Slides back up view in [CoordinatorLayout].
+ */
+fun View.slideUp() {
+    ((layoutParams as? CoordinatorLayout.LayoutParams)?.behavior as? HideBottomViewOnScrollBehavior)?.slideUp(this)
 }
 
 /**

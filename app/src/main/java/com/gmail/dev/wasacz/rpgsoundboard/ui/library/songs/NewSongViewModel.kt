@@ -8,7 +8,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
 import com.gmail.dev.wasacz.rpgsoundboard.model.DatabaseController
-import com.gmail.dev.wasacz.rpgsoundboard.ui.DatabaseViewModel
+import com.gmail.dev.wasacz.rpgsoundboard.viewmodel.DatabaseViewModel
 import com.gmail.dev.wasacz.rpgsoundboard.viewmodel.Song
 import com.gmail.dev.wasacz.rpgsoundboard.viewmodel.TempLocalSong
 import kotlinx.coroutines.CoroutineScope
@@ -33,7 +33,7 @@ class NewSongViewModel(
         it.emit(getSongsFromDevice())
     }
 
-    private suspend fun getSavedSongs(playListId: Long): Pair<List<Song>?, String?> = withContext(viewModelScope.coroutineContext) {
+    private suspend fun getSavedSongs(playListId: Long): Pair<List<Song>?, String?> = withContext(Dispatchers.IO) {
         try {
             val songs = dbViewModel.getNewSongs(playListId)
             songs to null
@@ -42,45 +42,43 @@ class NewSongViewModel(
         }
     }
 
-    private suspend fun getSongsFromDevice(): List<TempLocalSong> {
+    private suspend fun getSongsFromDevice(): List<TempLocalSong> = withContext(Dispatchers.IO) {
         val queryResult = arrayListOf<TempLocalSong>()
 
-        withContext(Dispatchers.IO) {
-            val projection = arrayOf(
-                MediaStore.Audio.Media._ID,
-                MediaStore.Audio.Media.DISPLAY_NAME
-            )
-            getApplication<Application>().applicationContext.contentResolver.query(
-                MediaStore.Audio.Media.EXTERNAL_CONTENT_URI,
-                projection,
-                null,
-                null,
-                MediaStore.Audio.Media.DISPLAY_NAME
-            )?.use {
-                val idIndex = it.getColumnIndexOrThrow(MediaStore.Audio.Media._ID)
-                val nameIndex = it.getColumnIndexOrThrow(MediaStore.Audio.Media.DISPLAY_NAME)
+        val projection = arrayOf(
+            MediaStore.Audio.Media._ID,
+            MediaStore.Audio.Media.DISPLAY_NAME
+        )
+        getApplication<Application>().applicationContext.contentResolver.query(
+            MediaStore.Audio.Media.EXTERNAL_CONTENT_URI,
+            projection,
+            null,
+            null,
+            MediaStore.Audio.Media.DISPLAY_NAME
+        )?.use {
+            val idIndex = it.getColumnIndexOrThrow(MediaStore.Audio.Media._ID)
+            val nameIndex = it.getColumnIndexOrThrow(MediaStore.Audio.Media.DISPLAY_NAME)
 
-                while (it.moveToNext()) {
-                    val id = it.getLong(idIndex)
-                    val name = it.getString(nameIndex)
-                    queryResult.add(TempLocalSong(id, name))
-                }
+            while (it.moveToNext()) {
+                val id = it.getLong(idIndex)
+                val name = it.getString(nameIndex)
+                queryResult.add(TempLocalSong(id, name))
             }
         }
 
         val library = dbViewModel.getLocalSongsStorageIds().toSet()
-        return queryResult.filter { it.localStorageId !in library }
+        queryResult.filter { it.localStorageId !in library }
     }
 
     @JvmName("addSavedSongs")
-    suspend fun addSongs(songs: List<Song>) = withContext(viewModelScope.coroutineContext) {
+    suspend fun addSongs(songs: List<Song>) = withContext(Dispatchers.IO) {
         songs.forEach {
             dbViewModel.addSongToPlaylist(it.id, playListId)
         }
     }
 
     @JvmName("addLocalSongs")
-    suspend fun addSongs(songs: List<TempLocalSong>) = withContext(viewModelScope.coroutineContext) {
+    suspend fun addSongs(songs: List<TempLocalSong>) = withContext(Dispatchers.IO) {
         songs.forEach {
             val id = dbViewModel.addLocalSong(it)
             dbViewModel.addSongToPlaylist(id, playListId)
@@ -90,9 +88,11 @@ class NewSongViewModel(
     /**
      * Adds songs selected in file explorer *(additionally checks if a song with an uri
      * already exists - in that case adds it from the library)*.
-     * @return Number of errors that occurred during the process
+     * @return Number of errors that occurred during the process or -1 if [uris] was empty
      */
-    suspend fun addSongsFromFileExplorer(uris: List<Uri>) = withContext(viewModelScope.coroutineContext) {
+    suspend fun addSongsFromFileExplorer(uris: List<Uri>) = withContext(Dispatchers.IO) {
+        if (uris.isEmpty()) return@withContext -1
+
         var failed = 0
         uris.forEach { uri ->
             val songId = dbViewModel.getSongIdByUri(uri.toString())
@@ -122,7 +122,7 @@ class NewSongViewModel(
                 queryResult?.let { addSongs(listOf(it)) } ?: failed++
             }
         }
-        return@withContext failed
+        failed
     }
 
     private fun <T : Any> flowLazy(

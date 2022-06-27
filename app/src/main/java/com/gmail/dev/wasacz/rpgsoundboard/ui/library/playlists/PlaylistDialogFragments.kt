@@ -19,10 +19,12 @@ import com.gmail.dev.wasacz.rpgsoundboard.databinding.DialogAddPlaylistsBinding
 import com.gmail.dev.wasacz.rpgsoundboard.databinding.ListItemPlaylistAddBinding
 import com.gmail.dev.wasacz.rpgsoundboard.ui.*
 import com.gmail.dev.wasacz.rpgsoundboard.ui.generic.*
+import com.gmail.dev.wasacz.rpgsoundboard.viewmodel.DatabaseViewModel
 import com.gmail.dev.wasacz.rpgsoundboard.viewmodel.PlaylistItem
 import com.google.android.material.appbar.AppBarLayout
 import com.google.android.material.transition.MaterialContainerTransform
 import com.google.android.material.transition.MaterialElevationScale
+import com.google.android.material.transition.MaterialFadeThrough
 import kotlinx.coroutines.launch
 
 class CreatePlaylistDialogFragment : SingleInputDialogFragment(
@@ -48,7 +50,11 @@ class CreatePlaylistDialogFragment : SingleInputDialogFragment(
                     val playlist = viewModel.createPlaylist(name)
                     requireDialog().dismiss()
                     val action = CreatePlaylistDialogFragmentDirections.navigationLibraryToNewPlaylist(playlist, playlist.name)
-                    findNavController().navigate(action)
+                    navigate(action) {
+                        enter = MaterialFadeThrough()
+                        exit = MaterialElevationScale(false)
+                        reenter = MaterialElevationScale(true)
+                    }
                 }
             }
         }

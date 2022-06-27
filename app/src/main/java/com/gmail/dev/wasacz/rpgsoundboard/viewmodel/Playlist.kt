@@ -1,29 +1,14 @@
 package com.gmail.dev.wasacz.rpgsoundboard.viewmodel
 
 import android.os.Parcelable
-import com.gmail.dev.wasacz.rpgsoundboard.model.PlaylistType
-import com.gmail.dev.wasacz.rpgsoundboard.model.SongType
 import com.gmail.dev.wasacz.rpgsoundboard.model.db.DBPlaylist
 import com.gmail.dev.wasacz.rpgsoundboard.model.db.DBPlaylistType
 import kotlinx.parcelize.Parcelize
 
-/*sealed class Playlist(@PackagePrivate val playlist: ModelPlaylist) {
-    val name by playlist::name
-    val type by playlist::type
-
-    fun ModelPlaylist.getTypedPlaylist(): Playlist = when(type) {
-        PlaylistType.LOCAL -> LocalPlaylist(this as ModelLocalPlaylist)
-        PlaylistType.SPOTIFY -> SpotifyPlaylist(this as ModelSpotifyPlaylist)
-    }
+enum class PlaylistType(val dbType: DBPlaylistType) {
+    LOCAL(DBPlaylistType.CLASSIC),
+    SPOTIFY(DBPlaylistType.SPOTIFY)
 }
-
-class LocalPlaylist(localPlaylist: ModelLocalPlaylist) : Playlist(localPlaylist) {
-    val songList: SongList = SongList(localPlaylist.songList)
-}
-
-class SpotifyPlaylist(spotifyPlaylist: ModelSpotifyPlaylist) : Playlist(spotifyPlaylist) {
-    val uri by spotifyPlaylist::uri
-}*/
 
 sealed class Playlist {
     abstract val id: Long

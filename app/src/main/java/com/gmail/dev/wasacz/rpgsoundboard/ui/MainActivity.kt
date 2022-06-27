@@ -22,6 +22,9 @@ import com.gmail.dev.wasacz.rpgsoundboard.R
 import com.gmail.dev.wasacz.rpgsoundboard.databinding.ActivityMainBinding
 import com.gmail.dev.wasacz.rpgsoundboard.services.MediaPlayerService
 import com.gmail.dev.wasacz.rpgsoundboard.ui.generic.ContextMenuFragment
+import com.gmail.dev.wasacz.rpgsoundboard.viewmodel.DatabaseViewModel
+import com.google.android.material.color.DynamicColors
+import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.google.android.material.navigation.NavigationBarView
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -33,6 +36,7 @@ class MainActivity : AppCompatActivity(), IFABActivity, INavBarActivity, INaviga
     private lateinit var navHost: NavHostFragment
 
     override fun onCreate(savedInstanceState: Bundle?) {
+        DynamicColors.applyToActivityIfAvailable(this)
         super.onCreate(savedInstanceState)
         binding = ActivityMainBinding.inflate(layoutInflater)
         WindowCompat.setDecorFitsSystemWindows(window, false)
@@ -81,6 +85,8 @@ class MainActivity : AppCompatActivity(), IFABActivity, INavBarActivity, INaviga
     }
 
     //#region IFABActivity
+    override fun getFAB(): FloatingActionButton = binding.mainFab
+
     override fun setupFAB(@DrawableRes drawableRes: Int, @StringRes descriptionRes: Int, listener: View.OnClickListener) {
         lifecycleScope.launchWhenCreated {
             binding.mainFab.apply {

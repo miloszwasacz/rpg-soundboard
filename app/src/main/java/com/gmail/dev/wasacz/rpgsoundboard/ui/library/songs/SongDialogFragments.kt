@@ -29,6 +29,7 @@ import com.gmail.dev.wasacz.rpgsoundboard.ui.generic.DataBindingFragment
 import com.gmail.dev.wasacz.rpgsoundboard.ui.generic.MarginItemDecoration
 import com.gmail.dev.wasacz.rpgsoundboard.ui.generic.Placeholder
 import com.gmail.dev.wasacz.rpgsoundboard.ui.generic.SelectAdapter
+import com.gmail.dev.wasacz.rpgsoundboard.viewmodel.DatabaseViewModel
 import com.gmail.dev.wasacz.rpgsoundboard.viewmodel.Song
 import com.gmail.dev.wasacz.rpgsoundboard.viewmodel.TempLocalSong
 import com.google.android.material.tabs.TabLayoutMediator
@@ -66,7 +67,7 @@ class AddSongFragment : FullscreenDialogFragment() {
                     Toast.LENGTH_LONG
                 ).show()
             }
-            finish()
+            if (failed != -1) finish()
         }
     }
 

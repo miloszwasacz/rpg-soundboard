@@ -18,7 +18,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.gmail.dev.wasacz.rpgsoundboard.R
 import com.gmail.dev.wasacz.rpgsoundboard.databinding.FragmentPlayerBinding
 import com.gmail.dev.wasacz.rpgsoundboard.services.MediaPlayerService
-import com.gmail.dev.wasacz.rpgsoundboard.ui.DatabaseViewModel
+import com.gmail.dev.wasacz.rpgsoundboard.viewmodel.DatabaseViewModel
 import com.gmail.dev.wasacz.rpgsoundboard.ui.generic.Placeholder
 import com.gmail.dev.wasacz.rpgsoundboard.ui.generic.RefreshableListFragment
 import com.gmail.dev.wasacz.rpgsoundboard.viewmodel.Playlist

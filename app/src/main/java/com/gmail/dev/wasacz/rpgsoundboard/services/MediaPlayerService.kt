@@ -10,8 +10,8 @@ import android.media.MediaPlayer
 import android.os.Binder
 import android.os.IBinder
 import android.util.Log
-import com.gmail.dev.wasacz.rpgsoundboard.model.PlaylistType
-import com.gmail.dev.wasacz.rpgsoundboard.model.SongType
+import com.gmail.dev.wasacz.rpgsoundboard.viewmodel.PlaylistType
+import com.gmail.dev.wasacz.rpgsoundboard.viewmodel.SongType
 import com.gmail.dev.wasacz.rpgsoundboard.viewmodel.LocalPlaylist
 import com.gmail.dev.wasacz.rpgsoundboard.viewmodel.LocalSong
 import com.gmail.dev.wasacz.rpgsoundboard.viewmodel.Playlist

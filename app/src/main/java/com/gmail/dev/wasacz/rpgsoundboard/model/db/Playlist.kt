@@ -1,7 +1,7 @@
 package com.gmail.dev.wasacz.rpgsoundboard.model.db
 
 import androidx.room.*
-import com.gmail.dev.wasacz.rpgsoundboard.model.PlaylistType as ModelPlaylistType
+import com.gmail.dev.wasacz.rpgsoundboard.viewmodel.PlaylistType as ModelPlaylistType
 
 enum class DBPlaylistType {
     CLASSIC,

@@ -3,19 +3,13 @@ package com.gmail.dev.wasacz.rpgsoundboard.viewmodel
 import android.content.ContentUris
 import android.net.Uri
 import android.provider.MediaStore
-import com.gmail.dev.wasacz.rpgsoundboard.model.SongType
 import com.gmail.dev.wasacz.rpgsoundboard.model.db.DBLocalSong
 import com.gmail.dev.wasacz.rpgsoundboard.model.db.DBSong
 import com.gmail.dev.wasacz.rpgsoundboard.model.db.DBSongType
 
-/*sealed class Song(@PackagePrivate val song: ModelSong) {
-    val title by song::title
-    val type by song::type
+enum class SongType(val dbType: DBSongType) {
+    LOCAL(DBSongType.LOCAL)
 }
-
-class LocalSong(modelSong: ModelLocalSong): Song(modelSong) {
-    val uri by modelSong::uri
-}*/
 
 sealed class Song {
     abstract val id: Long
